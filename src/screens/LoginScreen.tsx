@@ -22,7 +22,7 @@ export function LoginScreen() {
           <View style={styles.logo}>
             <Icon name="film" size={22} color={colors.header} />
           </View>
-          <Text style={styles.brand}>Packup</Text>
+          <Text style={styles.brand}>Backstage</Text>
         </View>
         <Text style={styles.tagline}>Every rupee on set, accounted for.</Text>
         <View style={styles.projectTag}>

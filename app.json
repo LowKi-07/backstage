@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Packup",
-    "slug": "packup",
+    "name": "Backstage",
+    "slug": "backstage",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.packup.app"
+      "bundleIdentifier": "com.backstage.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,22 +18,22 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.packup.app"
+      "package": "com.backstage.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "name": "Packup"
+      "name": "Backstage"
     },
     "plugins": [
       "expo-font",
       [
         "expo-image-picker",
         {
-          "photosPermission": "Packup needs your photos to attach expense receipts.",
-          "cameraPermission": "Packup uses the camera to photograph expense receipts."
+          "photosPermission": "Backstage needs your photos to attach expense receipts.",
+          "cameraPermission": "Backstage uses the camera to photograph expense receipts."
         }
       ]
     ],
-    "scheme": "packup"
+    "scheme": "backstage"
   }
 }

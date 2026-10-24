@@ -5,7 +5,7 @@ import { formatINR, uid } from '../utils/format';
 import { createSeedState, STATE_VERSION } from './seed';
 import { departmentSummary } from './selectors';
 
-const STORAGE_KEY = 'packup-state';
+const STORAGE_KEY = 'backstage-state';
 
 export type NewExpenseInput = Omit<Expense, 'id' | 'status' | 'createdAt' | 'history' | 'userId'>;
 

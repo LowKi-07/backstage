@@ -1,4 +1,4 @@
-# Packup — Production expense tracker (mobile)
+# Backstage — Production expense tracker (mobile)
 
 Expense management for film, TV series and music-video productions. This first build is the **mobile app** (iOS, Android, and web preview) for three personas:
 
