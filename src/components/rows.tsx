@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNav } from '../navigation/Nav';
 import { deptName, departmentSummary, userName } from '../store/selectors';
 import { useStore } from '../store/Store';
-import { colors, space } from '../theme';
+import { colors, glass, radius, space } from '../theme';
 import { Department, Expense } from '../types';
 import { formatCompact, formatINR, relativeDay } from '../utils/format';
 import { Icon, ProgressBar, StatusBadge } from './ui';
@@ -80,7 +80,7 @@ export function DepartmentBudgetRow({ dept, onPress }: { dept: Department; onPre
             {s.pending > 0 ? ` · ${formatCompact(s.pending)} pending` : ''}
           </Text>
         </View>
-        <Text style={[rowStyles.pct, s.pct >= 1 ? { color: colors.danger } : s.pct >= 0.8 ? { color: colors.warning } : null]}>
+        <Text style={[rowStyles.pct, s.pct < 0.8 ? { color: colors.inkSoft } : null]}>
           {Math.round(s.pct * 100)}%
         </Text>
         {onPress ? <Icon name="chevron-forward" size={18} color={colors.inkMuted} /> : null}
@@ -97,9 +97,9 @@ export const rowStyles = StyleSheet.create({
   iconWrap: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceAlt,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
     borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
@@ -109,10 +109,8 @@ export const rowStyles = StyleSheet.create({
   amount: { fontSize: 15, fontWeight: '700', color: colors.ink },
   pct: { fontSize: 15, fontWeight: '700', color: colors.ink, minWidth: 40, textAlign: 'right' },
   listCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.line,
+    ...glass(),
+    borderRadius: radius.lg,
     overflow: 'hidden',
   },
   sep: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line, marginLeft: 68 },

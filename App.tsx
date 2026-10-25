@@ -5,14 +5,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RoleNavigator } from './src/navigation/RoleNavigator';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { StoreProvider, useStore } from './src/store/Store';
-import { colors } from './src/theme';
+import { backdrop, colors } from './src/theme';
 
 function Root() {
   const { ready, currentUser } = useStore();
   if (!ready) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.header }}>
-        <ActivityIndicator color={colors.brand} />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={colors.ink} />
       </View>
     );
   }
@@ -36,6 +36,6 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: Platform.OS === 'web' ? '#2B2925' : colors.bg, alignItems: 'center' },
-  device: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 440 : undefined, overflow: 'hidden' },
+  outer: { flex: 1, backgroundColor: colors.black, alignItems: 'center' },
+  device: { ...backdrop, flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 440 : undefined, overflow: 'hidden' },
 });

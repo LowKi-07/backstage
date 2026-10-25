@@ -13,7 +13,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, space, statusMeta } from '../theme';
+import { colors, glass, glassBar, radius, space, statusMeta } from '../theme';
 import { ExpenseStatus } from '../types';
 import { initials } from '../utils/format';
 
@@ -36,11 +36,11 @@ interface ScreenProps {
 export function Screen({ title, subtitle, onBack, right, children, scroll = true, footer }: ScreenProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1 }}>
       <View style={[styles.header, { paddingTop: insets.top + space.md }]}>
         {onBack ? (
           <Pressable onPress={onBack} hitSlop={12} style={styles.backBtn} accessibilityLabel="Go back">
-            <Icon name="chevron-back" size={24} color={colors.white} />
+            <Icon name="chevron-back" size={22} color={colors.ink} />
           </Pressable>
         ) : null}
         <View style={{ flex: 1 }}>
@@ -100,10 +100,10 @@ export function Button({
   small?: boolean;
 }) {
   const palette: Record<ButtonVariant, { bg: string; fg: string; border?: string }> = {
-    primary: { bg: colors.ink, fg: colors.white },
-    secondary: { bg: colors.surface, fg: colors.ink, border: colors.line },
-    danger: { bg: colors.dangerSoft, fg: colors.danger },
-    success: { bg: colors.success, fg: colors.white },
+    primary: { bg: colors.ink, fg: colors.onInk },
+    secondary: { bg: colors.surfaceAlt, fg: colors.ink, border: colors.line },
+    danger: { bg: 'transparent', fg: colors.ink, border: colors.lineStrong },
+    success: { bg: colors.ink, fg: colors.onInk },
     ghost: { bg: 'transparent', fg: colors.ink },
   };
   const p = palette[variant];
@@ -133,12 +133,12 @@ export function Button({
 
 export function StatusBadge({ status }: { status: ExpenseStatus }) {
   const m = statusMeta[status];
-  return <Pill label={m.label} fg={m.fg} bg={m.bg} />;
+  return <Pill label={m.label} fg={m.fg} bg={m.bg} border={m.border} />;
 }
 
-export function Pill({ label, fg, bg }: { label: string; fg: string; bg: string }) {
+export function Pill({ label, fg, bg, border }: { label: string; fg: string; bg: string; border?: string }) {
   return (
-    <View style={[styles.pill, { backgroundColor: bg }]}>
+    <View style={[styles.pill, { backgroundColor: bg, borderColor: border ?? bg }]}>
       <Text style={[styles.pillText, { color: fg }]}>{label}</Text>
     </View>
   );
@@ -147,10 +147,10 @@ export function Pill({ label, fg, bg }: { label: string; fg: string; bg: string 
 export function ProgressBar({ value, pending = 0, height = 8 }: { value: number; pending?: number; height?: number }) {
   const v = Math.max(0, Math.min(1, value));
   const p = Math.max(0, Math.min(1 - v, pending));
-  const color = value >= 1 ? colors.danger : value >= 0.8 ? colors.warning : colors.success;
+  const color = value >= 0.8 ? colors.ink : colors.inkSoft;
   return (
     <View style={[styles.track, { height }]}>
-      <View style={{ width: `${v * 100}%`, backgroundColor: color }} />
+      <View style={[{ width: `${v * 100}%`, backgroundColor: color, borderRadius: radius.pill }, value >= 1 && styles.trackOver]} />
       {p > 0 ? <View style={{ width: `${p * 100}%`, backgroundColor: color, opacity: 0.3 }} /> : null}
     </View>
   );
@@ -184,7 +184,7 @@ export function SectionTitle({ title, action, onAction }: { title: string; actio
 export function Chip({ label, active, onPress, count }: { label: string; active?: boolean; onPress: () => void; count?: number }) {
   return (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
-      <Text style={[styles.chipText, active && { color: colors.white }]}>
+      <Text style={[styles.chipText, active && { color: colors.onInk }]}>
         {label}
         {count !== undefined ? ` · ${count}` : ''}
       </Text>
@@ -227,12 +227,14 @@ export function Avatar({ name, size = 36, onPress, dark }: { name: string; size?
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: dark ? colors.brand : colors.brandSoft,
+        backgroundColor: dark ? colors.ink : colors.surfaceStrong,
+        borderWidth: dark ? 0 : 1,
+        borderColor: colors.line,
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Text style={{ fontWeight: '700', color: colors.ink, fontSize: size * 0.38 }}>{initials(name)}</Text>
+      <Text style={{ fontWeight: '700', color: dark ? colors.onInk : colors.ink, fontSize: size * 0.38 }}>{initials(name)}</Text>
     </View>
   );
   return onPress ? (
@@ -250,35 +252,40 @@ export function Divider() {
 
 export const styles = StyleSheet.create({
   header: {
-    backgroundColor: colors.header,
+    ...glassBar(),
+    borderBottomWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: space.lg,
     paddingBottom: space.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
   },
-  backBtn: { marginLeft: -6 },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '700' },
-  headerSubtitle: { color: '#BDB7AC', fontSize: 13, marginTop: 2 },
-  scrollBody: { padding: space.lg, gap: space.md, paddingBottom: 120 },
+  backBtn: {
+    ...glass(16),
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: { color: colors.ink, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
+  headerSubtitle: { color: colors.inkSoft, fontSize: 13, marginTop: 2 },
+  scrollBody: { padding: space.lg, gap: space.md, paddingBottom: 140 },
   footer: {
+    ...glassBar(),
     paddingHorizontal: space.lg,
     paddingTop: space.md,
-    backgroundColor: colors.surface,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
   },
   card: {
-    backgroundColor: colors.surface,
+    ...glass(),
     borderRadius: radius.lg,
     padding: space.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.line,
   },
   button: {
-    minHeight: 48,
-    borderRadius: radius.md,
-    paddingHorizontal: space.lg,
+    minHeight: 50,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.xl,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -286,24 +293,23 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
   },
   buttonSmall: { minHeight: 36, paddingHorizontal: space.md },
-  buttonLabel: { fontSize: 15, fontWeight: '600' },
-  pill: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
+  buttonLabel: { fontSize: 15, fontWeight: '600', letterSpacing: -0.1 },
+  pill: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.pill, borderWidth: 1, alignSelf: 'flex-start' },
   pillText: { fontSize: 12, fontWeight: '600' },
-  track: { flexDirection: 'row', backgroundColor: '#EEEAE3', borderRadius: radius.pill, overflow: 'hidden' },
+  track: { flexDirection: 'row', backgroundColor: colors.track, borderRadius: radius.pill, overflow: 'hidden' },
+  trackOver: { boxShadow: '0 0 10px rgba(255,255,255,0.8)' },
   stat: { flex: 1, gap: 2 },
   statLabel: { fontSize: 12, color: colors.inkSoft, fontWeight: '500' },
-  statValue: { fontSize: 20, fontWeight: '700', color: colors.ink },
+  statValue: { fontSize: 22, fontWeight: '700', color: colors.ink, letterSpacing: -0.4 },
   statHint: { fontSize: 12, color: colors.inkMuted },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: space.sm },
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: colors.inkSoft, textTransform: 'uppercase', letterSpacing: 0.6 },
-  sectionAction: { fontSize: 14, fontWeight: '600', color: colors.info },
+  sectionTitle: { fontSize: 12, fontWeight: '700', color: colors.inkMuted, textTransform: 'uppercase', letterSpacing: 1.2 },
+  sectionAction: { fontSize: 14, fontWeight: '600', color: colors.ink },
   chip: {
+    ...glass(16),
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
   },
   chipActive: { backgroundColor: colors.ink, borderColor: colors.ink },
   chipText: { fontSize: 13, fontWeight: '600', color: colors.ink },
@@ -313,9 +319,7 @@ export const styles = StyleSheet.create({
   fieldLabel: { fontSize: 13, fontWeight: '600', color: colors.inkSoft },
   fieldHint: { fontSize: 12, color: colors.inkMuted },
   input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
+    ...glass(16),
     borderRadius: radius.md,
     paddingHorizontal: space.md,
     paddingVertical: 12,

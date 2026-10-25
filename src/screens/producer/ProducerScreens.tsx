@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   heroValue: { fontSize: 32, fontWeight: '800', color: colors.ink, marginTop: 2 },
   heroSub: { fontSize: 13, color: colors.inkSoft, marginTop: 2 },
   alert: { flexDirection: 'row', gap: space.sm, backgroundColor: colors.warningSoft, padding: space.md, borderRadius: 12, alignItems: 'center' },
-  catTrack: { height: 6, backgroundColor: '#EEEAE3', borderRadius: 3, overflow: 'hidden' },
+  catTrack: { height: 6, backgroundColor: colors.track, borderRadius: 3, overflow: 'hidden' },
   catBar: { height: 6, backgroundColor: colors.brand, borderRadius: 3 },
   context: { fontSize: 12, color: colors.inkSoft, paddingHorizontal: space.lg, marginLeft: 52, marginTop: -6 },
   actions: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.md, marginLeft: 52 },

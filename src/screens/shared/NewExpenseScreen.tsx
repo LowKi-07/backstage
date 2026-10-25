@@ -5,7 +5,7 @@ import { categoryIcon } from '../../components/rows';
 import { Button, Card, Chip, ChipRow, Field, Icon, Screen, SectionTitle } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { useStore } from '../../store/Store';
-import { colors, radius, space } from '../../theme';
+import { colors, glass, radius, space } from '../../theme';
 import { CATEGORIES, Expense } from '../../types';
 import { formatINR, isValidGSTIN, toISODate } from '../../utils/format';
 
@@ -92,7 +92,7 @@ export function NewExpenseScreen() {
       <Screen title="Submitted" onBack={nav.pop}>
         <Card style={{ alignItems: 'center', paddingVertical: 36, gap: space.md }}>
           <View style={styles.successIcon}>
-            <Icon name="checkmark" size={36} color={colors.white} />
+            <Icon name="checkmark" size={36} color={colors.onInk} />
           </View>
           <Text style={styles.successAmount}>{formatINR(submitted.amount)}</Text>
           <Text style={styles.successText}>
@@ -155,8 +155,8 @@ export function NewExpenseScreen() {
           const active = category === c;
           return (
             <Pressable key={c} onPress={() => setCategory(c)} style={[styles.catTile, active && styles.catTileActive]}>
-              <Icon name={categoryIcon[c]} size={20} color={active ? colors.white : colors.ink} />
-              <Text style={[styles.catText, active && { color: colors.white }]} numberOfLines={2}>
+              <Icon name={categoryIcon[c]} size={20} color={active ? colors.onInk : colors.ink} />
+              <Text style={[styles.catText, active && { color: colors.onInk }]} numberOfLines={2}>
                 {c}
               </Text>
             </Pressable>
@@ -219,10 +219,8 @@ const styles = StyleSheet.create({
   catTile: {
     width: '31.5%',
     minHeight: 76,
-    backgroundColor: colors.surface,
+    ...glass(16),
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.line,
     paddingVertical: space.sm,
     paddingHorizontal: 4,
     gap: 6,
@@ -232,7 +230,7 @@ const styles = StyleSheet.create({
   catTileActive: { backgroundColor: colors.ink, borderColor: colors.ink },
   catText: { fontSize: 11.5, fontWeight: '600', color: colors.ink, textAlign: 'center' },
   removeReceipt: { flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', padding: space.md },
-  successIcon: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.success, alignItems: 'center', justifyContent: 'center' },
+  successIcon: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.ink, boxShadow: '0 0 40px rgba(255,255,255,0.35)', alignItems: 'center', justifyContent: 'center' },
   successAmount: { fontSize: 30, fontWeight: '800', color: colors.ink },
   successText: { fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.lg },
 });

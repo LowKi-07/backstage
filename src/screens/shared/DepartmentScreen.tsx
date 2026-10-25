@@ -92,6 +92,6 @@ export function DepartmentScreen({ id }: { id: string }) {
 const styles = StyleSheet.create({
   catName: { fontSize: 14, color: colors.ink },
   catAmt: { fontSize: 14, fontWeight: '700', color: colors.ink },
-  catTrack: { height: 6, backgroundColor: '#EEEAE3', borderRadius: 3, overflow: 'hidden' },
+  catTrack: { height: 6, backgroundColor: colors.track, borderRadius: 3, overflow: 'hidden' },
   catBar: { height: 6, backgroundColor: colors.brand, borderRadius: 3 },
 });

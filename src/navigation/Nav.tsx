@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '../components/ui';
-import { colors } from '../theme';
+import { colors, glassBar, radius } from '../theme';
 
 export type Route =
   | { name: 'expense'; id: string }
@@ -68,16 +68,16 @@ export function TabNavigator({ tabs, renderRoute }: { tabs: TabDef[]; renderRout
 
   return (
     <NavContext.Provider value={api}>
-      <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View style={{ flex: 1 }}>
         {top ? renderRoute(top) : active.render()}
         {!top ? (
-          <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+          <View style={[styles.tabBar, { bottom: Math.max(insets.bottom, 12) }]}>
             {tabs.map((t) => {
               const isActive = t.key === active.key;
               return (
                 <Pressable key={t.key} style={styles.tab} onPress={() => setTab(t.key)} accessibilityRole="tab" accessibilityState={{ selected: isActive }}>
-                  <View>
-                    <Icon name={isActive ? t.icon.replace('-outline', '') : t.icon} size={23} color={isActive ? colors.ink : colors.inkMuted} />
+                  <View style={[styles.tabIcon, isActive && styles.tabIconActive]}>
+                    <Icon name={isActive ? t.icon.replace('-outline', '') : t.icon} size={21} color={isActive ? colors.onInk : colors.inkMuted} />
                     {t.badge ? (
                       <View style={styles.badge}>
                         <Text style={styles.badgeText}>{t.badge > 99 ? '99+' : t.badge}</Text>
@@ -96,20 +96,29 @@ export function TabNavigator({ tabs, renderRoute }: { tabs: TabDef[]; renderRout
 }
 
 const styles = StyleSheet.create({
+  // Floating frosted pill; screens leave room for it via the scroll body's bottom padding.
   tabBar: {
+    ...glassBar(),
+    position: 'absolute',
+    left: 16,
+    right: 16,
     flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
-    paddingTop: 8,
+    borderWidth: 1,
+    borderRadius: radius.lg + 6,
+    paddingVertical: 8,
+    boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
   },
-  tab: { flex: 1, alignItems: 'center', gap: 3 },
+  tab: { flex: 1, alignItems: 'center', gap: 2 },
+  tabIcon: { width: 44, height: 30, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  tabIconActive: { backgroundColor: colors.ink },
   tabLabel: { fontSize: 11, color: colors.inkMuted, fontWeight: '500' },
   badge: {
     position: 'absolute',
     top: -4,
-    right: -10,
-    backgroundColor: colors.danger,
+    right: -4,
+    backgroundColor: colors.ink,
+    borderWidth: 1.5,
+    borderColor: colors.black,
     borderRadius: 9,
     minWidth: 18,
     height: 18,
@@ -117,5 +126,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  badgeText: { color: colors.white, fontSize: 10, fontWeight: '700' },
+  badgeText: { color: colors.onInk, fontSize: 10, fontWeight: '700' },
 });
