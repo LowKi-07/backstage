@@ -21,7 +21,7 @@ const actionColor: Record<AuditAction, string> = {
   submitted: colors.warning,
   approved: colors.info,
   escalated: colors.purple,
-  rejected: colors.danger,
+  rejected: colors.inkMuted,
   paid: colors.success,
 };
 
@@ -193,7 +193,7 @@ function Detail({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  bigIcon: { width: 48, height: 48, borderRadius: 14, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
+  bigIcon: { width: 48, height: 48, borderRadius: 14, backgroundColor: colors.brandSoft, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
   desc: { fontSize: 17, fontWeight: '600', color: colors.ink, lineHeight: 23 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, gap: space.lg },
   detailLabel: { color: colors.inkSoft, fontSize: 14 },
@@ -205,6 +205,6 @@ const styles = StyleSheet.create({
   timelineTitle: { fontSize: 14, fontWeight: '600', color: colors.ink },
   timelineMeta: { fontSize: 12.5, color: colors.inkSoft, marginTop: 2 },
   timelineNote: { fontSize: 13, color: colors.ink, marginTop: 4, fontStyle: 'italic' },
-  flash: { flexDirection: 'row', gap: space.sm, backgroundColor: colors.infoSoft, padding: space.md, borderRadius: 12, alignItems: 'flex-start' },
+  flash: { flexDirection: 'row', gap: space.sm, backgroundColor: colors.infoSoft, borderWidth: 1, borderColor: colors.line, padding: space.md, borderRadius: 14, alignItems: 'flex-start' },
   flashText: { flex: 1, color: colors.info, fontSize: 14, lineHeight: 19 },
 });

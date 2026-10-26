@@ -1,5 +1,6 @@
 import React from 'react';
 import { CrewExpensesScreen, CrewHomeScreen } from '../screens/crew/CrewScreens';
+import { AiChatScreen } from '../screens/shared/AiChatScreen';
 import { BudgetRequestScreen } from '../screens/manager/BudgetRequestScreen';
 import { ManagerApprovalsScreen, ManagerDashboardScreen, ManagerExpensesScreen } from '../screens/manager/ManagerScreens';
 import { ProducerDepartmentsScreen, ProducerExpensesScreen, ProducerInboxScreen, ProducerOverviewScreen } from '../screens/producer/ProducerScreens';
@@ -35,6 +36,7 @@ export function RoleNavigator() {
     tabs = [
       { key: 'home', label: 'Home', icon: 'home-outline', render: () => <CrewHomeScreen /> },
       { key: 'expenses', label: 'My Expenses', icon: 'receipt-outline', render: () => <CrewExpensesScreen /> },
+      { key: 'ai', label: 'Ask AI', icon: 'sparkles-outline', render: () => <AiChatScreen /> },
       { key: 'profile', label: 'Profile', icon: 'person-circle-outline', render: () => <ProfileScreen embedded /> },
     ];
   } else if (currentUser.role === 'manager') {
@@ -44,6 +46,7 @@ export function RoleNavigator() {
       { key: 'dashboard', label: 'Dashboard', icon: 'grid-outline', render: () => <ManagerDashboardScreen /> },
       { key: 'approvals', label: 'Approvals', icon: 'checkmark-circle-outline', badge: waiting, render: () => <ManagerApprovalsScreen /> },
       { key: 'expenses', label: 'Expenses', icon: 'receipt-outline', render: () => <ManagerExpensesScreen /> },
+      { key: 'ai', label: 'Ask AI', icon: 'sparkles-outline', render: () => <AiChatScreen /> },
     ];
   } else {
     const inbox = state.expenses.filter((e) => e.status === 'escalated').length + state.budgetRequests.filter((r) => r.status === 'pending').length;
@@ -51,6 +54,7 @@ export function RoleNavigator() {
       { key: 'overview', label: 'Overview', icon: 'pie-chart-outline', render: () => <ProducerOverviewScreen /> },
       { key: 'inbox', label: 'Inbox', icon: 'mail-outline', badge: inbox, render: () => <ProducerInboxScreen /> },
       { key: 'expenses', label: 'Expenses', icon: 'receipt-outline', render: () => <ProducerExpensesScreen /> },
+      { key: 'ai', label: 'Ask AI', icon: 'sparkles-outline', render: () => <AiChatScreen /> },
       { key: 'departments', label: 'Departments', icon: 'layers-outline', render: () => <ProducerDepartmentsScreen /> },
     ];
   }

@@ -5,7 +5,7 @@ import { Card, Chip, ChipRow, EmptyState, Icon, Screen, SectionTitle, Stat } fro
 import { useNav } from '../../navigation/Nav';
 import { byNewest, deptName, isPending, sum } from '../../store/selectors';
 import { useStore } from '../../store/Store';
-import { colors, radius, space } from '../../theme';
+import { colors, glass, radius, space } from '../../theme';
 import { ExpenseStatus } from '../../types';
 import { formatINR } from '../../utils/format';
 
@@ -13,7 +13,7 @@ function AddButton() {
   const nav = useNav();
   return (
     <Pressable onPress={() => nav.push({ name: 'newExpense' })} hitSlop={8} style={styles.headerAdd} accessibilityLabel="Log expense">
-      <Icon name="add" size={22} color={colors.ink} />
+      <Icon name="add" size={22} color={colors.onInk} />
     </Pressable>
   );
 }
@@ -32,13 +32,13 @@ export function CrewHomeScreen() {
     <Screen title={`Hi, ${firstName}`} subtitle={`${currentUser.title} · ${deptName(state, currentUser.departmentIds[0])}`} right={<AddButton />}>
       <Pressable onPress={() => nav.push({ name: 'newExpense' })} style={({ pressed }) => [styles.cta, pressed && { opacity: 0.9 }]}>
         <View style={styles.ctaIcon}>
-          <Icon name="camera" size={26} color={colors.ink} />
+          <Icon name="camera" size={26} color={colors.onInk} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.ctaTitle}>Log an expense</Text>
           <Text style={styles.ctaSub}>Snap the bill, add a line, done.</Text>
         </View>
-        <Icon name="arrow-forward" size={22} color={colors.ink} />
+        <Icon name="arrow-forward" size={22} color={colors.onInk} />
       </Pressable>
 
       <Card>
@@ -93,16 +93,19 @@ export function CrewExpensesScreen() {
 }
 
 export const styles = StyleSheet.create({
-  headerAdd: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  headerAdd: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    backgroundColor: colors.brand,
+    ...glass(),
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderColor: colors.ink,
     borderRadius: radius.lg,
     padding: space.lg,
+    boxShadow: '0 8px 32px rgba(255,255,255,0.12)',
   },
-  ctaIcon: { width: 52, height: 52, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' },
-  ctaTitle: { fontSize: 18, fontWeight: '800', color: colors.ink },
-  ctaSub: { fontSize: 13.5, color: '#4A3A1E', marginTop: 2 },
+  ctaIcon: { width: 52, height: 52, borderRadius: radius.md, backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' },
+  ctaTitle: { fontSize: 18, fontWeight: '800', color: colors.onInk, letterSpacing: -0.3 },
+  ctaSub: { fontSize: 13.5, color: colors.onInkSoft, marginTop: 2 },
 });
