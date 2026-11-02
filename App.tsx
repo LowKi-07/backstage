@@ -82,7 +82,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: Platform.OS === 'web' ? '#E9EAF1' : colors.bg, alignItems: 'center' },
+  outer: { flex: 1, backgroundColor: Platform.OS === 'web' ? '#EDEDED' : colors.bg, alignItems: 'center' },
   device: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 440 : undefined, overflow: 'hidden', backgroundColor: colors.bg },
   splash: { backgroundColor: SPLASH_BG, alignItems: 'center', justifyContent: 'center' },
 });

@@ -237,11 +237,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     boxShadow: shadow.soft,
   },
-  catCircleActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  catCircleActive: { backgroundColor: colors.ink, borderColor: colors.ink },
   catText: { fontFamily: font.medium, fontSize: 12, color: colors.ink, textAlign: 'center', lineHeight: 15 },
   receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   removeReceipt: { flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', padding: space.md },
   success: { alignItems: 'center', paddingTop: space.xl, gap: space.sm },
-  successIcon: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.positive, alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 24px rgba(18,161,95,0.3)' },
+  successIcon: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 24px rgba(0,0,0,0.2)' },
   successText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.lg, marginBottom: space.lg },
 });

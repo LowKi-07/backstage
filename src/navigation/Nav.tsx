@@ -3,7 +3,7 @@ import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, NavGlow, NavGlyph, NavGlyphName } from '../components/icons';
 import { Text } from '../components/Text';
-import { colors, font, shadow } from '../theme';
+import { colors, font } from '../theme';
 
 export type Route =
   | { name: 'expense'; id: string }
@@ -89,7 +89,7 @@ export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; ce
           <NavGlyph name={t.glyph} active={isActive} />
           {t.badge ? <Badge count={t.badge} /> : null}
         </View>
-        <Text style={[styles.tabLabel, isActive && { color: colors.accentInk }]} numberOfLines={1}>
+        <Text style={[styles.tabLabel, isActive && { color: colors.onInk }]} numberOfLines={1}>
           {t.label}
         </Text>
       </Pressable>
@@ -98,8 +98,8 @@ export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; ce
 
   return (
     <NavContext.Provider value={api}>
-      <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <View style={styles.content}>{body}</View>
+      <View style={{ flex: 1, backgroundColor: colors.nav }}>
+        <View style={[styles.content, !top && styles.contentRounded]}>{body}</View>
         {!top ? (
           <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
             {left.map(renderTab)}
@@ -111,7 +111,7 @@ export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; ce
                 accessibilityLabel={center.label}
               >
                 <View style={[styles.centerInner, centerActive && styles.centerInnerActive]}>
-                  <Icon name={center.icon} size={28} color={colors.onInk} strokeWidth={2} />
+                  <Icon name={center.icon} size={30} color={colors.onInk} strokeWidth={1.6} />
                 </View>
                 {center.badge ? <Badge count={center.badge} /> : null}
               </Pressable>
@@ -134,38 +134,32 @@ function Badge({ count }: { count: number }) {
 
 const styles = StyleSheet.create({
   content: { flex: 1, backgroundColor: colors.bg, overflow: 'hidden' },
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingTop: 8,
-    paddingHorizontal: 2,
-    backgroundColor: colors.nav,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
-    boxShadow: '0 -4px 20px rgba(22,23,43,0.05)',
-  },
-  tab: { flex: 1, alignItems: 'center', gap: 4, paddingBottom: 4 },
-  glyphWrap: { width: 56, height: 36, alignItems: 'center', justifyContent: 'center' },
+  contentRounded: { borderBottomLeftRadius: 26, borderBottomRightRadius: 26 },
+  bar: { flexDirection: 'row', alignItems: 'flex-end', paddingTop: 12, paddingHorizontal: 2, backgroundColor: colors.nav },
+  tab: { flex: 1, alignItems: 'center', gap: 8, paddingBottom: 4 },
+  glyphWrap: { width: 64, height: 40, alignItems: 'center', justifyContent: 'center' },
   tabLabel: { fontFamily: font.semibold, fontSize: 11.5, color: colors.navInk },
   centerSlot: { width: 84, alignItems: 'center', paddingBottom: 6 },
   centerOuter: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    marginTop: -24,
-    padding: 4,
-    backgroundColor: colors.nav,
-    boxShadow: '0 -2px 10px rgba(22,23,43,0.06)',
+    width: 74,
+    height: 74,
+    borderRadius: 37,
+    marginTop: -22,
+    padding: 3,
+    backgroundColor: '#2A2A2A',
+    boxShadow: '0 0 0 1px #3C3C3C, 0 -4px 22px rgba(255,255,255,0.10), 0 10px 20px rgba(0,0,0,0.6)',
   },
   centerInner: {
     flex: 1,
-    borderRadius: 29,
-    backgroundColor: colors.accent,
+    borderRadius: 34,
+    backgroundColor: '#0E0E0E',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: shadow.button,
+    borderWidth: 1,
+    borderColor: '#4A4A4A',
+    boxShadow: 'inset 0 2px 6px rgba(255,255,255,0.10)',
   },
-  centerInnerActive: { backgroundColor: colors.accentInk },
+  centerInnerActive: { borderColor: '#9A9A9A' },
   badge: {
     position: 'absolute',
     top: 0,

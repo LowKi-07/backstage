@@ -138,12 +138,12 @@ export function Logo({ size = 64, color = colors.ink }: { size?: number; color?:
 
 export type NavGlyphName = 'home' | 'receipt' | 'wallet' | 'grid' | 'sparkles';
 
-// Bottom-bar glyphs: solid shapes with a soft gradient, grey at rest and indigo when active.
-export function NavGlyph({ name, active, size = 28 }: { name: NavGlyphName; active?: boolean; size?: number }) {
+// Bottom-bar glyphs: solid shapes with a metallic grey gradient, brighter when active.
+export function NavGlyph({ name, active, size = 30 }: { name: NavGlyphName; active?: boolean; size?: number }) {
   const id = useId().replace(/:/g, '');
-  const top = active ? '#7B6FFF' : '#C3C5D3';
-  const bottom = active ? colors.accent : '#9EA1B5';
-  const detail = '#FFFFFF';
+  const top = active ? '#FFFFFF' : '#9C9C9C';
+  const bottom = active ? '#A9A9A9' : '#4C4C4C';
+  const detail = active ? '#5C5C5C' : '#262626';
   const fill = `url(#g${id})`;
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32">
@@ -193,18 +193,26 @@ export function NavGlyph({ name, active, size = 28 }: { name: NavGlyphName; acti
   );
 }
 
-// Soft indigo halo behind the active bottom-bar item.
+// Soft radial light behind the active bottom-bar item.
 export function NavGlow({ size = 64 }: { size?: number }) {
   const id = useId().replace(/:/g, '');
   return (
     <Svg width={size} height={size} viewBox="0 0 64 64" style={{ position: 'absolute' }} pointerEvents="none">
       <Defs>
         <RadialGradient id={`r${id}`} cx="32" cy="32" r="32" gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor={colors.accent} stopOpacity={0.14} />
-          <Stop offset="1" stopColor={colors.accent} stopOpacity={0} />
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.16} />
+          <Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
         </RadialGradient>
       </Defs>
       <Circle cx={32} cy={32} r={32} fill={`url(#r${id})`} />
+    </Svg>
+  );
+}
+
+export function DashedLine({ color = colors.dash }: { color?: string }) {
+  return (
+    <Svg height={2} width="100%" style={{ flex: 1 }}>
+      <Path d="M0 1 H2000" stroke={color} strokeWidth={1} strokeDasharray="4 4" />
     </Svg>
   );
 }

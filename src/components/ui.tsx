@@ -126,7 +126,7 @@ export function Money({ value, size = 17, color = colors.ink, display, signed }:
   );
 }
 
-// Left-aligned summary card on a soft indigo tint, the visual anchor of home screens.
+// Left-aligned summary card on a soft grey fill, the visual anchor of home screens.
 export function Hero({ eyebrow, lines, amount, children }: { eyebrow?: string; lines: string[]; amount?: number; children?: React.ReactNode }) {
   return (
     <View style={styles.hero}>
@@ -192,7 +192,7 @@ export function IconCircle({ name, size = 52, color = colors.ink, filled }: { na
       style={[
         styles.iconCircle,
         { width: size, height: size, borderRadius: Math.round(size * 0.32) },
-        filled && { backgroundColor: colors.accent },
+        filled && { backgroundColor: colors.ink },
       ]}
     >
       <Icon name={name} size={size * 0.44} color={filled ? colors.onInk : color} />
@@ -207,7 +207,7 @@ export function TileGrid({ items }: { items: { icon: string; label: string; onPr
       {items.map((t) => (
         <Pressable key={t.label} onPress={t.onPress} style={({ pressed }) => [styles.tile, pressed && { opacity: 0.7 }]} accessibilityRole="button">
           <View style={styles.tileCircle}>
-            <Icon name={t.icon} size={26} color={colors.accentInk} strokeWidth={1.6} />
+            <Icon name={t.icon} size={26} strokeWidth={1.5} />
             {t.badge ? (
               <View style={[styles.bellBadge, { top: 2, right: 2 }]}>
                 <Text style={styles.bellBadgeText}>{t.badge}</Text>
@@ -314,11 +314,11 @@ export function Button({
   );
 }
 
-// Filter chip: soft grey pill; indigo tint when selected.
+// Filter chip: outlined pill; solid black when selected.
 export function Chip({ label: text, active, onPress, count }: { label: string; active?: boolean; onPress: () => void; count?: number }) {
   return (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]} accessibilityState={{ selected: active }}>
-      <Text style={[styles.chipText, active && { color: colors.accentInk }]}>
+      <Text style={[styles.chipText, active && { color: colors.onInk }]}>
         {text}
         {count !== undefined ? ` ${count}` : ''}
       </Text>
@@ -468,9 +468,9 @@ export const styles = StyleSheet.create({
   subtitle: { fontFamily: font.medium, fontSize: 15, color: colors.inkSoft },
   scrollBody: { paddingHorizontal: space.xl, paddingTop: space.md, paddingBottom: space.xxl * 1.5, gap: space.lg },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, backgroundColor: colors.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
-  hero: { alignItems: 'flex-start', gap: 2, padding: space.xl, borderRadius: radius.lg, backgroundColor: colors.accentSoft, borderWidth: 1, borderColor: colors.accentLine, marginTop: space.sm },
+  hero: { alignItems: 'flex-start', gap: 2, padding: space.xl, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.lineSoft, marginTop: space.sm },
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: space.sm, alignSelf: 'stretch' },
-  eyebrowDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.accent },
+  eyebrowDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.accentInk },
   eyebrow: { ...label, fontSize: 13, color: colors.accentInk, flexShrink: 1 },
   heroLine: { fontFamily: font.bold, fontSize: 22, lineHeight: 29, color: colors.ink, letterSpacing: -0.4 },
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
@@ -479,7 +479,7 @@ export const styles = StyleSheet.create({
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: space.lg },
   sectionTitle: { fontFamily: font.bold, fontSize: 17, color: colors.ink, letterSpacing: -0.2 },
   sectionActionRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  sectionAction: { fontFamily: font.semibold, fontSize: 14.5, color: colors.accentInk },
+  sectionAction: { fontFamily: font.semibold, fontSize: 14.5, color: colors.inkSoft },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.lg + 2, boxShadow: shadow.soft },
   iconCircle: { backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   tileGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space.lg },
@@ -506,15 +506,15 @@ export const styles = StyleSheet.create({
   button: { minHeight: 54, borderRadius: radius.pill, paddingHorizontal: space.xl, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm },
   buttonSmall: { minHeight: 42, paddingHorizontal: space.lg, borderRadius: radius.pill },
   buttonPrimary: { backgroundColor: colors.button, boxShadow: shadow.button },
-  buttonOutline: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.accentLine },
+  buttonOutline: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.ink },
   buttonDanger: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line },
   buttonLabel: { fontFamily: font.bold, fontSize: 16, letterSpacing: 0 },
   chip: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
-  chipActive: { backgroundColor: colors.accentSoft, borderColor: colors.accentLine },
+  chipActive: { backgroundColor: colors.ink, borderColor: colors.ink },
   chipText: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   segTrack: { flexDirection: 'row', backgroundColor: colors.sunken, borderRadius: radius.pill, padding: 4 },
   segItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 13, borderRadius: radius.pill },
-  segActive: { backgroundColor: colors.surface, boxShadow: '0 2px 6px rgba(22,23,43,0.10)' },
+  segActive: { backgroundColor: colors.surface, boxShadow: '0 2px 6px rgba(0,0,0,0.10)' },
   segText: { fontFamily: font.semibold, fontSize: 14, color: colors.inkMuted },
   track: { flexDirection: 'row', backgroundColor: colors.track, overflow: 'hidden' },
   stat: { flex: 1, gap: 3 },
@@ -539,6 +539,6 @@ export const styles = StyleSheet.create({
   empty: { alignItems: 'center', paddingVertical: 40, gap: space.md },
   emptyTitle: { fontFamily: font.semibold, fontSize: 17, color: colors.ink },
   emptyMsg: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkSoft, textAlign: 'center', paddingHorizontal: space.xl, lineHeight: 20 },
-  avatarRing: { borderWidth: 2, borderColor: colors.accent, alignItems: 'center', justifyContent: 'center' },
-  avatar: { backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
+  avatarRing: { borderWidth: 2.5, borderColor: '#F0643E', alignItems: 'center', justifyContent: 'center' },
+  avatar: { backgroundColor: '#F3EDE6', alignItems: 'center', justifyContent: 'center' },
 });

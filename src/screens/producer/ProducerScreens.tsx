@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   catName: { fontFamily: font.medium, fontSize: 15, color: colors.ink },
   catAmt: { fontFamily: font.semibold, fontSize: 15, color: colors.ink },
   catTrack: { height: 4, backgroundColor: colors.track, borderRadius: 2, overflow: 'hidden' },
-  catBar: { height: 4, backgroundColor: colors.accent, borderRadius: 2 },
+  catBar: { height: 4, backgroundColor: colors.ink, borderRadius: 2 },
   reqDept: { fontFamily: font.semibold, fontSize: 18, color: colors.ink },
   noteInput: { borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, fontFamily: font.medium, fontSize: 15 },
   search: {

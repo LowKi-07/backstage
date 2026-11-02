@@ -103,7 +103,7 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
 
       {flash ? <Notice text={flash} /> : null}
 
-      {/* Indigo "bill card": the expense at a glance. */}
+      {/* Dark "bill card": the expense at a glance. */}
       <View style={styles.billCard}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View style={{ gap: 4, flex: 1 }}>
@@ -196,13 +196,13 @@ function Detail({ label: l, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', gap: space.lg, marginTop: space.sm },
   topButton: { minWidth: 140, minHeight: 58 },
-  billCard: { backgroundColor: colors.accent, borderRadius: radius.lg, padding: space.xl, gap: space.lg, overflow: 'hidden', boxShadow: '0 12px 26px rgba(74,58,255,0.28)' },
+  billCard: { backgroundColor: '#121212', borderRadius: radius.lg, padding: space.xl, gap: space.lg, overflow: 'hidden', boxShadow: '0 14px 28px rgba(0,0,0,0.22)' },
   billDept: { fontFamily: font.bold, fontSize: 22, color: colors.onInk, letterSpacing: -0.4 },
-  billCategory: { fontFamily: font.medium, fontSize: 14, color: 'rgba(255,255,255,0.72)' },
-  billIcon: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
-  billDesc: { fontFamily: font.medium, fontSize: 16, color: 'rgba(255,255,255,0.92)', lineHeight: 22 },
+  billCategory: { fontFamily: font.medium, fontSize: 14, color: '#9C9C9C' },
+  billIcon: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: '#3A3A3A', alignItems: 'center', justifyContent: 'center' },
+  billDesc: { fontFamily: font.medium, fontSize: 16, color: '#E4E4E4', lineHeight: 22 },
   billRef: { fontFamily: font.semibold, fontSize: 15, color: colors.onInk, letterSpacing: 1.5 },
-  billDate: { fontFamily: font.medium, fontSize: 13, color: 'rgba(255,255,255,0.72)' },
+  billDate: { fontFamily: font.medium, fontSize: 13, color: '#9C9C9C' },
   cardLabel: { fontFamily: font.medium, fontSize: 15.5, color: colors.ink },
   cardValue: { fontFamily: font.semibold, fontSize: 15.5, color: colors.ink },
   cardHint: { fontFamily: font.regular, fontSize: 14, color: colors.inkMuted },
