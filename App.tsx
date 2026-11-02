@@ -1,5 +1,10 @@
-import { DMSerifDisplay_400Regular } from '@expo-google-fonts/dm-serif-display';
-import { Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold, Urbanist_700Bold, useFonts } from '@expo-google-fonts/urbanist';
+// Per-weight imports so only the five font files in use are bundled.
+import { DMSerifDisplay_400Regular } from '@expo-google-fonts/dm-serif-display/400Regular';
+import { Urbanist_400Regular } from '@expo-google-fonts/urbanist/400Regular';
+import { Urbanist_500Medium } from '@expo-google-fonts/urbanist/500Medium';
+import { Urbanist_600SemiBold } from '@expo-google-fonts/urbanist/600SemiBold';
+import { Urbanist_700Bold } from '@expo-google-fonts/urbanist/700Bold';
+import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
