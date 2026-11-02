@@ -1,53 +1,54 @@
 import { ExpenseStatus, Role } from './types';
 
-// Light, minimal finance look: white canvas, near-black ink, soft grey tiles,
-// letter-spaced uppercase labels and a display serif for headline money.
+// Light, airy look: cool off-white canvas, white cards, indigo brand accent,
+// one sans family (Plus Jakarta Sans) throughout, sentence-case labels.
 export const colors = {
-  bg: '#FFFFFF',
+  bg: '#F5F6FA',
   surface: '#FFFFFF',
-  surfaceAlt: '#F7F7F7', // icon circles, quiet fills
-  sunken: '#EFEFEF', // segmented-control track
-  ink: '#141414',
-  inkSoft: '#5E5E5E',
-  inkMuted: '#9B9B9B',
-  line: '#E8E8E8',
-  lineSoft: '#F1F1F1',
-  dash: '#D6D6D6',
+  surfaceAlt: '#F1F2F7', // icon tiles, quiet fills
+  sunken: '#E9EAF1', // segmented-control track
+  ink: '#16172B',
+  inkSoft: '#575A72',
+  inkMuted: '#9497AB',
+  line: '#E4E5EE',
+  lineSoft: '#EEEFF5',
+  dash: '#D7D9E4',
   onInk: '#FFFFFF',
-  button: '#161616',
-  nav: '#000000',
-  navInk: '#7C7C7C',
-  track: '#EDEDED',
+  button: '#4A3AFF',
+  nav: '#FFFFFF',
+  navInk: '#9497AB',
+  track: '#E9EAF1',
   // semantic
-  positive: '#1F9D5C', // money coming in, healthy budgets
+  positive: '#12A15F', // money coming in, healthy budgets
   pending: '#E08A1E', // waiting on a manager
-  escalated: '#C2509E', // waiting on the producer
+  escalated: '#9B4DDB', // waiting on the producer
   negative: '#E2462F', // rejected, over budget
   badge: '#F03E2F',
-  accentSoft: '#FDEEF4', // pink pill like a promo tag
-  accentLine: '#F5C9DB',
-  accentInk: '#C2366F',
+  accent: '#4A3AFF',
+  accentSoft: '#EEECFF',
+  accentLine: '#D8D3FF',
+  accentInk: '#3A2BE0',
 };
 
 export const font = {
-  regular: 'Urbanist_400Regular',
-  medium: 'Urbanist_500Medium',
-  semibold: 'Urbanist_600SemiBold',
-  bold: 'Urbanist_700Bold',
-  serif: 'DMSerifDisplay_400Regular',
+  regular: 'PlusJakartaSans_400Regular',
+  medium: 'PlusJakartaSans_500Medium',
+  semibold: 'PlusJakartaSans_600SemiBold',
+  bold: 'PlusJakartaSans_700Bold',
+  display: 'PlusJakartaSans_800ExtraBold',
 };
 
-export const radius = { sm: 10, md: 14, lg: 20, pill: 999 };
-export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
+export const radius = { sm: 10, md: 16, lg: 22, pill: 999 };
+export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 32 };
 
 export const shadow = {
-  soft: '0 4px 14px rgba(0,0,0,0.06)',
-  raised: '0 6px 18px rgba(0,0,0,0.08)',
-  button: '0 4px 10px rgba(0,0,0,0.18)',
+  soft: '0 2px 10px rgba(22,23,43,0.05)',
+  raised: '0 8px 24px rgba(22,23,43,0.08)',
+  button: '0 6px 16px rgba(74,58,255,0.28)',
 };
 
-// Uppercase, wide-tracked labels used for section headers and statuses.
-export const label = { fontFamily: font.semibold, textTransform: 'uppercase' as const, letterSpacing: 2 };
+// Small sentence-case labels used for section headers and statuses.
+export const label = { fontFamily: font.semibold, letterSpacing: 0.1 };
 
 export const statusMeta: Record<ExpenseStatus, { label: string; color: string }> = {
   submitted: { label: 'Pending', color: colors.pending },

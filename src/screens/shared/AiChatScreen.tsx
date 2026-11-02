@@ -140,7 +140,7 @@ export function AiChatScreen() {
 const styles = StyleSheet.create({
   thread: { paddingHorizontal: space.xl, paddingVertical: space.lg, gap: space.sm, flexGrow: 1 },
   intro: { alignItems: 'center', gap: space.md, paddingTop: space.lg },
-  introTitle: { fontFamily: font.serif, fontSize: 30, color: colors.ink, textAlign: 'center', marginTop: space.sm },
+  introTitle: { fontFamily: font.display, fontSize: 26, letterSpacing: -0.6, color: colors.ink, textAlign: 'center', marginTop: space.sm },
   introText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.md },
   suggestions: { gap: space.sm, alignSelf: 'stretch', marginTop: space.md },
   suggestion: {

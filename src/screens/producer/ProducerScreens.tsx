@@ -192,7 +192,7 @@ export function ProducerInboxScreen() {
               <Card key={r.id} style={{ gap: space.md }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={styles.reqDept}>{deptName(state, r.departmentId)}</Text>
-                  <Money value={r.amount} size={24} serif signed />
+                  <Money value={r.amount} size={24} display signed />
                 </View>
                 <Text style={styles.body}>{r.reason}</Text>
                 <Text style={styles.meta}>
@@ -316,7 +316,7 @@ export function ProducerDepartmentsScreen() {
       </View>
       <Card style={{ gap: 6 }}>
         <Text style={styles.meta}>unallocated reserve</Text>
-        <Money value={p.unallocated} size={28} serif />
+        <Money value={p.unallocated} size={28} display />
         <Text style={styles.meta}>Approved budget requests are added on top of department allocations.</Text>
       </Card>
     </Screen>
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   catName: { fontFamily: font.medium, fontSize: 15, color: colors.ink },
   catAmt: { fontFamily: font.semibold, fontSize: 15, color: colors.ink },
   catTrack: { height: 4, backgroundColor: colors.track, borderRadius: 2, overflow: 'hidden' },
-  catBar: { height: 4, backgroundColor: colors.ink, borderRadius: 2 },
+  catBar: { height: 4, backgroundColor: colors.accent, borderRadius: 2 },
   reqDept: { fontFamily: font.semibold, fontSize: 18, color: colors.ink },
   noteInput: { borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, fontFamily: font.medium, fontSize: 15 },
   search: {

@@ -8,7 +8,7 @@ const byWeight: Record<string, string> = {
   '500': font.medium,
   '600': font.semibold,
   '700': font.bold,
-  '800': font.bold,
+  '800': font.display,
   bold: font.bold,
 };
 

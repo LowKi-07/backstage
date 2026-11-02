@@ -1,9 +1,9 @@
 // Per-weight imports so only the five font files in use are bundled.
-import { DMSerifDisplay_400Regular } from '@expo-google-fonts/dm-serif-display/400Regular';
-import { Urbanist_400Regular } from '@expo-google-fonts/urbanist/400Regular';
-import { Urbanist_500Medium } from '@expo-google-fonts/urbanist/500Medium';
-import { Urbanist_600SemiBold } from '@expo-google-fonts/urbanist/600SemiBold';
-import { Urbanist_700Bold } from '@expo-google-fonts/urbanist/700Bold';
+import { PlusJakartaSans_400Regular } from '@expo-google-fonts/plus-jakarta-sans/400Regular';
+import { PlusJakartaSans_500Medium } from '@expo-google-fonts/plus-jakarta-sans/500Medium';
+import { PlusJakartaSans_600SemiBold } from '@expo-google-fonts/plus-jakarta-sans/600SemiBold';
+import { PlusJakartaSans_700Bold } from '@expo-google-fonts/plus-jakarta-sans/700Bold';
+import { PlusJakartaSans_800ExtraBold } from '@expo-google-fonts/plus-jakarta-sans/800ExtraBold';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -20,15 +20,17 @@ import { colors } from './src/theme';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const MIN_SPLASH_MS = 1400;
+// Matches the native splash image and app icon (white mark on black).
+const SPLASH_BG = '#000000';
 
 function Root() {
   const { ready, currentUser } = useStore();
   const [fontsLoaded, fontError] = useFonts({
-    Urbanist_400Regular,
-    Urbanist_500Medium,
-    Urbanist_600SemiBold,
-    Urbanist_700Bold,
-    DMSerifDisplay_400Regular,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
   const [minElapsed, setMinElapsed] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
@@ -50,7 +52,7 @@ function Root() {
   }, [appReady, minElapsed, splashDone, fade]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: splashDone ? colors.bg : colors.nav }}>
+    <View style={{ flex: 1, backgroundColor: splashDone ? colors.bg : SPLASH_BG }}>
       {appReady ? currentUser ? <RoleNavigator /> : <LoginScreen /> : null}
       {!splashDone ? (
         <Animated.View style={[StyleSheet.absoluteFill, styles.splash, { opacity: fade }]} onLayout={() => SplashScreen.hideAsync().catch(() => {})}>
@@ -80,7 +82,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: Platform.OS === 'web' ? '#EDEDED' : colors.bg, alignItems: 'center' },
+  outer: { flex: 1, backgroundColor: Platform.OS === 'web' ? '#E9EAF1' : colors.bg, alignItems: 'center' },
   device: { flex: 1, width: '100%', maxWidth: Platform.OS === 'web' ? 440 : undefined, overflow: 'hidden', backgroundColor: colors.bg },
-  splash: { backgroundColor: colors.nav, alignItems: 'center', justifyContent: 'center' },
+  splash: { backgroundColor: SPLASH_BG, alignItems: 'center', justifyContent: 'center' },
 });

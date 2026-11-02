@@ -74,8 +74,8 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   brand: { fontFamily: font.bold, fontSize: 28, color: colors.ink, letterSpacing: -0.6 },
-  eyebrow: { ...label, fontSize: 11.5, letterSpacing: 1.8, color: colors.accentInk },
-  headline: { fontFamily: font.serif, fontSize: 40, lineHeight: 46, color: colors.ink, letterSpacing: -0.8 },
+  eyebrow: { ...label, fontSize: 13.5, letterSpacing: 0.1, color: colors.accentInk },
+  headline: { fontFamily: font.display, fontSize: 34, lineHeight: 41, color: colors.ink, letterSpacing: -1 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',

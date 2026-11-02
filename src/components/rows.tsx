@@ -206,7 +206,7 @@ export const rowStyles = StyleSheet.create({
     boxShadow: shadow.soft,
   },
   cardTitle: { fontFamily: font.medium, fontSize: 17.5, color: colors.ink },
-  cardNote: { ...label, fontSize: 10.5, letterSpacing: 1.5 },
+  cardNote: { ...label, fontSize: 12.5, letterSpacing: 0.1 },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.md, paddingLeft: 4 },
   deptCard: {
     gap: space.md,

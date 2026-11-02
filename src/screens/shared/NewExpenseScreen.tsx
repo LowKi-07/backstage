@@ -7,7 +7,7 @@ import { Text, TextInput } from '../../components/Text';
 import { Button, Chip, ChipRow, Field, Hero, Screen, SectionTitle } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { useStore } from '../../store/Store';
-import { colors, font, radius, space } from '../../theme';
+import { colors, font, radius, shadow, space } from '../../theme';
 import { CATEGORIES, Expense } from '../../types';
 import { isValidGSTIN, toISODate } from '../../utils/format';
 
@@ -219,29 +219,29 @@ export function NewExpenseScreen() {
 
 const styles = StyleSheet.create({
   amountBox: { alignItems: 'center', gap: 6, paddingVertical: space.lg, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt },
-  amountLabel: { fontFamily: font.semibold, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: colors.inkSoft },
+  amountLabel: { fontFamily: font.semibold, fontSize: 12, letterSpacing: 0.1, color: colors.inkSoft },
   amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: space.lg },
-  rupee: { fontFamily: font.serif, fontSize: 46, color: colors.ink },
-  amountInput: { fontFamily: font.serif, fontSize: 52, color: colors.ink, maxWidth: 270, paddingVertical: 2, textAlign: 'left' },
+  rupee: { fontFamily: font.display, fontSize: 46, color: colors.ink },
+  amountInput: { fontFamily: font.display, fontSize: 52, color: colors.ink, maxWidth: 270, paddingVertical: 2, textAlign: 'left' },
   err: { fontFamily: font.medium, color: colors.negative, fontSize: 13.5 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space.lg },
   catTile: { width: '25%', alignItems: 'center', gap: 8 },
   catCircle: {
     width: 64,
     height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.surfaceAlt,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: colors.lineSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 5px 12px rgba(0,0,0,0.07), inset 0 1px 0 #FFFFFF',
+    boxShadow: shadow.soft,
   },
-  catCircleActive: { backgroundColor: colors.ink, borderColor: colors.ink },
+  catCircleActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   catText: { fontFamily: font.medium, fontSize: 12, color: colors.ink, textAlign: 'center', lineHeight: 15 },
   receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   removeReceipt: { flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', padding: space.md },
   success: { alignItems: 'center', paddingTop: space.xl, gap: space.sm },
-  successIcon: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 24px rgba(0,0,0,0.2)' },
+  successIcon: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.positive, alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 24px rgba(18,161,95,0.3)' },
   successText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.lg, marginBottom: space.lg },
 });

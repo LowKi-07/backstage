@@ -34,7 +34,7 @@ export function BudgetRequestScreen({ departmentId }: { departmentId?: string })
     return (
       <Screen onBack={nav.pop}>
         <View style={{ alignItems: 'center', paddingTop: space.xl }}>
-          <View style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: colors.positive, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="check" size={38} color={colors.onInk} strokeWidth={2} />
           </View>
           <Hero eyebrow="sent to the producer" lines={['request sent']} amount={Number(amount)} />
