@@ -1,88 +1,76 @@
-import { Platform, ViewStyle } from 'react-native';
 import { ExpenseStatus, Role } from './types';
 
-// Monochrome glass palette: pure black canvas, white ink, frosted white surfaces.
-// Semantic tokens (success, warning…) are kept for meaning but resolve to greys.
+// Light, minimal finance look: white canvas, near-black ink, soft grey tiles,
+// letter-spaced uppercase labels and a display serif for headline money.
 export const colors = {
-  bg: '#000000',
-  surface: 'rgba(255,255,255,0.07)',
-  surfaceAlt: 'rgba(255,255,255,0.10)',
-  surfaceStrong: 'rgba(255,255,255,0.16)',
-  ink: '#FFFFFF',
-  inkSoft: 'rgba(255,255,255,0.66)',
-  inkMuted: 'rgba(255,255,255,0.40)',
-  onInk: '#000000',
-  onInkSoft: 'rgba(0,0,0,0.6)',
-  line: 'rgba(255,255,255,0.14)',
-  lineStrong: 'rgba(255,255,255,0.32)',
-  track: 'rgba(255,255,255,0.10)',
-  header: '#000000',
-  brand: '#FFFFFF',
-  brandSoft: 'rgba(255,255,255,0.12)',
-  success: '#FFFFFF',
-  successSoft: 'rgba(255,255,255,0.12)',
-  danger: '#FFFFFF',
-  dangerSoft: 'rgba(255,255,255,0.06)',
-  warning: 'rgba(255,255,255,0.78)',
-  warningSoft: 'rgba(255,255,255,0.10)',
-  info: '#FFFFFF',
-  infoSoft: 'rgba(255,255,255,0.10)',
-  purple: 'rgba(255,255,255,0.88)',
-  purpleSoft: 'rgba(255,255,255,0.10)',
-  white: '#FFFFFF',
-  black: '#000000',
+  bg: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceAlt: '#F7F7F7', // icon circles, quiet fills
+  sunken: '#EFEFEF', // segmented-control track
+  ink: '#141414',
+  inkSoft: '#5E5E5E',
+  inkMuted: '#9B9B9B',
+  line: '#E8E8E8',
+  lineSoft: '#F1F1F1',
+  dash: '#D6D6D6',
+  onInk: '#FFFFFF',
+  button: '#161616',
+  nav: '#000000',
+  navInk: '#7C7C7C',
+  track: '#EDEDED',
+  // semantic
+  positive: '#1F9D5C', // money coming in, healthy budgets
+  pending: '#E08A1E', // waiting on a manager
+  escalated: '#C2509E', // waiting on the producer
+  negative: '#E2462F', // rejected, over budget
+  badge: '#F03E2F',
+  accentSoft: '#FDEEF4', // pink pill like a promo tag
+  accentLine: '#F5C9DB',
+  accentInk: '#C2366F',
 };
 
-export const radius = { sm: 10, md: 14, lg: 22, pill: 999 };
-export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 };
-
-// Frosted-glass layer. Web gets a real backdrop blur; native relies on translucency over the glow backdrop.
-const blur = (px: number) => (Platform.OS === 'web' ? ({ backdropFilter: `blur(${px}px) saturate(140%)` } as ViewStyle) : null);
-
-export const glass = (px = 24): ViewStyle => ({
-  backgroundColor: colors.surface,
-  borderWidth: 1,
-  borderColor: colors.line,
-  ...blur(px),
-});
-
-export const glassBar = (px = 30): ViewStyle => ({
-  backgroundColor: 'rgba(10,10,10,0.68)',
-  borderColor: colors.line,
-  ...blur(px),
-});
-
-// Soft white glows on black that sit behind every screen, so the glass has something to frost.
-export const backdrop: ViewStyle = {
-  backgroundColor: colors.bg,
-  backgroundImage:
-    'radial-gradient(circle at 12% 4%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 42%), ' +
-    'radial-gradient(circle at 95% 38%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 38%), ' +
-    'radial-gradient(circle at 30% 100%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 45%)',
+export const font = {
+  regular: 'Urbanist_400Regular',
+  medium: 'Urbanist_500Medium',
+  semibold: 'Urbanist_600SemiBold',
+  bold: 'Urbanist_700Bold',
+  serif: 'DMSerifDisplay_400Regular',
 };
 
-export const statusMeta: Record<ExpenseStatus, { label: string; fg: string; bg: string; border?: string }> = {
-  submitted: { label: 'Pending', fg: colors.inkSoft, bg: 'transparent', border: colors.lineStrong },
-  escalated: { label: 'With Producer', fg: colors.ink, bg: colors.surfaceAlt, border: colors.lineStrong },
-  approved: { label: 'Approved', fg: colors.ink, bg: colors.surfaceStrong },
-  rejected: { label: 'Rejected', fg: colors.inkMuted, bg: colors.dangerSoft },
-  paid: { label: 'Paid', fg: colors.onInk, bg: colors.ink },
+export const radius = { sm: 10, md: 14, lg: 20, pill: 999 };
+export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
+
+export const shadow = {
+  soft: '0 4px 14px rgba(0,0,0,0.06)',
+  raised: '0 6px 18px rgba(0,0,0,0.08)',
+  button: '0 4px 10px rgba(0,0,0,0.18)',
+};
+
+// Uppercase, wide-tracked labels used for section headers and statuses.
+export const label = { fontFamily: font.semibold, textTransform: 'uppercase' as const, letterSpacing: 2 };
+
+export const statusMeta: Record<ExpenseStatus, { label: string; color: string }> = {
+  submitted: { label: 'Pending', color: colors.pending },
+  escalated: { label: 'With producer', color: colors.escalated },
+  approved: { label: 'Approved', color: colors.positive },
+  rejected: { label: 'Rejected', color: colors.negative },
+  paid: { label: 'Paid', color: colors.inkMuted },
 };
 
 export const roleMeta: Record<Role, { label: string; icon: string; blurb: string }> = {
   crew: {
-    label: 'Crew Member',
-    icon: 'person-outline',
-    blurb: 'Log daily expenses with receipts and track your reimbursements.',
+    label: 'crew member',
+    icon: 'user',
+    blurb: 'log daily expenses with receipts and track reimbursements',
   },
   manager: {
-    label: 'Team Manager',
-    icon: 'people-outline',
-    blurb: 'Review team expenses, approve spends and watch department budgets.',
+    label: 'team manager',
+    icon: 'users',
+    blurb: 'approve team spends and keep department budgets on track',
   },
   producer: {
-    label: 'Producer',
-    icon: 'film-outline',
-    blurb: 'See the whole production’s money at a glance and clear escalations.',
+    label: 'producer',
+    icon: 'clapperboard',
+    blurb: 'see the production’s money at a glance and clear escalations',
   },
 };

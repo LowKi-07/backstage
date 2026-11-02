@@ -1,7 +1,7 @@
 import { AppState, AuditEntry, Department, Expense, ExpenseStatus, User } from '../types';
 import { toISODate } from '../utils/format';
 
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 2;
 
 const DAY = 86400000;
 const daysAgo = (n: number, hour = 11) => {
@@ -24,13 +24,13 @@ const users: User[] = [
 ];
 
 const departments: Department[] = [
-  { id: 'art', name: 'Art', icon: 'color-palette-outline', budget: 6000000, managerId: 'm1' },
-  { id: 'costume', name: 'Costume', icon: 'shirt-outline', budget: 3500000, managerId: 'm1' },
-  { id: 'catering', name: 'Catering', icon: 'restaurant-outline', budget: 4000000, managerId: 'm2' },
-  { id: 'transport', name: 'Transport', icon: 'car-outline', budget: 4500000, managerId: 'm2' },
-  { id: 'camera', name: 'Camera & Lighting', icon: 'videocam-outline', budget: 9000000, managerId: 'm3' },
-  { id: 'makeup', name: 'Makeup & Hair', icon: 'brush-outline', budget: 1500000, managerId: 'm3' },
-  { id: 'locations', name: 'Locations', icon: 'location-outline', budget: 5500000, managerId: 'm3' },
+  { id: 'art', name: 'Art', icon: 'palette', budget: 6000000, managerId: 'm1' },
+  { id: 'costume', name: 'Costume', icon: 'shirt', budget: 3500000, managerId: 'm1' },
+  { id: 'catering', name: 'Catering', icon: 'utensils', budget: 4000000, managerId: 'm2' },
+  { id: 'transport', name: 'Transport', icon: 'car', budget: 4500000, managerId: 'm2' },
+  { id: 'camera', name: 'Camera & Lighting', icon: 'video', budget: 9000000, managerId: 'm3' },
+  { id: 'makeup', name: 'Makeup & Hair', icon: 'brush', budget: 1500000, managerId: 'm3' },
+  { id: 'locations', name: 'Locations', icon: 'map-pin', budget: 5500000, managerId: 'm3' },
 ];
 
 type SeedRow = [

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
-import { DepartmentBudgetRow, ExpenseList, ExpenseRow, rowStyles } from '../../components/rows';
-import { Avatar, Button, Card, Chip, ChipRow, EmptyState, Icon, Screen, SectionTitle, Stat } from '../../components/ui';
+import { View } from 'react-native';
+import { BudgetRequestRow, DepartmentCard, ExpenseCard, ExpenseList } from '../../components/rows';
+import { Button, Chip, ChipRow, EmptyState, Hero, InfoPill, Notice, Screen, SectionTitle, Segmented, TileGrid } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { byNewest, departmentSummary, isPending, managedDepartmentIds, sum } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, space } from '../../theme';
-import { formatCompact, formatINR } from '../../utils/format';
+import { Expense } from '../../types';
+import { formatCompact, formatINR, relativeDay } from '../../utils/format';
 
 function useManagerData() {
   const { state, currentUser } = useStore();
@@ -18,8 +19,24 @@ function useManagerData() {
   return { state, currentUser, deptIds, depts, teamExpenses, toReview };
 }
 
+// Approve from a list, and say plainly when the approval was forwarded to the producer.
+function useQuickApprove() {
+  const { managerDecide } = useStore();
+  const [message, setMessage] = useState<string | null>(null);
+  const approve = (e: Expense) => {
+    const result = managerDecide(e.id, 'approve');
+    setMessage(result === 'escalated' ? `${formatINR(e.amount)} approved and sent to the producer for final sign-off.` : `${formatINR(e.amount)} approved.`);
+  };
+  return { message, setMessage, approve };
+}
+
+function approvalNote(e: Expense, threshold: number) {
+  return e.amount > threshold ? { note: `Over ${formatCompact(threshold)}`, color: colors.escalated } : { note: relativeDay(e.date), color: colors.pending };
+}
+
 export function ManagerDashboardScreen() {
-  const { state, currentUser, depts, teamExpenses, toReview } = useManagerData();
+  const { state, currentUser, depts, toReview } = useManagerData();
+  const { message, approve } = useQuickApprove();
   const nav = useNav();
   if (!currentUser) return null;
 
@@ -30,57 +47,55 @@ export function ManagerDashboardScreen() {
     },
     { budget: 0, spent: 0, pending: 0 },
   );
-  const withProducer = teamExpenses.filter((e) => e.status === 'escalated');
-  const myRequests = state.budgetRequests.filter((r) => r.requestedBy === currentUser.id && r.status === 'pending');
+  const threshold = state.project.escalationThreshold;
 
   return (
-    <Screen
-      title="Dashboard"
-      subtitle={depts.map((d) => d.name).join(' · ')}
-      right={<Avatar name={currentUser.name} onPress={() => nav.push({ name: 'profile' })} dark />}
-    >
-      {toReview.length > 0 ? (
-        <Card onPress={() => nav.setTab('approvals')} style={{ backgroundColor: colors.warningSoft, borderColor: colors.warningSoft }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-            <Icon name="time-outline" size={26} color={colors.warning} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: colors.ink }}>
-                {toReview.length} expense{toReview.length > 1 ? 's' : ''} need your approval
-              </Text>
-              <Text style={{ fontSize: 13, color: colors.inkSoft }}>{formatINR(sum(toReview))} in total</Text>
-            </View>
-            <Icon name="chevron-forward" size={20} color={colors.inkSoft} />
+    <Screen>
+      <Hero
+        eyebrow={depts.map((d) => d.name).join(' · ')}
+        lines={toReview.length ? [`${toReview.length} ${toReview.length === 1 ? 'bill needs' : 'bills need'}`, 'your nod, worth'] : ['all caught up.', 'nothing to review.']}
+        amount={toReview.length ? sum(toReview) : undefined}
+      >
+        {toReview.length ? <Button label="Review now" onPress={() => nav.setTab('approvals')} style={{ marginTop: space.lg, minWidth: 200 }} /> : null}
+      </Hero>
+
+      <SectionTitle title="money matters" />
+      <ChipRow>
+        <InfoPill icon="wallet" label="remaining" value={formatCompact(totals.budget - totals.spent)} onPress={() => nav.setTab('budgets')} />
+        <InfoPill icon="receipt" label="spent" value={formatCompact(totals.spent)} valueColor={colors.ink} onPress={() => nav.setTab('expenses')} />
+        <InfoPill icon="clock" label="pending" value={formatCompact(totals.pending)} valueColor={colors.pending} onPress={() => nav.setTab('approvals')} />
+      </ChipRow>
+
+      {message ? <Notice text={message} tone={colors.positive} /> : null}
+
+      {toReview.length ? (
+        <>
+          <SectionTitle title={`to approve (${toReview.length})`} action="view all" onAction={() => nav.setTab('approvals')} />
+          <View style={{ gap: space.md }}>
+            {toReview.slice(0, 3).map((e) => {
+              const n = approvalNote(e, threshold);
+              return <ExpenseCard key={e.id} expense={e} actionLabel={`Approve ${formatINR(e.amount)}`} onAction={() => approve(e)} note={n.note} noteColor={n.color} />;
+            })}
           </View>
-        </Card>
+        </>
       ) : null}
 
-      <Card>
-        <View style={{ flexDirection: 'row', gap: space.md }}>
-          <Stat label="Spent" value={formatCompact(totals.spent)} />
-          <Stat label="Budget" value={formatCompact(totals.budget)} />
-          <Stat label="Remaining" value={formatCompact(totals.budget - totals.spent)} tone={colors.success} />
-        </View>
-        <Text style={{ marginTop: space.md, color: colors.inkSoft, fontSize: 13 }}>
-          {withProducer.length > 0 ? `${withProducer.length} escalated to producer · ` : ''}
-          {myRequests.length > 0 ? `${myRequests.length} budget request pending · ` : ''}
-          {formatCompact(totals.pending)} awaiting approval
-        </Text>
-      </Card>
-
-      <SectionTitle title="Department budgets" action="Request budget" onAction={() => nav.push({ name: 'budgetRequest' })} />
-      <View style={rowStyles.listCard}>
-        {depts.map((d, i) => (
-          <View key={d.id}>
-            {i > 0 ? <View style={[rowStyles.sep, { marginLeft: 0 }]} /> : null}
-            <DepartmentBudgetRow dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
-          </View>
+      <SectionTitle title="department budgets" action="all" onAction={() => nav.setTab('budgets')} />
+      <View style={{ gap: space.md }}>
+        {depts.map((d) => (
+          <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
         ))}
       </View>
 
-      <SectionTitle title="Latest from the team" action="See all" onAction={() => nav.setTab('expenses')} />
-      <ExpenseList expenses={teamExpenses.slice(0, 5)} empty={<EmptyState icon="receipt-outline" title="No expenses yet" />} />
-
-      <Button label="Log my own expense" icon="add" variant="secondary" onPress={() => nav.push({ name: 'newExpense' })} />
+      <SectionTitle title="for you" />
+      <TileGrid
+        items={[
+          { icon: 'check-double', label: 'approvals', onPress: () => nav.setTab('approvals'), badge: toReview.length || undefined },
+          { icon: 'trending', label: 'request budget', onPress: () => nav.push({ name: 'budgetRequest' }) },
+          { icon: 'camera', label: 'add expense', onPress: () => nav.push({ name: 'newExpense' }) },
+          { icon: 'sparkles', label: 'ask ai', onPress: () => nav.setTab('ai') },
+        ]}
+      />
     </Screen>
   );
 }
@@ -88,94 +103,75 @@ export function ManagerDashboardScreen() {
 export function ManagerApprovalsScreen() {
   const { state, currentUser, toReview, teamExpenses } = useManagerData();
   const { managerDecide } = useStore();
-  const nav = useNav();
-  const [message, setMessage] = useState<string | null>(null);
+  const { message, setMessage, approve } = useQuickApprove();
+  const [tab, setTab] = useState<'review' | 'producer'>('review');
   if (!currentUser) return null;
 
   const threshold = state.project.escalationThreshold;
   const quick = toReview.filter((e) => e.amount <= threshold);
   const escalated = teamExpenses.filter((e) => e.status === 'escalated');
 
-  const approve = (id: string) => {
-    const result = managerDecide(id, 'approve');
-    setMessage(result === 'escalated' ? 'Approved and forwarded to the producer (over threshold or budget).' : 'Approved.');
-  };
-
   const approveAll = () => {
     let forwarded = 0;
     quick.forEach((e) => {
       if (managerDecide(e.id, 'approve') === 'escalated') forwarded++;
     });
-    setMessage(`Approved ${quick.length - forwarded} expense${quick.length - forwarded === 1 ? '' : 's'}${forwarded ? `, ${forwarded} forwarded to producer` : ''}.`);
+    const done = quick.length - forwarded;
+    setMessage(`Approved ${done} ${done === 1 ? 'bill' : 'bills'}${forwarded ? `, ${forwarded} sent to the producer` : ''}.`);
   };
 
   return (
-    <Screen
-      title="Approvals"
-      subtitle={`${toReview.length} waiting · ${formatINR(sum(toReview))}`}
-      right={<Avatar name={currentUser.name} onPress={() => nav.push({ name: 'profile' })} dark />}
-    >
-      {message ? (
-        <View style={{ backgroundColor: colors.successSoft, padding: space.md, borderRadius: 12 }}>
-          <Text style={{ color: colors.success, fontWeight: '600' }}>{message}</Text>
-        </View>
-      ) : null}
+    <Screen title="approvals">
+      <Segmented
+        options={[
+          { key: 'review', label: `To review ${toReview.length}` },
+          { key: 'producer', label: `With producer ${escalated.length}` },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
 
-      {quick.length > 1 ? (
-        <Button label={`Approve all ${quick.length} under ${formatCompact(threshold)}`} icon="checkmark-done" variant="success" onPress={approveAll} />
-      ) : null}
+      {message ? <Notice text={message} tone={colors.positive} /> : null}
 
-      {toReview.length === 0 ? (
-        <EmptyState icon="checkmark-done-circle-outline" title="All caught up" message="New expenses from your team will show up here." />
-      ) : (
-        <View style={rowStyles.listCard}>
-          {toReview.map((e, i) => (
-            <View key={e.id}>
-              {i > 0 ? <View style={rowStyles.sep} /> : null}
-              <ExpenseRow expense={e} />
-              <View style={{ flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, paddingBottom: space.md, marginLeft: 52 }}>
-                <Button label="Review" small variant="secondary" onPress={() => nav.push({ name: 'expense', id: e.id })} style={{ flex: 1 }} />
-                <Button label="Approve" small variant="success" icon="checkmark" onPress={() => approve(e.id)} style={{ flex: 1 }} />
-              </View>
-              {e.amount > threshold ? (
-                <Text style={{ fontSize: 12, color: colors.purple, paddingHorizontal: space.lg, paddingBottom: space.md, marginLeft: 52, marginTop: -6 }}>
-                  Over {formatCompact(threshold)} – will also need producer sign-off
-                </Text>
-              ) : null}
+      {tab === 'review' ? (
+        toReview.length === 0 ? (
+          <EmptyState icon="check-double" title="all caught up" message="New expenses from your team will show up here." />
+        ) : (
+          <>
+            <Hero lines={[`${toReview.length} ${toReview.length === 1 ? 'bill' : 'bills'} to review`]} amount={sum(toReview)} />
+            {quick.length > 1 ? <Button label={`Approve all ${quick.length} under ${formatCompact(threshold)}`} icon="check-double" variant="outline" onPress={approveAll} /> : null}
+            <View style={{ gap: space.md }}>
+              {toReview.map((e) => {
+                const n = approvalNote(e, threshold);
+                return <ExpenseCard key={e.id} expense={e} actionLabel={`Approve ${formatINR(e.amount)}`} onAction={() => approve(e)} note={n.note} noteColor={n.color} />;
+              })}
             </View>
+            <Notice text="Tap a bill to see the receipt, reject it with a reason, or send it to the producer." tone={colors.inkSoft} />
+          </>
+        )
+      ) : escalated.length === 0 ? (
+        <EmptyState icon="inbox" title="nothing with the producer" message={`Bills over ${formatCompact(threshold)} or over budget wait here for the producer.`} />
+      ) : (
+        <View style={{ gap: space.md }}>
+          {escalated.map((e) => (
+            <ExpenseCard key={e.id} expense={e} />
           ))}
         </View>
       )}
-
-      {escalated.length > 0 ? (
-        <>
-          <SectionTitle title="Waiting on producer" />
-          <ExpenseList expenses={escalated} />
-        </>
-      ) : null}
     </Screen>
   );
 }
 
 export function ManagerExpensesScreen() {
-  const { state, currentUser, depts, teamExpenses } = useManagerData();
-  const nav = useNav();
+  const { currentUser, depts, teamExpenses } = useManagerData();
   const [dept, setDept] = useState<string | 'all'>('all');
   const [status, setStatus] = useState<'all' | 'pending' | 'approved' | 'paid' | 'rejected'>('all');
   if (!currentUser) return null;
 
-  const shown = teamExpenses.filter(
-    (e) =>
-      (dept === 'all' || e.departmentId === dept) &&
-      (status === 'all' || (status === 'pending' ? isPending(e) : e.status === status)),
-  );
+  const shown = teamExpenses.filter((e) => (dept === 'all' || e.departmentId === dept) && (status === 'all' || (status === 'pending' ? isPending(e) : e.status === status)));
 
   return (
-    <Screen
-      title="Team expenses"
-      subtitle={`${shown.length} shown · ${formatINR(sum(shown))}`}
-      right={<Avatar name={currentUser.name} onPress={() => nav.push({ name: 'profile' })} dark />}
-    >
+    <Screen title="team expenses" subtitle={`${shown.length} bills · ${formatINR(sum(shown))}`}>
       {depts.length > 1 ? (
         <ChipRow>
           <Chip label="All depts" active={dept === 'all'} onPress={() => setDept('all')} />
@@ -186,13 +182,35 @@ export function ManagerExpensesScreen() {
       ) : null}
       <ChipRow>
         {(['all', 'pending', 'approved', 'paid', 'rejected'] as const).map((s) => (
-          <Chip key={s} label={s[0].toUpperCase() + s.slice(1)} active={status === s} onPress={() => setStatus(s)} />
+          <Chip key={s} label={s} active={status === s} onPress={() => setStatus(s)} />
         ))}
       </ChipRow>
-      <ExpenseList expenses={shown} empty={<EmptyState icon="file-tray-outline" title="No matching expenses" />} />
-      <Text style={{ fontSize: 12, color: colors.inkMuted, textAlign: 'center' }}>
-        {state.project.name} · {depts.map((d) => d.name).join(', ')}
-      </Text>
+      <ExpenseList expenses={shown} empty={<EmptyState icon="inbox" title="no matching expenses" />} />
+    </Screen>
+  );
+}
+
+export function ManagerBudgetsScreen() {
+  const { state, currentUser, depts, deptIds } = useManagerData();
+  const nav = useNav();
+  if (!currentUser) return null;
+  const requests = state.budgetRequests.filter((r) => deptIds.includes(r.departmentId));
+  const budget = depts.reduce((a, d) => a + d.budget, 0);
+
+  return (
+    <Screen title="budgets" subtitle={`${depts.length} departments · ${formatCompact(budget)} allocated`}>
+      <View style={{ gap: space.md }}>
+        {depts.map((d) => (
+          <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
+        ))}
+      </View>
+      <Button label="Request more budget" icon="plus" variant="outline" onPress={() => nav.push({ name: 'budgetRequest' })} />
+      <SectionTitle title="budget requests" />
+      {requests.length ? (
+        requests.map((r) => <BudgetRequestRow key={r.id} request={r} />)
+      ) : (
+        <EmptyState icon="trending" title="no requests yet" message="Ask the producer for more budget when a department runs short." />
+      )}
     </Screen>
   );
 }

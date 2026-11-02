@@ -1,40 +1,40 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useNav } from '../navigation/Nav';
 import { deptName, departmentSummary, userName } from '../store/selectors';
 import { useStore } from '../store/Store';
-import { colors, glass, radius, space } from '../theme';
-import { Department, Expense } from '../types';
-import { formatCompact, formatINR, relativeDay } from '../utils/format';
-import { Icon, ProgressBar, StatusBadge } from './ui';
+import { colors, font, label, radius, shadow, space } from '../theme';
+import { BudgetRequest, Department, Expense } from '../types';
+import { formatCompact, formatShortDate, relativeDay } from '../utils/format';
+import { Text } from './Text';
+import { Button, IconCircle, Money, ProgressBar, StatementDivider, StatusText } from './ui';
 
 export const categoryIcon: Record<string, string> = {
-  Fuel: 'flame-outline',
-  Transport: 'car-outline',
-  'Food & Catering': 'restaurant-outline',
-  Accommodation: 'bed-outline',
-  'Equipment Rental': 'videocam-outline',
-  'Props & Materials': 'cube-outline',
-  'Costume & Fabric': 'shirt-outline',
-  'Makeup Supplies': 'brush-outline',
-  'Location Fees': 'location-outline',
-  'Labour / Daily Wages': 'hammer-outline',
-  'Printing & Stationery': 'print-outline',
-  Miscellaneous: 'ellipsis-horizontal-circle-outline',
+  Fuel: 'fuel',
+  Transport: 'car',
+  'Food & Catering': 'utensils',
+  Accommodation: 'bed',
+  'Equipment Rental': 'video',
+  'Props & Materials': 'package',
+  'Costume & Fabric': 'shirt',
+  'Makeup Supplies': 'brush',
+  'Location Fees': 'map-pin',
+  'Labour / Daily Wages': 'hammer',
+  'Printing & Stationery': 'printer',
+  Miscellaneous: 'ellipsis',
 };
 
-export function ExpenseRow({ expense, showPerson = true, right }: { expense: Expense; showPerson?: boolean; right?: React.ReactNode }) {
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// Transaction-style row: round icon, description, who/where, amount over status.
+export function ExpenseRow({ expense, showPerson = true }: { expense: Expense; showPerson?: boolean }) {
   const { state } = useStore();
   const nav = useNav();
-  const meta = [showPerson ? userName(state, expense.userId) : null, deptName(state, expense.departmentId), relativeDay(expense.date)]
-    .filter(Boolean)
-    .join(' · ');
+  const meta = [showPerson ? userName(state, expense.userId) : expense.category.toLowerCase(), formatShortDate(expense.date)].join(' · ');
   return (
-    <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.row, pressed && { opacity: 0.7 }]}>
-      <View style={rowStyles.iconWrap}>
-        <Icon name={categoryIcon[expense.category] ?? 'receipt-outline'} size={20} color={colors.ink} />
-      </View>
-      <View style={{ flex: 1, gap: 3 }}>
+    <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={50} />
+      <View style={{ flex: 1, gap: 4 }}>
         <Text style={rowStyles.title} numberOfLines={1}>
           {expense.description}
         </Text>
@@ -42,77 +42,180 @@ export function ExpenseRow({ expense, showPerson = true, right }: { expense: Exp
           {meta}
         </Text>
       </View>
-      <View style={{ alignItems: 'flex-end', gap: 4 }}>
-        <Text style={rowStyles.amount}>{formatINR(expense.amount)}</Text>
-        {right ?? <StatusBadge status={expense.status} />}
+      <View style={{ alignItems: 'flex-end', gap: 5 }}>
+        <Money value={expense.amount} />
+        <StatusText status={expense.status} />
       </View>
     </Pressable>
   );
 }
 
-export function ExpenseList({ expenses, showPerson, empty }: { expenses: Expense[]; showPerson?: boolean; empty?: React.ReactNode }) {
+// Rows grouped by month under a dashed statement divider.
+export function ExpenseList({ expenses, showPerson, empty, grouped = true }: { expenses: Expense[]; showPerson?: boolean; empty?: React.ReactNode; grouped?: boolean }) {
   if (expenses.length === 0) return <>{empty}</>;
+  if (!grouped) {
+    return (
+      <View style={{ gap: space.xs }}>
+        {expenses.map((e) => (
+          <ExpenseRow key={e.id} expense={e} showPerson={showPerson} />
+        ))}
+      </View>
+    );
+  }
+  const groups: { key: string; title: string; items: Expense[] }[] = [];
+  for (const e of expenses) {
+    const d = new Date(e.date);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    let g = groups.find((x) => x.key === key);
+    if (!g) {
+      g = { key, title: MONTHS[d.getMonth()], items: [] };
+      groups.push(g);
+    }
+    g.items.push(e);
+  }
   return (
-    <View style={rowStyles.listCard}>
-      {expenses.map((e, i) => (
-        <View key={e.id}>
-          {i > 0 ? <View style={rowStyles.sep} /> : null}
-          <ExpenseRow expense={e} showPerson={showPerson} />
+    <View style={{ gap: space.xs }}>
+      {groups.map((g) => (
+        <View key={g.key} style={{ gap: space.xs }}>
+          <StatementDivider text={`${g.title} · ${g.items.length} ${g.items.length === 1 ? 'bill' : 'bills'}`} amount={g.items.reduce((a, e) => a + e.amount, 0)} />
+          {g.items.map((e) => (
+            <ExpenseRow key={e.id} expense={e} showPerson={showPerson} />
+          ))}
         </View>
       ))}
     </View>
   );
 }
 
-export function DepartmentBudgetRow({ dept, onPress }: { dept: Department; onPress?: () => void }) {
+// Bill-style card with a solid action button and a status line beneath it.
+export function ExpenseCard({
+  expense,
+  actionLabel,
+  onAction,
+  note,
+  noteColor,
+}: {
+  expense: Expense;
+  actionLabel?: string;
+  onAction?: () => void;
+  note?: string;
+  noteColor?: string;
+}) {
+  const { state, currentUser } = useStore();
+  const nav = useNav();
+  const who = expense.userId === currentUser?.id ? relativeDay(expense.date).toLowerCase() : userName(state, expense.userId);
+  const status = note ? <Text style={[rowStyles.cardNote, { color: noteColor ?? colors.pending }]}>{note}</Text> : <StatusText status={expense.status} />;
+  const hasAction = !!(actionLabel && onAction);
+  // The details row opens the bill; the action row sits outside it so buttons never nest.
+  return (
+    <View style={rowStyles.card}>
+      <Pressable
+        onPress={() => nav.push({ name: 'expense', id: expense.id })}
+        style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: space.md }, pressed && { opacity: 0.7 }]}
+        accessibilityRole="button"
+      >
+        <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={54} />
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={rowStyles.cardTitle} numberOfLines={1}>
+            {expense.description}
+          </Text>
+          <Text style={rowStyles.meta} numberOfLines={1}>
+            {who} · {deptName(state, expense.departmentId)}
+          </Text>
+        </View>
+        {!hasAction ? (
+          <View style={{ alignItems: 'flex-end', gap: 6 }}>
+            <Money value={expense.amount} size={18} />
+            {status}
+          </View>
+        ) : null}
+      </Pressable>
+      {hasAction ? (
+        <View style={rowStyles.cardActions}>
+          {status}
+          <Button label={actionLabel!} small onPress={onAction!} style={{ minWidth: 150 }} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+export function DepartmentCard({ dept, onPress }: { dept: Department; onPress?: () => void }) {
   const { state } = useStore();
   const s = departmentSummary(state, dept.id);
+  const pctColor = s.pct >= 1 ? colors.negative : s.pct >= 0.8 ? colors.pending : colors.positive;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [rowStyles.deptRow, pressed && onPress && { opacity: 0.7 }]}>
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [rowStyles.deptCard, pressed && { opacity: 0.85 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-        <View style={rowStyles.iconWrap}>
-          <Icon name={dept.icon} size={20} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={rowStyles.title}>{dept.name}</Text>
+        <IconCircle name={dept.icon} size={50} />
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={rowStyles.cardTitle}>{dept.name}</Text>
           <Text style={rowStyles.meta}>
             {formatCompact(s.spent)} of {formatCompact(s.budget)}
             {s.pending > 0 ? ` · ${formatCompact(s.pending)} pending` : ''}
           </Text>
         </View>
-        <Text style={[rowStyles.pct, s.pct < 0.8 ? { color: colors.inkSoft } : null]}>
-          {Math.round(s.pct * 100)}%
-        </Text>
-        {onPress ? <Icon name="chevron-forward" size={18} color={colors.inkMuted} /> : null}
+        <Text style={[rowStyles.pct, { color: pctColor }]}>{Math.round(s.pct * 100)}%</Text>
       </View>
-      <View style={{ marginTop: space.sm }}>
-        <ProgressBar value={s.pct} pending={s.budget ? s.pending / s.budget : 0} />
-      </View>
+      <ProgressBar value={s.pct} pending={s.budget ? s.pending / s.budget : 0} />
     </Pressable>
   );
 }
 
+const requestStatus: Record<BudgetRequest['status'], { label: string; color: string }> = {
+  pending: { label: 'Pending', color: colors.pending },
+  approved: { label: 'Approved', color: colors.positive },
+  rejected: { label: 'Declined', color: colors.negative },
+};
+
+export function BudgetRequestRow({ request }: { request: BudgetRequest }) {
+  const { state } = useStore();
+  const s = requestStatus[request.status];
+  return (
+    <View style={rowStyles.row}>
+      <IconCircle name="trending" size={50} />
+      <View style={{ flex: 1, gap: 4 }}>
+        <Text style={rowStyles.title} numberOfLines={1}>
+          {deptName(state, request.departmentId)}
+        </Text>
+        <Text style={rowStyles.meta} numberOfLines={2}>
+          {request.reason}
+        </Text>
+        {request.note ? <Text style={[rowStyles.meta, { fontStyle: 'italic' }]}>“{request.note}”</Text> : null}
+      </View>
+      <View style={{ alignItems: 'flex-end', gap: 5 }}>
+        <Money value={request.amount} signed />
+        <Text style={[rowStyles.cardNote, { color: s.color }]}>{s.label}</Text>
+      </View>
+    </View>
+  );
+}
+
 export const rowStyles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md, paddingHorizontal: space.lg },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.md },
+  title: { fontFamily: font.medium, fontSize: 17, color: colors.ink },
+  meta: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkMuted },
+  card: {
+    gap: space.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg + 4,
     borderWidth: 1,
     borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: space.lg,
+    paddingHorizontal: space.lg,
+    boxShadow: shadow.soft,
   },
-  title: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  meta: { fontSize: 12.5, color: colors.inkSoft },
-  amount: { fontSize: 15, fontWeight: '700', color: colors.ink },
-  pct: { fontSize: 15, fontWeight: '700', color: colors.ink, minWidth: 40, textAlign: 'right' },
-  listCard: {
-    ...glass(),
-    borderRadius: radius.lg,
-    overflow: 'hidden',
+  cardTitle: { fontFamily: font.medium, fontSize: 17.5, color: colors.ink },
+  cardNote: { ...label, fontSize: 10.5, letterSpacing: 1.5 },
+  cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.md, paddingLeft: 4 },
+  deptCard: {
+    gap: space.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg + 4,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: space.lg,
+    boxShadow: shadow.soft,
   },
-  sep: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line, marginLeft: 68 },
-  deptRow: { paddingVertical: space.md, paddingHorizontal: space.lg },
+  pct: { fontFamily: font.semibold, fontSize: 17 },
 });

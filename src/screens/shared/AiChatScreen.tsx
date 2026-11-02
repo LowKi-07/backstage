@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, ScrollViewInstance, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, ScrollViewInstance, StyleSheet, View } from 'react-native';
 import { buildExpenseContext } from '../../ai/expenseContext';
-import { Chip, Icon, Screen } from '../../components/ui';
+import { Text, TextInput } from '../../components/Text';
+import { Icon, IconCircle, Screen } from '../../components/ui';
 import { useStore } from '../../store/Store';
-import { colors, glass, radius, space } from '../../theme';
+import { colors, font, radius, shadow, space } from '../../theme';
 import { Role } from '../../types';
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string };
@@ -23,7 +23,6 @@ const historyByUser = new Map<string, ChatTurn[]>();
 
 export function AiChatScreen() {
   const { state, currentUser } = useStore();
-  const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollViewInstance>(null);
   const [messages, setMessages] = useState<ChatTurn[]>(() => (currentUser ? historyByUser.get(currentUser.id) ?? [] : []));
   const [draft, setDraft] = useState('');
@@ -64,11 +63,9 @@ export function AiChatScreen() {
     }
   };
 
-  // Leave room for the floating tab bar under the input.
-  const bottomGap = Math.max(insets.bottom, 12) + 78;
 
   return (
-    <Screen title="Ask AI" subtitle="Questions about your expenses" scroll={false}>
+    <Screen title="ask ai" scroll={false}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           ref={scrollRef}
@@ -78,14 +75,15 @@ export function AiChatScreen() {
         >
           {messages.length === 0 ? (
             <View style={styles.intro}>
-              <View style={styles.introIcon}>
-                <Icon name="sparkles" size={26} color={colors.onInk} />
-              </View>
-              <Text style={styles.introTitle}>Ask about your expenses</Text>
-              <Text style={styles.introText}>Totals, pending approvals, budgets, top categories — answered from the data you can see.</Text>
+              <IconCircle name="sparkles" size={72} />
+              <Text style={styles.introTitle}>ask about your expenses</Text>
+              <Text style={styles.introText}>Totals, pending approvals, budgets and top categories, answered from the data you can see.</Text>
               <View style={styles.suggestions}>
                 {SUGGESTIONS[currentUser.role].map((s) => (
-                  <Chip key={s} label={s} onPress={() => send(s)} />
+                  <Pressable key={s} onPress={() => send(s)} style={({ pressed }) => [styles.suggestion, pressed && { opacity: 0.7 }]}>
+                    <Text style={styles.suggestionText}>{s}</Text>
+                    <Icon name="arrow-up-right" size={17} color={colors.inkSoft} />
+                  </Pressable>
                 ))}
               </View>
             </View>
@@ -106,18 +104,17 @@ export function AiChatScreen() {
           ) : null}
           {error ? (
             <View style={styles.error}>
-              <Icon name="alert-circle-outline" size={16} color={colors.ink} />
+              <Icon name="alert" size={18} color={colors.negative} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : null}
         </ScrollView>
 
-        <View style={[styles.composer, { marginBottom: bottomGap }]}>
+        <View style={styles.composer}>
           <TextInput
             value={draft}
             onChangeText={setDraft}
             placeholder="Ask anything about expenses…"
-            placeholderTextColor={colors.inkMuted}
             style={styles.input}
             multiline
             maxLength={2000}
@@ -132,7 +129,7 @@ export function AiChatScreen() {
             style={[styles.send, (!draft.trim() || sending) && { opacity: 0.35 }]}
             accessibilityLabel="Send"
           >
-            <Icon name="arrow-up" size={20} color={colors.onInk} />
+            <Icon name="arrow-up" size={20} color={colors.onInk} strokeWidth={2} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -141,38 +138,47 @@ export function AiChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  thread: { padding: space.lg, gap: space.sm, flexGrow: 1 },
-  intro: { alignItems: 'center', gap: space.sm, paddingTop: space.xl },
-  introIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.ink,
+  thread: { paddingHorizontal: space.xl, paddingVertical: space.lg, gap: space.sm, flexGrow: 1 },
+  intro: { alignItems: 'center', gap: space.md, paddingTop: space.lg },
+  introTitle: { fontFamily: font.serif, fontSize: 30, color: colors.ink, textAlign: 'center', marginTop: space.sm },
+  introText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.md },
+  suggestions: { gap: space.sm, alignSelf: 'stretch', marginTop: space.md },
+  suggestion: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 0 36px rgba(255,255,255,0.35)',
+    justifyContent: 'space-between',
+    gap: space.sm,
+    paddingHorizontal: space.lg,
+    paddingVertical: 14,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    boxShadow: shadow.soft,
   },
-  introTitle: { fontSize: 20, fontWeight: '700', color: colors.ink, letterSpacing: -0.4, marginTop: space.sm },
-  introText: { fontSize: 14, color: colors.inkSoft, textAlign: 'center', lineHeight: 20, paddingHorizontal: space.lg },
-  suggestions: { gap: space.sm, alignItems: 'center', marginTop: space.md },
-  bubble: { maxWidth: '86%', borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 10 },
-  userBubble: { alignSelf: 'flex-end', backgroundColor: colors.ink, borderBottomRightRadius: 6 },
-  aiBubble: { ...glass(), alignSelf: 'flex-start', borderBottomLeftRadius: 6 },
-  bubbleText: { fontSize: 15, lineHeight: 21, color: colors.ink },
+  suggestionText: { flex: 1, fontFamily: font.medium, fontSize: 15.5, color: colors.ink },
+  bubble: { maxWidth: '86%', borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 12 },
+  userBubble: { alignSelf: 'flex-end', backgroundColor: colors.button, borderBottomRightRadius: 6 },
+  aiBubble: { alignSelf: 'flex-start', backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.lineSoft, borderBottomLeftRadius: 6 },
+  bubbleText: { fontFamily: font.medium, fontSize: 15.5, lineHeight: 22, color: colors.ink },
   thinking: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  thinkingText: { fontSize: 14, color: colors.inkSoft },
-  error: { flexDirection: 'row', gap: 6, alignItems: 'flex-start', ...glass(), borderRadius: radius.md, padding: space.md },
-  errorText: { flex: 1, fontSize: 13.5, color: colors.ink, lineHeight: 19 },
+  thinkingText: { fontFamily: font.medium, fontSize: 14.5, color: colors.inkSoft },
+  error: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', borderRadius: radius.md, padding: space.md, backgroundColor: '#FDEDEA' },
+  errorText: { flex: 1, fontFamily: font.medium, fontSize: 14, color: colors.negative, lineHeight: 19 },
   composer: {
-    ...glass(),
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: space.sm,
-    marginHorizontal: space.lg,
-    borderRadius: radius.lg,
+    marginHorizontal: space.xl,
+    marginBottom: space.md,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
     padding: 6,
-    paddingLeft: space.md,
+    paddingLeft: space.lg,
+    boxShadow: shadow.raised,
   },
-  input: { flex: 1, color: colors.ink, fontSize: 15, maxHeight: 120, paddingVertical: 9 },
-  send: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
+  input: { flex: 1, fontFamily: font.medium, color: colors.ink, fontSize: 16, maxHeight: 120, paddingVertical: 11 },
+  send: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.button, alignItems: 'center', justifyContent: 'center' },
 });

@@ -1,95 +1,98 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Avatar, Button, Card, Divider, Screen, SectionTitle } from '../../components/ui';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../../components/Text';
+import { ActionRow, Avatar, Button, Screen, SectionTitle } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { deptName, isPending, sum } from '../../store/selectors';
 import { useStore } from '../../store/Store';
-import { colors, roleMeta, space } from '../../theme';
+import { colors, font, label, roleMeta, space } from '../../theme';
 import { formatDate, formatINR } from '../../utils/format';
 
-export function ProfileScreen({ embedded }: { embedded?: boolean }) {
+export function ProfileScreen() {
   const { state, currentUser, logout, resetDemo } = useStore();
   const nav = useNav();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
   if (!currentUser) return null;
 
   const mine = state.expenses.filter((e) => e.userId === currentUser.id);
   const managed = state.departments.filter((d) => d.managerId === currentUser.id);
+  const departments =
+    currentUser.role === 'producer'
+      ? 'All departments'
+      : (currentUser.role === 'manager' ? managed.map((d) => d.name) : currentUser.departmentIds.map((id) => deptName(state, id))).join(', ');
 
   return (
-    <Screen title="Profile" onBack={embedded ? undefined : nav.pop}>
-      <Card style={{ alignItems: 'center', gap: space.sm, paddingVertical: space.xl }}>
-        <Avatar name={currentUser.name} size={72} dark />
+    <Screen onBack={nav.pop}>
+      <View style={styles.head}>
+        <Avatar name={currentUser.name} size={88} ring />
         <Text style={styles.name}>{currentUser.name}</Text>
-        <Text style={styles.sub}>{currentUser.title}</Text>
         <Text style={styles.role}>{roleMeta[currentUser.role].label}</Text>
-      </Card>
+        <Text style={styles.sub}>{currentUser.title}</Text>
+      </View>
 
-      <SectionTitle title="Details" />
-      <Card>
-        <Row label="Phone" value={currentUser.phone} />
-        <Divider />
-        <Row
-          label={currentUser.role === 'manager' ? 'Manages' : 'Department'}
-          value={
-            currentUser.role === 'producer'
-              ? 'All departments'
-              : (currentUser.role === 'manager' ? managed.map((d) => d.name) : currentUser.departmentIds.map((id) => deptName(state, id))).join(', ')
-          }
-        />
-        <Divider />
-        <Row label="Project" value={`${state.project.name} (${state.project.kind})`} />
-        <Divider />
-        <Row label="Schedule" value={`${formatDate(state.project.startDate)} – ${formatDate(state.project.endDate)}`} />
-        {currentUser.role !== 'producer' ? (
-          <>
-            <Divider />
-            <Row label="My submissions" value={`${mine.length} · ${formatINR(sum(mine.filter(isPending)))} pending`} />
-          </>
-        ) : null}
-      </Card>
+      <SectionTitle title="details" />
+      <View>
+        <Row label={currentUser.role === 'manager' ? 'manages' : 'department'} value={departments} />
+        <Row label="phone" value={currentUser.phone} />
+        <Row label="project" value={`${state.project.name} · ${state.project.kind}`} />
+        <Row label="schedule" value={`${formatDate(state.project.startDate)} – ${formatDate(state.project.endDate)}`} />
+        {currentUser.role !== 'producer' ? <Row label="my bills" value={`${mine.length} logged · ${formatINR(sum(mine.filter(isPending)))} pending`} /> : null}
+      </View>
 
-      <SectionTitle title="Security" />
-      <Card>
-        <Text style={styles.note}>
-          Phone OTP sign-in, NDA signing and end-to-end encrypted sync arrive with the cloud backend. Every approval and payment is already
-          recorded in each expense’s audit trail.
-        </Text>
-      </Card>
-
-      <Button label="Switch user" icon="swap-horizontal" variant="secondary" onPress={logout} />
+      <SectionTitle title="quick actions" />
+      <ActionRow icon="reset" title="switch user" subtitle="sign in as another crew, manager or producer" onPress={logout} />
       {confirmReset ? (
-        <View style={{ flexDirection: 'row', gap: space.sm }}>
-          <Button label="Cancel" variant="secondary" onPress={() => setConfirmReset(false)} style={{ flex: 1 }} />
-          <Button
-            label="Yes, reset"
-            variant="danger"
-            onPress={() => {
-              resetDemo();
-              setConfirmReset(false);
-            }}
-            style={{ flex: 1 }}
-          />
+        <View style={{ gap: space.sm }}>
+          <Text style={styles.sub}>This replaces every expense on this device with the demo data.</Text>
+          <View style={{ flexDirection: 'row', gap: space.sm }}>
+            <Button label="Cancel" variant="outline" small onPress={() => setConfirmReset(false)} style={{ flex: 1 }} />
+            <Button
+              label="Reset data"
+              small
+              onPress={() => {
+                resetDemo();
+                setConfirmReset(false);
+                setResetDone(true);
+              }}
+              style={{ flex: 1 }}
+            />
+          </View>
         </View>
       ) : (
-        <Button label="Reset demo data" icon="refresh" variant="ghost" onPress={() => setConfirmReset(true)} />
+        <ActionRow
+          icon="trash"
+          title="reset demo data"
+          subtitle={resetDone ? 'demo data restored' : 'start over with the sample production'}
+          onPress={() => setConfirmReset(true)}
+          tone={colors.negative}
+        />
       )}
+
+      <SectionTitle title="security" />
+      <Text style={styles.note}>
+        Phone OTP sign-in, NDA signing and encrypted cloud sync arrive with the backend. Every approval and payment is already recorded in each expense’s audit trail.
+      </Text>
     </Screen>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label: l, value }: { label: string; value: string }) {
   return (
-    <View style={{ gap: 2 }}>
-      <Text style={{ color: colors.inkSoft, fontSize: 12.5 }}>{label}</Text>
-      <Text style={{ color: colors.ink, fontSize: 15, fontWeight: '500' }}>{value}</Text>
+    <View style={styles.row}>
+      <Text style={styles.rowLabel}>{l}</Text>
+      <Text style={styles.rowValue}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  name: { fontSize: 22, fontWeight: '700', color: colors.ink },
-  sub: { fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
-  role: { fontSize: 12, fontWeight: '700', color: colors.warning, textTransform: 'uppercase', letterSpacing: 0.6 },
-  note: { fontSize: 13.5, color: colors.inkSoft, lineHeight: 19 },
+  head: { alignItems: 'center', gap: 6, paddingTop: space.sm },
+  name: { fontFamily: font.serif, fontSize: 32, color: colors.ink, marginTop: space.sm },
+  role: { ...label, fontSize: 12, letterSpacing: 2, color: colors.accentInk },
+  sub: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center' },
+  row: { paddingVertical: 12, gap: 3, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
+  rowLabel: { ...label, fontSize: 10.5, letterSpacing: 1.6, color: colors.inkMuted },
+  rowValue: { fontFamily: font.medium, fontSize: 16, color: colors.ink },
+  note: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkSoft, lineHeight: 20 },
 });

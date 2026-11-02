@@ -12,7 +12,7 @@ export interface User {
 export interface Department {
   id: string;
   name: string;
-  icon: string; // Ionicons name
+  icon: string; // line icon name (components/icons.tsx)
   budget: number;
   managerId: string;
 }

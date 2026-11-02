@@ -1,15 +1,31 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { Image, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Icon } from '../../components/icons';
 import { categoryIcon } from '../../components/rows';
-import { Button, Card, Chip, ChipRow, Field, Icon, Screen, SectionTitle } from '../../components/ui';
+import { Text, TextInput } from '../../components/Text';
+import { Button, Chip, ChipRow, Field, Hero, Screen, SectionTitle } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { useStore } from '../../store/Store';
-import { colors, glass, radius, space } from '../../theme';
+import { colors, font, radius, space } from '../../theme';
 import { CATEGORIES, Expense } from '../../types';
-import { formatINR, isValidGSTIN, toISODate } from '../../utils/format';
+import { isValidGSTIN, toISODate } from '../../utils/format';
 
 const DAY = 86400000;
+
+// Short tile captions; the stored category keeps its full name.
+const tileLabel: Record<string, string> = {
+  'Food & Catering': 'food',
+  Accommodation: 'stay',
+  'Equipment Rental': 'equipment',
+  'Props & Materials': 'props',
+  'Costume & Fabric': 'costume',
+  'Makeup Supplies': 'makeup',
+  'Location Fees': 'location',
+  'Labour / Daily Wages': 'daily wages',
+  'Printing & Stationery': 'printing',
+  Miscellaneous: 'other',
+};
 const dateOptions = [0, 1, 2, 3].map((n) => {
   const d = new Date(Date.now() - n * DAY);
   return { label: n === 0 ? 'Today' : n === 1 ? 'Yesterday' : `${n} days ago`, value: toISODate(d) };
@@ -89,33 +105,31 @@ export function NewExpenseScreen() {
   if (submitted) {
     const toProducer = submitted.status === 'escalated';
     return (
-      <Screen title="Submitted" onBack={nav.pop}>
-        <Card style={{ alignItems: 'center', paddingVertical: 36, gap: space.md }}>
+      <Screen onBack={nav.pop}>
+        <View style={styles.success}>
           <View style={styles.successIcon}>
-            <Icon name="checkmark" size={36} color={colors.onInk} />
+            <Icon name="check" size={38} color={colors.onInk} strokeWidth={2} />
           </View>
-          <Text style={styles.successAmount}>{formatINR(submitted.amount)}</Text>
-          <Text style={styles.successText}>
-            {toProducer
-              ? 'Sent to the producer for approval. You’ll see updates in your expenses.'
-              : 'Sent to your team manager for approval. You’ll see updates in your expenses.'}
-          </Text>
-        </Card>
-        <Button label="Log another expense" icon="add" onPress={reset} />
-        <Button label="View expense" variant="secondary" onPress={() => { nav.pop(); nav.push({ name: 'expense', id: submitted.id }); }} />
+          <Hero eyebrow={toProducer ? 'sent to the producer' : 'sent to your manager'} lines={['submitted']} amount={submitted.amount} />
+          <Text style={styles.successText}>You’ll see every update in your expenses, and the payout once it’s approved.</Text>
+        </View>
+        <Button label="Log another expense" icon="plus" onPress={reset} />
+        <Button
+          label="View expense"
+          variant="outline"
+          onPress={() => {
+            nav.pop();
+            nav.push({ name: 'expense', id: submitted.id });
+          }}
+        />
       </Screen>
     );
   }
 
   return (
-    <Screen
-      title="Log expense"
-      subtitle={state.project.name}
-      onBack={nav.pop}
-      footer={<Button label="Submit for approval" icon="paper-plane-outline" onPress={submit} />}
-    >
-      <Card style={{ gap: space.sm }}>
-        <Text style={styles.amountLabel}>Amount spent</Text>
+    <Screen title="add expense" subtitle={state.project.name.toLowerCase()} onBack={nav.pop} footer={<Button label="Submit for approval" icon="send" onPress={submit} />}>
+      <View style={styles.amountBox}>
+        <Text style={styles.amountLabel}>amount spent</Text>
         <View style={styles.amountRow}>
           <Text style={styles.rupee}>₹</Text>
           <TextInput
@@ -123,41 +137,42 @@ export function NewExpenseScreen() {
             onChangeText={(t) => setAmount(t.replace(/[^0-9.]/g, ''))}
             keyboardType="decimal-pad"
             placeholder="0"
-            placeholderTextColor={colors.inkMuted}
-            style={styles.amountInput}
+            style={[styles.amountInput, { width: Math.max(1, amount.length) * 30 + 24 }, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]}
             autoFocus={Platform.OS !== 'web'}
             accessibilityLabel="Amount spent"
           />
         </View>
         {errors.amount ? <Text style={styles.err}>{errors.amount}</Text> : null}
-      </Card>
+      </View>
 
-      <SectionTitle title="Receipt" />
+      <SectionTitle title="receipt" />
       {receiptUri ? (
-        <Card style={{ padding: 0, overflow: 'hidden' }}>
+        <View style={styles.receipt}>
           <Image source={{ uri: receiptUri }} style={{ width: '100%', height: 220 }} resizeMode="cover" />
           <Pressable onPress={() => setReceiptUri(undefined)} style={styles.removeReceipt}>
-            <Icon name="trash-outline" size={16} color={colors.danger} />
-            <Text style={{ color: colors.danger, fontWeight: '600' }}>Remove receipt</Text>
+            <Icon name="trash" size={17} color={colors.negative} />
+            <Text style={{ fontFamily: font.semibold, color: colors.negative }}>remove receipt</Text>
           </Pressable>
-        </Card>
+        </View>
       ) : (
-        <View style={{ flexDirection: 'row', gap: space.sm }}>
-          <Button label="Take photo" icon="camera-outline" variant="secondary" onPress={() => pick('camera')} style={{ flex: 1 }} />
-          <Button label="Upload" icon="image-outline" variant="secondary" onPress={() => pick('library')} style={{ flex: 1 }} />
+        <View style={{ flexDirection: 'row', gap: space.md }}>
+          <Button label="Camera" icon="camera" variant="outline" onPress={() => pick('camera')} style={{ flex: 1 }} />
+          <Button label="Upload" icon="image" variant="outline" onPress={() => pick('library')} style={{ flex: 1 }} />
         </View>
       )}
       {pickerError ? <Text style={styles.err}>{pickerError}</Text> : null}
 
-      <SectionTitle title="Category" />
+      <SectionTitle title="category" />
       <View style={styles.grid}>
         {CATEGORIES.map((c) => {
           const active = category === c;
           return (
-            <Pressable key={c} onPress={() => setCategory(c)} style={[styles.catTile, active && styles.catTileActive]}>
-              <Icon name={categoryIcon[c]} size={20} color={active ? colors.onInk : colors.ink} />
-              <Text style={[styles.catText, active && { color: colors.onInk }]} numberOfLines={2}>
-                {c}
+            <Pressable key={c} onPress={() => setCategory(c)} style={styles.catTile} accessibilityRole="radio" accessibilityState={{ selected: active }}>
+              <View style={[styles.catCircle, active && styles.catCircleActive]}>
+                <Icon name={categoryIcon[c]} size={26} color={active ? colors.onInk : colors.ink} strokeWidth={1.4} />
+              </View>
+              <Text style={[styles.catText, active && { fontFamily: font.bold }]} numberOfLines={2}>
+                {tileLabel[c] ?? c.toLowerCase()}
               </Text>
             </Pressable>
           );
@@ -167,7 +182,7 @@ export function NewExpenseScreen() {
 
       {myDepts.length > 1 ? (
         <>
-          <SectionTitle title="Department" />
+          <SectionTitle title="department" />
           <ChipRow>
             {myDepts.map((d) => (
               <Chip key={d.id} label={d.name} active={departmentId === d.id} onPress={() => setDepartmentId(d.id)} />
@@ -177,16 +192,9 @@ export function NewExpenseScreen() {
         </>
       ) : null}
 
-      <SectionTitle title="Details" />
-      <Field
-        label="What was it for?"
-        placeholder="e.g. Diesel for generator van"
-        value={description}
-        onChangeText={setDescription}
-        error={errors.description}
-        multiline
-      />
-      <Field label="Vendor / shop (optional)" placeholder="e.g. IndianOil Aluva" value={vendor} onChangeText={setVendor} />
+      <SectionTitle title="details" />
+      <Field label="What was it for?" placeholder="e.g. Diesel for generator van" value={description} onChangeText={setDescription} error={errors.description} multiline />
+      <Field label="Vendor or shop (optional)" placeholder="e.g. IndianOil Aluva" value={vendor} onChangeText={setVendor} />
       <Field
         label="Vendor GSTIN (optional)"
         placeholder="e.g. 32ABCDE1234F1Z5"
@@ -198,7 +206,7 @@ export function NewExpenseScreen() {
         hint="Needed for GST input credit on bills above ₹5,000"
       />
 
-      <SectionTitle title="Date" />
+      <SectionTitle title="date" />
       <ChipRow>
         {dateOptions.map((o) => (
           <Chip key={o.value} label={o.label} active={date === o.value} onPress={() => setDate(o.value)} />
@@ -210,27 +218,30 @@ export function NewExpenseScreen() {
 }
 
 const styles = StyleSheet.create({
-  amountLabel: { fontSize: 13, fontWeight: '600', color: colors.inkSoft },
-  amountRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  rupee: { fontSize: 34, fontWeight: '700', color: colors.ink, marginTop: -4 },
-  amountInput: { flex: 1, minWidth: 0, fontSize: 34, fontWeight: '700', color: colors.ink, paddingVertical: 4 },
-  err: { color: colors.danger, fontSize: 12.5 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  catTile: {
-    width: '31.5%',
-    minHeight: 76,
-    ...glass(16),
-    borderRadius: radius.md,
-    paddingVertical: space.sm,
-    paddingHorizontal: 4,
-    gap: 6,
-    justifyContent: 'center',
+  amountBox: { alignItems: 'center', gap: 6, paddingVertical: space.lg, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt },
+  amountLabel: { fontFamily: font.semibold, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: colors.inkSoft },
+  amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: space.lg },
+  rupee: { fontFamily: font.serif, fontSize: 46, color: colors.ink },
+  amountInput: { fontFamily: font.serif, fontSize: 52, color: colors.ink, maxWidth: 270, paddingVertical: 2, textAlign: 'left' },
+  err: { fontFamily: font.medium, color: colors.negative, fontSize: 13.5 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space.lg },
+  catTile: { width: '25%', alignItems: 'center', gap: 8 },
+  catCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
     alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 5px 12px rgba(0,0,0,0.07), inset 0 1px 0 #FFFFFF',
   },
-  catTileActive: { backgroundColor: colors.ink, borderColor: colors.ink },
-  catText: { fontSize: 11.5, fontWeight: '600', color: colors.ink, textAlign: 'center' },
+  catCircleActive: { backgroundColor: colors.ink, borderColor: colors.ink },
+  catText: { fontFamily: font.medium, fontSize: 12, color: colors.ink, textAlign: 'center', lineHeight: 15 },
+  receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   removeReceipt: { flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', padding: space.md },
-  successIcon: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.ink, boxShadow: '0 0 40px rgba(255,255,255,0.35)', alignItems: 'center', justifyContent: 'center' },
-  successAmount: { fontSize: 30, fontWeight: '800', color: colors.ink },
-  successText: { fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.lg },
+  success: { alignItems: 'center', paddingTop: space.xl, gap: space.sm },
+  successIcon: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 24px rgba(0,0,0,0.2)' },
+  successText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.lg, marginBottom: space.lg },
 });

@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Icon } from '../components/ui';
-import { colors, glassBar, radius } from '../theme';
+import { Icon, NavGlow, NavGlyph, NavGlyphName } from '../components/icons';
+import { Text } from '../components/Text';
+import { colors, font, label } from '../theme';
 
 export type Route =
   | { name: 'expense'; id: string }
@@ -14,9 +15,18 @@ export type Route =
 export interface TabDef {
   key: string;
   label: string;
-  icon: string;
+  glyph: NavGlyphName;
   badge?: number;
   render: () => React.ReactNode;
+}
+
+// The raised round button in the middle of the bar: either opens a tab or runs an action.
+export interface CenterDef {
+  icon: string;
+  label: string;
+  badge?: number;
+  tab?: { key: string; render: () => React.ReactNode };
+  route?: Route;
 }
 
 interface NavApi {
@@ -34,9 +44,9 @@ export function useNav(): NavApi {
   return ctx;
 }
 
-// Small hand-rolled navigator: bottom tabs plus a push/pop stack on top of them.
+// Small hand-rolled navigator: four tabs around a centre button, plus a push/pop stack on top.
 // Kept dependency-free so the app runs the same on iOS, Android and web.
-export function TabNavigator({ tabs, renderRoute }: { tabs: TabDef[]; renderRoute: (r: Route) => React.ReactNode }) {
+export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; center: CenterDef; renderRoute: (r: Route) => React.ReactNode }) {
   const [tab, setTab] = useState(tabs[0].key);
   const [stack, setStack] = useState<Route[]>([]);
   const insets = useSafeAreaInsets();
@@ -64,30 +74,49 @@ export function TabNavigator({ tabs, renderRoute }: { tabs: TabDef[]; renderRout
   }, [stack.length]);
 
   const top = stack[stack.length - 1];
-  const active = tabs.find((t) => t.key === tab) ?? tabs[0];
+  const centerActive = center.tab?.key === tab;
+  const active = tabs.find((t) => t.key === tab);
+  const body = top ? renderRoute(top) : centerActive ? center.tab!.render() : (active ?? tabs[0]).render();
+  const left = tabs.slice(0, 2);
+  const right = tabs.slice(2);
+
+  const renderTab = (t: TabDef) => {
+    const isActive = !centerActive && t.key === (active ?? tabs[0]).key;
+    return (
+      <Pressable key={t.key} style={styles.tab} onPress={() => setTab(t.key)} accessibilityRole="tab" accessibilityState={{ selected: isActive }} accessibilityLabel={t.label}>
+        <View style={styles.glyphWrap}>
+          {isActive ? <NavGlow /> : null}
+          <NavGlyph name={t.glyph} active={isActive} />
+          {t.badge ? <Badge count={t.badge} /> : null}
+        </View>
+        <Text style={[styles.tabLabel, isActive && { color: colors.onInk }]} numberOfLines={1}>
+          {t.label}
+        </Text>
+      </Pressable>
+    );
+  };
 
   return (
     <NavContext.Provider value={api}>
-      <View style={{ flex: 1 }}>
-        {top ? renderRoute(top) : active.render()}
+      <View style={{ flex: 1, backgroundColor: colors.nav }}>
+        <View style={[styles.content, !top && styles.contentRounded]}>{body}</View>
         {!top ? (
-          <View style={[styles.tabBar, { bottom: Math.max(insets.bottom, 12) }]}>
-            {tabs.map((t) => {
-              const isActive = t.key === active.key;
-              return (
-                <Pressable key={t.key} style={styles.tab} onPress={() => setTab(t.key)} accessibilityRole="tab" accessibilityState={{ selected: isActive }}>
-                  <View style={[styles.tabIcon, isActive && styles.tabIconActive]}>
-                    <Icon name={isActive ? t.icon.replace('-outline', '') : t.icon} size={21} color={isActive ? colors.onInk : colors.inkMuted} />
-                    {t.badge ? (
-                      <View style={styles.badge}>
-                        <Text style={styles.badgeText}>{t.badge > 99 ? '99+' : t.badge}</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                  <Text style={[styles.tabLabel, isActive && { color: colors.ink, fontWeight: '700' }]}>{t.label}</Text>
-                </Pressable>
-              );
-            })}
+          <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+            {left.map(renderTab)}
+            <View style={styles.centerSlot}>
+              <Pressable
+                onPress={() => (center.route ? api.push(center.route) : center.tab ? setTab(center.tab.key) : undefined)}
+                style={({ pressed }) => [styles.centerOuter, pressed && { transform: [{ scale: 0.96 }] }]}
+                accessibilityRole="button"
+                accessibilityLabel={center.label}
+              >
+                <View style={[styles.centerInner, centerActive && styles.centerInnerActive]}>
+                  <Icon name={center.icon} size={30} color={colors.onInk} strokeWidth={1.6} />
+                </View>
+                {center.badge ? <Badge count={center.badge} /> : null}
+              </Pressable>
+            </View>
+            {right.map(renderTab)}
           </View>
         ) : null}
       </View>
@@ -95,36 +124,55 @@ export function TabNavigator({ tabs, renderRoute }: { tabs: TabDef[]; renderRout
   );
 }
 
+function Badge({ count }: { count: number }) {
+  return (
+    <View style={styles.badge}>
+      <Text style={styles.badgeText}>{count > 99 ? '99+' : count}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  // Floating frosted pill; screens leave room for it via the scroll body's bottom padding.
-  tabBar: {
-    ...glassBar(),
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderRadius: radius.lg + 6,
-    paddingVertical: 8,
-    boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+  content: { flex: 1, backgroundColor: colors.bg, overflow: 'hidden' },
+  contentRounded: { borderBottomLeftRadius: 26, borderBottomRightRadius: 26 },
+  bar: { flexDirection: 'row', alignItems: 'flex-end', paddingTop: 12, paddingHorizontal: 2, backgroundColor: colors.nav },
+  tab: { flex: 1, alignItems: 'center', gap: 8, paddingBottom: 4 },
+  glyphWrap: { width: 64, height: 40, alignItems: 'center', justifyContent: 'center' },
+  tabLabel: { ...label, fontSize: 10, letterSpacing: 1.3, color: colors.navInk },
+  centerSlot: { width: 84, alignItems: 'center', paddingBottom: 6 },
+  centerOuter: {
+    width: 74,
+    height: 74,
+    borderRadius: 37,
+    marginTop: -22,
+    padding: 3,
+    backgroundColor: '#2A2A2A',
+    boxShadow: '0 0 0 1px #3C3C3C, 0 -4px 22px rgba(255,255,255,0.10), 0 10px 20px rgba(0,0,0,0.6)',
   },
-  tab: { flex: 1, alignItems: 'center', gap: 2 },
-  tabIcon: { width: 44, height: 30, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  tabIconActive: { backgroundColor: colors.ink },
-  tabLabel: { fontSize: 11, color: colors.inkMuted, fontWeight: '500' },
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: colors.ink,
-    borderWidth: 1.5,
-    borderColor: colors.black,
-    borderRadius: 9,
-    minWidth: 18,
-    height: 18,
+  centerInner: {
+    flex: 1,
+    borderRadius: 34,
+    backgroundColor: '#0E0E0E',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    borderWidth: 1,
+    borderColor: '#4A4A4A',
+    boxShadow: 'inset 0 2px 6px rgba(255,255,255,0.10)',
   },
-  badgeText: { color: colors.onInk, fontSize: 10, fontWeight: '700' },
+  centerInnerActive: { borderColor: '#9A9A9A' },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 6,
+    minWidth: 19,
+    height: 19,
+    borderRadius: 10,
+    paddingHorizontal: 4,
+    backgroundColor: colors.badge,
+    borderWidth: 1.5,
+    borderColor: colors.nav,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: { fontFamily: font.bold, fontSize: 10, color: colors.onInk },
 });
