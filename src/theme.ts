@@ -35,6 +35,9 @@ export const font = {
   semibold: 'PlusJakartaSans_600SemiBold',
   bold: 'PlusJakartaSans_700Bold',
   display: 'PlusJakartaSans_800ExtraBold',
+  // Till-receipt type for bill views.
+  mono: 'IBMPlexMono_500Medium',
+  monoBold: 'IBMPlexMono_700Bold',
 };
 
 export const radius = { sm: 10, md: 16, lg: 22, pill: 999 };

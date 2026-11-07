@@ -25,6 +25,8 @@ export interface Project {
   endDate: string;
   totalBudget: number;
   escalationThreshold: number; // manager approvals above this go to the producer
+  location: string;
+  callTime: string; // today's call time on set, e.g. "7:00 AM"
 }
 
 export type ExpenseStatus = 'submitted' | 'escalated' | 'approved' | 'rejected' | 'paid';
@@ -72,6 +74,7 @@ export interface BudgetRequest {
 export interface AppState {
   version: number;
   currentUserId: string | null;
+  selectedProjectId: string | null; // set when a crew member picks a project after signing in
   project: Project;
   users: User[];
   departments: Department[];
@@ -93,3 +96,12 @@ export const CATEGORIES = [
   'Printing & Stationery',
   'Miscellaneous',
 ] as const;
+
+// What voice entry hands to the review step: parsed fields plus what was heard.
+export interface ExpenseDraft {
+  transcript?: string;
+  description: string;
+  amount?: number;
+  category?: string;
+  vendor?: string;
+}

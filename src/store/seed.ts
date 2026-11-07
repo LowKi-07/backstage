@@ -1,7 +1,7 @@
 import { AppState, AuditEntry, Department, Expense, ExpenseStatus, User } from '../types';
 import { toISODate } from '../utils/format';
 
-export const STATE_VERSION = 2;
+export const STATE_VERSION = 3;
 
 const DAY = 86400000;
 const daysAgo = (n: number, hour = 11) => {
@@ -101,8 +101,9 @@ function buildHistory(e: SeedRow, dept: Department, submittedAt: Date): AuditEnt
 }
 
 export function createSeedState(): AppState {
-  const start = daysAgo(30);
-  const end = new Date(Date.now() + 60 * DAY);
+  // Day 120 of a 300-day schedule.
+  const start = daysAgo(119);
+  const end = new Date(Date.now() + 181 * DAY);
   const expenses: Expense[] = rows.map((row) => {
     const [id, userId, deptId, amount, category, description, vendor, ago, status] = row;
     const dept = departments.find((d) => d.id === deptId)!;
@@ -125,14 +126,17 @@ export function createSeedState(): AppState {
   return {
     version: STATE_VERSION,
     currentUserId: null,
+    selectedProjectId: null,
     project: {
       id: 'proj1',
-      name: 'Monsoon Diaries',
+      name: 'Bethlehem Kudumba Unit',
       kind: 'Feature Film',
       startDate: toISODate(start),
       endDate: toISODate(end),
       totalBudget: 45000000,
       escalationThreshold: 25000,
+      location: 'Film City, Stage 4',
+      callTime: '7:00 AM',
     },
     users,
     departments,

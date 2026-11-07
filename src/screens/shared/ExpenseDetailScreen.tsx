@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import { Icon } from '../../components/icons';
-import { categoryIcon } from '../../components/rows';
+import { DashedRule, Receipt, ReceiptRow, receiptType } from '../../components/receipt';
 import { Text } from '../../components/Text';
-import { Button, Card, Field, IconCircle, Money, Notice, ProgressBar, Screen, SectionTitle, StatementDivider, StatusText } from '../../components/ui';
+import { Button, Field, IconCircle, Notice, Screen, SectionTitle, sentence, StatementDivider, StatusText } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { deptName, departmentSummary, userName } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, font, label, radius, space } from '../../theme';
 import { AuditAction } from '../../types';
-import { formatCompact, formatDate, formatDateTime } from '../../utils/format';
+import { formatCompact, formatDate, formatDateTime, formatINR } from '../../utils/format';
 
 const actionLabel: Record<AuditAction, string> = {
   submitted: 'submitted',
@@ -81,45 +80,56 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
     setFlash('Sent to the producer.');
   };
 
+  const submittedAt = expense.history[0]?.at ?? expense.createdAt;
+  const ref = expense.id.slice(-4).toUpperCase();
+  const amountText = formatINR(expense.amount, { decimals: true });
+
   return (
-    <Screen onBack={nav.pop}>
-      <View style={styles.top}>
-        <View style={{ flex: 1, gap: 6 }}>
-          <StatusText status={expense.status} style={{ fontSize: 13 }} />
-          <Money value={expense.amount} size={42} display />
-        </View>
-        {deciding ? <Button label="Approve" onPress={approve} style={styles.topButton} /> : null}
-        {canPay ? (
-          <Button
-            label="Mark paid"
-            onPress={() => {
-              markPaid([expense.id], 'Paid via bank transfer');
-              setFlash('Marked as paid. The crew member sees it in their payouts.');
-            }}
-            style={styles.topButton}
-          />
-        ) : null}
+    <Screen onBack={nav.pop} right={<StatusText status={expense.status} />}>
+      {/* The bill as a printed till receipt. */}
+      <View style={styles.tray}>
+        <Receipt>
+          <View style={{ alignItems: 'center', gap: 2 }}>
+            <Text style={receiptType.heading} numberOfLines={2}>
+              {(expense.vendor ?? expense.description).toUpperCase()}
+            </Text>
+            <Text style={receiptType.sub}>
+              {expense.category.toUpperCase()} · {deptName(state, expense.departmentId).toUpperCase()}
+            </Text>
+            <Text style={receiptType.sub}>
+              {formatDateTime(submittedAt)} · Ref {ref}
+            </Text>
+          </View>
+          <DashedRule />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={receiptType.small}>ITEM</Text>
+            <Text style={receiptType.small}>AMOUNT</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+            <Text style={[receiptType.body, { flex: 1 }]}>{expense.description}</Text>
+            <Text style={[receiptType.body, { fontFamily: font.monoBold }]}>{amountText.replace('₹', '')}</Text>
+          </View>
+          <DashedRule />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Text style={[receiptType.body, { fontFamily: font.monoBold, letterSpacing: 1 }]}>TOTAL</Text>
+            <Text style={receiptType.total}>{amountText}</Text>
+          </View>
+          <DashedRule />
+          <ReceiptRow label="Submitted by" value={userName(state, expense.userId)} />
+          <ReceiptRow label="Date of spend" value={formatDate(expense.date)} />
+          <ReceiptRow label="Receipt photo" value={expense.receiptUri ? 'Attached' : 'Not attached'} valueColor={expense.receiptUri ? colors.positive : colors.negative} />
+          {expense.gstin ? <ReceiptRow label="Vendor GSTIN" value={expense.gstin} /> : null}
+          {(isManagerOfDept || isProducer) && dept ? (
+            <ReceiptRow
+              label="Dept budget"
+              value={`${formatCompact(summary.spent)} / ${formatCompact(summary.budget)} · ${Math.round(((summary.spent + (openStatus ? expense.amount : 0)) / summary.budget) * 100)}%`}
+              valueColor={openStatus && summary.spent + expense.amount > summary.budget ? colors.negative : undefined}
+            />
+          ) : null}
+        </Receipt>
       </View>
 
       {flash ? <Notice text={flash} /> : null}
-
-      {/* Dark "bill card": the expense at a glance. */}
-      <View style={styles.billCard}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <View style={{ gap: 4, flex: 1 }}>
-            <Text style={styles.billDept}>{deptName(state, expense.departmentId).toLowerCase()}</Text>
-            <Text style={styles.billCategory}>{expense.category.toLowerCase()}</Text>
-          </View>
-          <View style={styles.billIcon}>
-            <Icon name={categoryIcon[expense.category] ?? 'receipt'} size={22} color={colors.onInk} />
-          </View>
-        </View>
-        <Text style={styles.billDesc}>{expense.description}</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <Text style={styles.billRef}>•• {expense.id.slice(-4).toUpperCase()}</Text>
-          <Text style={styles.billDate}>{formatDate(expense.date)}</Text>
-        </View>
-      </View>
 
       {deciding ? (
         <View style={{ gap: space.md }}>
@@ -128,52 +138,37 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
             <Button label="Reject" variant="danger" small onPress={reject} style={{ flex: 1 }} />
             {canManagerAct ? <Button label="Send to producer" variant="outline" small onPress={escalate} style={{ flex: 1.6 }} /> : null}
           </View>
+          <Button label={`Approve ${formatINR(expense.amount)}`} onPress={approve} />
         </View>
       ) : null}
-
-      {(isManagerOfDept || isProducer) && dept ? (
-        <Card onPress={() => nav.push({ name: 'department', id: dept.id })} style={{ gap: space.md }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.cardLabel}>{dept.name} budget</Text>
-            <Text style={styles.cardValue}>
-              {formatCompact(summary.spent)} / {formatCompact(summary.budget)}
-            </Text>
-          </View>
-          <ProgressBar value={summary.pct} pending={openStatus && summary.budget ? expense.amount / summary.budget : 0} />
-          {openStatus ? (
-            <Text style={[styles.cardHint, summary.spent + expense.amount > summary.budget && { color: colors.negative }]}>
-              {Math.round(((summary.spent + expense.amount) / summary.budget) * 100)}% used if this is approved
-            </Text>
-          ) : null}
-        </Card>
+      {canPay ? (
+        <Button
+          label={`Mark ${formatINR(expense.amount)} as paid`}
+          onPress={() => {
+            markPaid([expense.id], 'Paid via bank transfer');
+            setFlash('Marked as paid. The crew member sees it in their payouts.');
+          }}
+        />
+      ) : null}
+      {dept && (isManagerOfDept || isProducer) ? (
+        <Button label={`Open ${dept.name} budget`} variant="outline" small onPress={() => nav.push({ name: 'department', id: dept.id })} />
       ) : null}
 
-      <SectionTitle title="details" />
-      <View style={{ gap: 2 }}>
-        <Detail label="submitted by" value={userName(state, expense.userId)} />
-        {expense.vendor ? <Detail label="vendor" value={expense.vendor} /> : null}
-        {expense.gstin ? <Detail label="vendor GSTIN" value={expense.gstin} /> : null}
-        <Detail label="reference" value={expense.id.toUpperCase()} />
-      </View>
-
-      <SectionTitle title="receipt" />
       {expense.receiptUri ? (
-        <View style={styles.receipt}>
-          <Image source={{ uri: expense.receiptUri }} style={{ width: '100%', height: 320 }} resizeMode="cover" />
-        </View>
-      ) : (
-        <View style={styles.noReceipt}>
-          <IconCircle name="file" size={44} color={colors.inkMuted} />
-          <Text style={styles.cardHint}>No receipt attached</Text>
-        </View>
-      )}
+        <>
+          <SectionTitle title="Receipt photo" />
+          <View style={styles.receipt}>
+            <Image source={{ uri: expense.receiptUri }} style={{ width: '100%', height: 320 }} resizeMode="cover" />
+          </View>
+        </>
+      ) : null}
 
       <StatementDivider text="audit trail" />
       {expense.history.map((h, i) => (
         <View key={i} style={styles.auditRow}>
           <IconCircle name={actionIcon[h.action]} size={46} />
           <View style={{ flex: 1, gap: 3 }}>
-            <Text style={styles.auditTitle}>{actionLabel[h.action]}</Text>
+            <Text style={styles.auditTitle}>{sentence(actionLabel[h.action])}</Text>
             <Text style={styles.cardHint}>by {userName(state, h.byUserId)}</Text>
             {h.note ? <Text style={styles.auditNote}>“{h.note}”</Text> : null}
           </View>
@@ -184,33 +179,10 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
   );
 }
 
-function Detail({ label: l, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{l}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', gap: space.lg, marginTop: space.sm },
-  topButton: { minWidth: 140, minHeight: 58 },
-  billCard: { backgroundColor: '#121212', borderRadius: radius.lg, padding: space.xl, gap: space.lg, overflow: 'hidden', boxShadow: '0 14px 28px rgba(0,0,0,0.22)' },
-  billDept: { fontFamily: font.bold, fontSize: 22, color: colors.onInk, letterSpacing: -0.4 },
-  billCategory: { fontFamily: font.medium, fontSize: 14, color: '#9C9C9C' },
-  billIcon: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: '#3A3A3A', alignItems: 'center', justifyContent: 'center' },
-  billDesc: { fontFamily: font.medium, fontSize: 16, color: '#E4E4E4', lineHeight: 22 },
-  billRef: { fontFamily: font.semibold, fontSize: 15, color: colors.onInk, letterSpacing: 1.5 },
-  billDate: { fontFamily: font.medium, fontSize: 13, color: '#9C9C9C' },
-  cardLabel: { fontFamily: font.medium, fontSize: 15.5, color: colors.ink },
-  cardValue: { fontFamily: font.semibold, fontSize: 15.5, color: colors.ink },
+  tray: { backgroundColor: '#EFEFEC', borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 16 },
   cardHint: { fontFamily: font.regular, fontSize: 14, color: colors.inkMuted },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, gap: space.lg, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
-  detailLabel: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft },
-  detailValue: { fontFamily: font.semibold, fontSize: 15, color: colors.ink, flexShrink: 1, textAlign: 'right' },
   receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
-  noReceipt: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   auditRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.lg, paddingVertical: space.sm },
   auditTitle: { fontFamily: font.medium, fontSize: 16.5, color: colors.ink },
   auditNote: { fontFamily: font.regular, fontSize: 14, color: colors.ink, fontStyle: 'italic', lineHeight: 19 },

@@ -8,7 +8,7 @@ import { Button, Chip, ChipRow, Field, Hero, Screen, SectionTitle } from '../../
 import { useNav } from '../../navigation/Nav';
 import { useStore } from '../../store/Store';
 import { colors, font, radius, shadow, space } from '../../theme';
-import { CATEGORIES, Expense } from '../../types';
+import { CATEGORIES, Expense, ExpenseDraft } from '../../types';
 import { isValidGSTIN, toISODate } from '../../utils/format';
 
 const DAY = 86400000;
@@ -31,16 +31,17 @@ const dateOptions = [0, 1, 2, 3].map((n) => {
   return { label: n === 0 ? 'Today' : n === 1 ? 'Yesterday' : `${n} days ago`, value: toISODate(d) };
 });
 
-export function NewExpenseScreen() {
+// Typed entry. Voice entry hands over a `draft` so the form opens already filled in.
+export function NewExpenseScreen({ draft }: { draft?: ExpenseDraft }) {
   const { state, currentUser, submitExpense } = useStore();
   const nav = useNav();
   const myDepts = state.departments.filter((d) => currentUser?.departmentIds.includes(d.id));
 
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState<string | null>(null);
+  const [amount, setAmount] = useState(draft?.amount ? String(draft.amount) : '');
+  const [category, setCategory] = useState<string | null>(draft?.category ?? null);
   const [departmentId, setDepartmentId] = useState<string | null>(myDepts.length === 1 ? myDepts[0].id : null);
-  const [description, setDescription] = useState('');
-  const [vendor, setVendor] = useState('');
+  const [description, setDescription] = useState(draft?.description ?? '');
+  const [vendor, setVendor] = useState(draft?.vendor ?? '');
   const [gstin, setGstin] = useState('');
   const [date, setDate] = useState(dateOptions[0].value);
   const [receiptUri, setReceiptUri] = useState<string | undefined>();
@@ -102,29 +103,7 @@ export function NewExpenseScreen() {
     setSubmitted(null);
   };
 
-  if (submitted) {
-    const toProducer = submitted.status === 'escalated';
-    return (
-      <Screen onBack={nav.pop}>
-        <View style={styles.success}>
-          <View style={styles.successIcon}>
-            <Icon name="check" size={38} color={colors.onInk} strokeWidth={2} />
-          </View>
-          <Hero eyebrow={toProducer ? 'sent to the producer' : 'sent to your manager'} lines={['submitted']} amount={submitted.amount} />
-          <Text style={styles.successText}>You’ll see every update in your expenses, and the payout once it’s approved.</Text>
-        </View>
-        <Button label="Log another expense" icon="plus" onPress={reset} />
-        <Button
-          label="View expense"
-          variant="outline"
-          onPress={() => {
-            nav.pop();
-            nav.push({ name: 'expense', id: submitted.id });
-          }}
-        />
-      </Screen>
-    );
-  }
+  if (submitted) return <SubmittedView expense={submitted} onAnother={reset} />;
 
   return (
     <Screen title="add expense" subtitle={state.project.name.toLowerCase()} onBack={nav.pop} footer={<Button label="Submit for approval" icon="send" onPress={submit} />}>
@@ -213,6 +192,47 @@ export function NewExpenseScreen() {
         ))}
       </ChipRow>
       <Field label="Or enter a date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" error={errors.date} />
+    </Screen>
+  );
+}
+
+export function SubmittedScreen({ id }: { id: string }) {
+  const { state } = useStore();
+  const nav = useNav();
+  const expense = state.expenses.find((e) => e.id === id);
+  if (!expense) return null;
+  return (
+    <SubmittedView
+      expense={expense}
+      onAnother={() => {
+        nav.pop();
+        nav.push({ name: 'newExpense' });
+      }}
+    />
+  );
+}
+
+function SubmittedView({ expense, onAnother }: { expense: Expense; onAnother: () => void }) {
+  const nav = useNav();
+  const toProducer = expense.status === 'escalated';
+  return (
+    <Screen onBack={nav.pop}>
+      <View style={styles.success}>
+        <View style={styles.successIcon}>
+          <Icon name="check" size={38} color={colors.onInk} strokeWidth={2} />
+        </View>
+        <Hero eyebrow={toProducer ? 'sent to the producer' : 'sent to your manager'} lines={['submitted']} amount={expense.amount} />
+        <Text style={styles.successText}>You’ll see every update in your expenses, and the payout once it’s approved.</Text>
+      </View>
+      <Button label="Log another expense" icon="plus" onPress={onAnother} />
+      <Button
+        label="View expense"
+        variant="outline"
+        onPress={() => {
+          nav.pop();
+          nav.push({ name: 'expense', id: expense.id });
+        }}
+      />
     </Screen>
   );
 }

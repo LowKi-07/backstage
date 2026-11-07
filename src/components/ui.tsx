@@ -34,7 +34,7 @@ interface ScreenProps {
   footer?: React.ReactNode;
 }
 
-// Tab screens get the app header (project tag, search, alerts, profile); pushed screens get a long back arrow.
+// Tab screens get the app header (menu, search, alerts, profile); pushed screens get a long back arrow.
 export function Screen({ title, subtitle, onBack, right, children, scroll = true, footer }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const heading = title ? (
@@ -84,20 +84,18 @@ function AppHeader() {
       : currentUser.role === 'manager'
         ? state.expenses.filter((e) => ids.includes(e.departmentId) && e.status === 'submitted' && e.userId !== currentUser.id).length
         : state.expenses.filter((e) => e.userId === currentUser.id && e.status === 'approved').length;
-  const alertTab = currentUser.role === 'producer' ? 'inbox' : currentUser.role === 'manager' ? 'approvals' : 'payouts';
+  const openAlerts = () =>
+    currentUser.role === 'crew' ? nav.push({ name: 'payouts' }) : nav.popToTab(currentUser.role === 'producer' ? 'inbox' : 'approvals');
   return (
     <View style={styles.appHeader}>
-      <View style={styles.projectPill}>
-        <Icon name="clapperboard" size={17} color={colors.accentInk} strokeWidth={1.8} />
-        <Text style={styles.projectPillText} numberOfLines={1}>
-          {state.project.name.toLowerCase()}
-        </Text>
-      </View>
+      <Pressable onPress={() => nav.push({ name: 'projects' })} hitSlop={10} accessibilityLabel="Menu: switch project">
+        <Icon name="menu" size={26} strokeWidth={1.5} />
+      </Pressable>
       <View style={{ flex: 1 }} />
       <Pressable onPress={() => nav.popToTab('expenses')} hitSlop={10} accessibilityLabel="Search expenses">
         <Icon name="search" size={25} strokeWidth={1.4} />
       </Pressable>
-      <Pressable onPress={() => nav.popToTab(alertTab)} hitSlop={10} accessibilityLabel={`${alerts} alerts`}>
+      <Pressable onPress={openAlerts} hitSlop={10} accessibilityLabel={`${alerts} alerts`}>
         <Icon name="bell" size={25} strokeWidth={1.4} />
         {alerts > 0 ? (
           <View style={styles.bellBadge}>
@@ -435,19 +433,6 @@ export function Divider() {
 export const styles = StyleSheet.create({
   backBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.xl, paddingVertical: space.md, minHeight: 52 },
   appHeader: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: space.xl, paddingVertical: space.sm },
-  projectPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accentSoft,
-    borderWidth: 1,
-    borderColor: colors.accentLine,
-    flexShrink: 1,
-  },
-  projectPillText: { fontFamily: font.semibold, fontSize: 14, color: colors.ink, letterSpacing: 0.2, flexShrink: 1 },
   bellBadge: {
     position: 'absolute',
     top: -6,

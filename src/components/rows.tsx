@@ -140,6 +140,41 @@ export function ExpenseCard({
   );
 }
 
+// Home-screen money tile: label with a status dot, a large amount and a short hint.
+export function SummaryTile({ label: title, dot, amount, hint, onPress }: { label: string; dot: string; amount: number; hint: string; onPress?: () => void }) {
+  return (
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [rowStyles.summary, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dot }} />
+        <Text style={rowStyles.summaryLabel}>{title}</Text>
+      </View>
+      <Money value={amount} size={24} display />
+      <Text style={rowStyles.meta}>{hint}</Text>
+    </Pressable>
+  );
+}
+
+// Transaction line: money paid back to you shows as +green, everything you spent as −.
+export function TransactionRow({ expense }: { expense: Expense }) {
+  const nav = useNav();
+  const received = expense.status === 'paid';
+  const status = expense.status === 'paid' ? 'Reimbursed' : expense.status === 'approved' ? 'Approved' : expense.status === 'rejected' ? 'Rejected' : expense.status === 'escalated' ? 'With producer' : 'Pending';
+  return (
+    <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.txn, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={44} />
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Text style={rowStyles.title} numberOfLines={1}>
+          {expense.description}
+        </Text>
+        <Text style={rowStyles.meta} numberOfLines={1}>
+          {relativeDay(expense.date)} · {status}
+        </Text>
+      </View>
+      <Money value={received ? expense.amount : -expense.amount} size={15.5} color={received ? colors.positive : colors.ink} signed={received} />
+    </Pressable>
+  );
+}
+
 export function DepartmentCard({ dept, onPress }: { dept: Department; onPress?: () => void }) {
   const { state } = useStore();
   const s = departmentSummary(state, dept.id);
@@ -192,6 +227,9 @@ export function BudgetRequestRow({ request }: { request: BudgetRequest }) {
 }
 
 export const rowStyles = StyleSheet.create({
+  summary: { flex: 1, gap: 4, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
+  summaryLabel: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
+  txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.md },
   title: { fontFamily: font.medium, fontSize: 17, color: colors.ink },
   meta: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkMuted },

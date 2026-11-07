@@ -15,6 +15,7 @@ interface StoreApi {
   currentUser: User | null;
   login(userId: string): void;
   logout(): void;
+  chooseProject(projectId: string): void;
   submitExpense(input: NewExpenseInput): Expense;
   managerDecide(expenseId: string, decision: 'approve' | 'reject' | 'escalate', note?: string): ExpenseStatus | null;
   producerDecide(expenseId: string, decision: 'approve' | 'reject', note?: string): void;
@@ -65,7 +66,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const updateExpense = (id: string, fn: (e: Expense) => Expense) =>
     setState((s) => ({ ...s, expenses: s.expenses.map((e) => (e.id === id ? fn(e) : e)) }));
 
-  const login = useCallback((userId: string) => setState((s) => ({ ...s, currentUserId: userId })), []);
+  const login = useCallback((userId: string) => setState((s) => ({ ...s, currentUserId: userId, selectedProjectId: null })), []);
+  const chooseProject = useCallback((projectId: string) => setState((s) => ({ ...s, selectedProjectId: projectId })), []);
   const logout = useCallback(() => setState((s) => ({ ...s, currentUserId: null })), []);
 
   const submitExpense = (input: NewExpenseInput): Expense => {
@@ -187,6 +189,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     currentUser,
     login,
     logout,
+    chooseProject,
     submitExpense,
     managerDecide,
     producerDecide,

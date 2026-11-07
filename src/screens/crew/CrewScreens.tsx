@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
-import { ExpenseCard, ExpenseList } from '../../components/rows';
-import { Chip, ChipRow, EmptyState, Hero, InfoPill, Screen, SectionTitle, Segmented, TileGrid } from '../../components/ui';
+import { StyleSheet, View } from 'react-native';
+import { ProjectCard } from '../../components/project';
+import { ExpenseList, SummaryTile, TransactionRow } from '../../components/rows';
+import { Text } from '../../components/Text';
+import { Chip, ChipRow, EmptyState, Hero, Screen, SectionTitle, Segmented } from '../../components/ui';
+import { projectListing } from '../../data/projects';
 import { useNav } from '../../navigation/Nav';
-import { byNewest, deptName, isPending, sum } from '../../store/selectors';
+import { byNewest, isPending, sum } from '../../store/selectors';
 import { useStore } from '../../store/Store';
-import { colors, space } from '../../theme';
+import { colors, font, space } from '../../theme';
 import { ExpenseStatus } from '../../types';
-import { formatCompact, formatINR } from '../../utils/format';
+import { formatINR } from '../../utils/format';
 
 function useMine() {
   const { state, currentUser } = useStore();
@@ -20,54 +23,59 @@ export function CrewHomeScreen() {
   const nav = useNav();
   if (!currentUser) return null;
   const pending = mine.filter(isPending);
-  const approved = mine.filter((e) => e.status === 'approved');
   const paid = mine.filter((e) => e.status === 'paid');
+  const listing = projectListing(state.selectedProjectId);
 
   return (
     <Screen>
-      <Hero
-        eyebrow={`${deptName(state, currentUser.departmentIds[0])} · reimbursed ${formatCompact(sum(paid))}`}
-        lines={pending.length ? [`you've ${pending.length} ${pending.length === 1 ? 'bill' : 'bills'} awaiting`, 'approval worth'] : ['all caught up.', 'nothing pending.']}
-        amount={pending.length ? sum(pending) : undefined}
+      <Text style={homeStyles.greeting}>
+        {greeting()}, {currentUser.name.split(' ')[0]}
+      </Text>
+      <ProjectCard
+        listing={listing}
+        onPress={() => nav.setTab('project')}
+        detail={
+          <>
+            <Text style={homeStyles.detail}>
+              Call time · <Text style={homeStyles.detailStrong}>{state.project.callTime}</Text>
+            </Text>
+            <Text style={homeStyles.detail} numberOfLines={1}>
+              {state.project.location}
+            </Text>
+          </>
+        }
       />
 
-      <SectionTitle title="money matters" />
-      <ChipRow>
-        <InfoPill icon="wallet" label="to be paid" value={formatINR(sum(approved))} onPress={() => nav.setTab('payouts')} />
-        <InfoPill icon="banknote" label="reimbursed" value={formatINR(sum(paid))} onPress={() => nav.setTab('payouts')} />
-        <InfoPill icon="receipt" label="logged" value={formatINR(sum(mine))} valueColor={colors.ink} onPress={() => nav.setTab('expenses')} />
-      </ChipRow>
+      <SectionTitle title="My expenses" action="View all" onAction={() => nav.setTab('expenses')} />
+      <View style={{ flexDirection: 'row', gap: space.md }}>
+        <SummaryTile label="Pending" dot={colors.pending} amount={sum(pending)} hint={`${pending.length} ${pending.length === 1 ? 'expense' : 'expenses'}`} onPress={() => nav.setTab('expenses')} />
+        <SummaryTile label="Received" dot={colors.positive} amount={sum(paid)} hint="This project" onPress={() => nav.push({ name: 'payouts' })} />
+      </View>
 
-      {pending.length ? (
-        <>
-          <SectionTitle title={`awaiting approval (${pending.length})`} action="view all" onAction={() => nav.setTab('expenses')} />
-          <View style={{ gap: space.md }}>
-            {pending.slice(0, 3).map((e) => (
-              <ExpenseCard key={e.id} expense={e} />
-            ))}
-          </View>
-        </>
-      ) : null}
-
-      <SectionTitle title="for you" />
-      <TileGrid
-        items={[
-          { icon: 'camera', label: 'add expense', onPress: () => nav.push({ name: 'newExpense' }) },
-          { icon: 'receipt', label: 'my expenses', onPress: () => nav.setTab('expenses') },
-          { icon: 'wallet', label: 'payouts', onPress: () => nav.setTab('payouts'), badge: approved.length || undefined },
-          { icon: 'sparkles', label: 'ask ai', onPress: () => nav.setTab('ai') },
-        ]}
-      />
-
-      <SectionTitle title="recent" action={mine.length > 5 ? 'view all' : undefined} onAction={() => nav.setTab('expenses')} />
-      <ExpenseList
-        expenses={mine.slice(0, 5)}
-        showPerson={false}
-        empty={<EmptyState icon="receipt" title="nothing logged yet" message="Tap the + button below to log your first expense." />}
-      />
+      <SectionTitle title="Recent transactions" action={mine.length > 5 ? 'View all' : undefined} onAction={() => nav.setTab('expenses')} />
+      {mine.length ? (
+        <View>
+          {mine.slice(0, 5).map((e) => (
+            <TransactionRow key={e.id} expense={e} />
+          ))}
+        </View>
+      ) : (
+        <EmptyState icon="receipt" title="Nothing logged yet" message="Tap the + button below to log your first expense." />
+      )}
     </Screen>
   );
 }
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+
+const homeStyles = StyleSheet.create({
+  greeting: { fontFamily: font.display, fontSize: 22, color: colors.ink, letterSpacing: -0.5 },
+  detail: { fontFamily: font.regular, fontSize: 13, color: colors.inkSoft },
+  detailStrong: { fontFamily: font.bold, fontSize: 13, color: colors.ink },
+});
 
 const FILTERS: { key: 'all' | ExpenseStatus | 'pending'; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -96,7 +104,8 @@ export function CrewExpensesScreen() {
   );
 }
 
-export function CrewPayoutsScreen() {
+export function CrewPayoutsScreen({ pushed }: { pushed?: boolean }) {
+  const nav = useNav();
   const { currentUser, mine } = useMine();
   const [tab, setTab] = useState<'due' | 'paid'>('due');
   if (!currentUser) return null;
@@ -105,7 +114,7 @@ export function CrewPayoutsScreen() {
   const list = tab === 'due' ? due : paid;
 
   return (
-    <Screen title="payouts">
+    <Screen title="payouts" onBack={pushed ? nav.pop : undefined}>
       <Segmented
         options={[
           { key: 'due', label: 'To be paid' },

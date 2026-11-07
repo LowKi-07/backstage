@@ -1,13 +1,19 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
+import { BackHandler, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, NavGlow, NavGlyph, NavGlyphName } from '../components/icons';
 import { Text } from '../components/Text';
 import { colors, font } from '../theme';
+import { ExpenseDraft } from '../types';
 
 export type Route =
   | { name: 'expense'; id: string }
-  | { name: 'newExpense' }
+  | { name: 'newExpense'; draft?: ExpenseDraft }
+  | { name: 'voiceExpense' }
+  | { name: 'reviewExpense'; draft: ExpenseDraft }
+  | { name: 'submitted'; id: string }
+  | { name: 'projects' }
+  | { name: 'payouts' }
   | { name: 'department'; id: string }
   | { name: 'budgetRequest'; departmentId?: string }
   | { name: 'profile' };
@@ -27,9 +33,11 @@ export interface CenterDef {
   badge?: number;
   tab?: { key: string; render: () => React.ReactNode };
   route?: Route;
+  // A bottom sheet opened over the current screen; it gets `close` and the nav API.
+  sheet?: (close: () => void, nav: NavApi) => React.ReactNode;
 }
 
-interface NavApi {
+export interface NavApi {
   push(route: Route): void;
   pop(): void;
   setTab(key: string): void;
@@ -46,8 +54,19 @@ export function useNav(): NavApi {
 
 // Small hand-rolled navigator: four tabs around a centre button, plus a push/pop stack on top.
 // Kept dependency-free so the app runs the same on iOS, Android and web.
-export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; center: CenterDef; renderRoute: (r: Route) => React.ReactNode }) {
-  const [tab, setTab] = useState(tabs[0].key);
+export function TabNavigator({
+  tabs,
+  center,
+  renderRoute,
+  initialTab,
+}: {
+  tabs: TabDef[];
+  center: CenterDef;
+  renderRoute: (r: Route) => React.ReactNode;
+  initialTab?: string;
+}) {
+  const [tab, setTab] = useState(initialTab ?? tabs[0].key);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [stack, setStack] = useState<Route[]>([]);
   const insets = useSafeAreaInsets();
 
@@ -105,7 +124,7 @@ export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; ce
             {left.map(renderTab)}
             <View style={styles.centerSlot}>
               <Pressable
-                onPress={() => (center.route ? api.push(center.route) : center.tab ? setTab(center.tab.key) : undefined)}
+                onPress={() => (center.sheet ? setSheetOpen(true) : center.route ? api.push(center.route) : center.tab ? setTab(center.tab.key) : undefined)}
                 style={({ pressed }) => [styles.centerOuter, pressed && { transform: [{ scale: 0.96 }] }]}
                 accessibilityRole="button"
                 accessibilityLabel={center.label}
@@ -118,6 +137,14 @@ export function TabNavigator({ tabs, center, renderRoute }: { tabs: TabDef[]; ce
             </View>
             {right.map(renderTab)}
           </View>
+        ) : null}
+        {center.sheet ? (
+          <Modal visible={sheetOpen} transparent animationType="fade" onRequestClose={() => setSheetOpen(false)}>
+            <View style={styles.sheetBackdrop}>
+              <Pressable style={StyleSheet.absoluteFill} onPress={() => setSheetOpen(false)} accessibilityLabel="Close" />
+              {center.sheet(() => setSheetOpen(false), api)}
+            </View>
+          </Modal>
         ) : null}
       </View>
     </NavContext.Provider>
@@ -133,6 +160,7 @@ function Badge({ count }: { count: number }) {
 }
 
 const styles = StyleSheet.create({
+  sheetBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
   content: { flex: 1, backgroundColor: colors.bg, overflow: 'hidden' },
   contentRounded: { borderBottomLeftRadius: 26, borderBottomRightRadius: 26 },
   bar: { flexDirection: 'row', alignItems: 'flex-end', paddingTop: 12, paddingHorizontal: 2, backgroundColor: colors.nav },
