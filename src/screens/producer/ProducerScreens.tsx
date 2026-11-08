@@ -192,7 +192,7 @@ export function ProducerInboxScreen() {
               <Card key={r.id} style={{ gap: space.md }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={styles.reqDept}>{deptName(state, r.departmentId)}</Text>
-                  <Money value={r.amount} size={24} display signed />
+                  <Money value={r.amount} size={21} display signed />
                 </View>
                 <Text style={styles.body}>{r.reason}</Text>
                 <Text style={styles.meta}>
@@ -316,7 +316,7 @@ export function ProducerDepartmentsScreen() {
       </View>
       <Card style={{ gap: 6 }}>
         <Text style={styles.meta}>unallocated reserve</Text>
-        <Money value={p.unallocated} size={28} display />
+        <Money value={p.unallocated} size={24} display />
         <Text style={styles.meta}>Approved budget requests are added on top of department allocations.</Text>
       </Card>
     </Screen>
@@ -324,17 +324,17 @@ export function ProducerDepartmentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  heroSub: { fontFamily: font.medium, fontSize: 15, color: colors.inkSoft, marginTop: 2 },
-  body: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, lineHeight: 21 },
+  heroSub: { fontFamily: font.medium, fontSize: 14, color: colors.inkSoft, marginTop: 2 },
+  body: { fontFamily: font.regular, fontSize: 14, color: colors.inkSoft, lineHeight: 21 },
   meta: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkMuted, lineHeight: 19 },
   requestTeaser: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.lg },
-  teaserText: { flex: 1, fontFamily: font.medium, fontSize: 16, color: colors.ink },
-  catName: { fontFamily: font.medium, fontSize: 15, color: colors.ink },
-  catAmt: { fontFamily: font.semibold, fontSize: 15, color: colors.ink },
+  teaserText: { flex: 1, fontFamily: font.medium, fontSize: 15, color: colors.ink },
+  catName: { fontFamily: font.medium, fontSize: 14, color: colors.ink },
+  catAmt: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
   catTrack: { height: 4, backgroundColor: colors.track, borderRadius: 2, overflow: 'hidden' },
   catBar: { height: 4, backgroundColor: colors.ink, borderRadius: 2 },
   reqDept: { fontFamily: font.semibold, fontSize: 18, color: colors.ink },
-  noteInput: { borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, fontFamily: font.medium, fontSize: 15 },
+  noteInput: { borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, fontFamily: font.medium, fontSize: 14 },
   search: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -346,5 +346,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     boxShadow: shadow.soft,
   },
-  searchInput: { flex: 1, fontFamily: font.medium, fontSize: 16, paddingVertical: 14 },
+  searchInput: { flex: 1, fontFamily: font.medium, fontSize: 15, paddingVertical: 14 },
 });

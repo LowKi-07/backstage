@@ -60,11 +60,11 @@ export function ReceiptRow({ label, value, valueColor, bold }: { label: string; 
 }
 
 export const receiptType = StyleSheet.create({
-  heading: { fontFamily: font.monoBold, fontSize: 16, letterSpacing: 1.5, color: colors.ink, textAlign: 'center' },
+  heading: { fontFamily: font.monoBold, fontSize: 15, letterSpacing: 1.5, color: colors.ink, textAlign: 'center' },
   sub: { fontFamily: font.mono, fontSize: 12, color: colors.inkSoft, textAlign: 'center' },
   small: { fontFamily: font.mono, fontSize: 12, color: colors.inkSoft },
   body: { fontFamily: font.mono, fontSize: 13.5, color: colors.ink },
-  total: { fontFamily: font.monoBold, fontSize: 28, color: colors.ink, letterSpacing: -1 },
+  total: { fontFamily: font.monoBold, fontSize: 24, color: colors.ink, letterSpacing: -1 },
 });
 
 const styles = StyleSheet.create({

@@ -148,7 +148,7 @@ export function SummaryTile({ label: title, dot, amount, hint, onPress }: { labe
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dot }} />
         <Text style={rowStyles.summaryLabel}>{title}</Text>
       </View>
-      <Money value={amount} size={24} display />
+      <Money value={amount} size={21} display />
       <Text style={rowStyles.meta}>{hint}</Text>
     </Pressable>
   );
@@ -170,7 +170,7 @@ export function TransactionRow({ expense }: { expense: Expense }) {
           {relativeDay(expense.date)} · {status}
         </Text>
       </View>
-      <Money value={received ? expense.amount : -expense.amount} size={15.5} color={received ? colors.positive : colors.ink} signed={received} />
+      <Money value={received ? expense.amount : -expense.amount} size={14.5} color={received ? colors.positive : colors.ink} signed={received} />
     </Pressable>
   );
 }
@@ -231,8 +231,8 @@ export const rowStyles = StyleSheet.create({
   summaryLabel: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.md },
-  title: { fontFamily: font.medium, fontSize: 17, color: colors.ink },
-  meta: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkMuted },
+  title: { fontFamily: font.medium, fontSize: 16, color: colors.ink },
+  meta: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkMuted },
   card: {
     gap: space.md,
     backgroundColor: colors.surface,
@@ -255,5 +255,5 @@ export const rowStyles = StyleSheet.create({
     padding: space.lg,
     boxShadow: shadow.soft,
   },
-  pct: { fontFamily: font.semibold, fontSize: 17 },
+  pct: { fontFamily: font.semibold, fontSize: 16 },
 });

@@ -77,10 +77,10 @@ export function DepartmentScreen({ id }: { id: string }) {
 }
 
 const styles = StyleSheet.create({
-  heroSub: { fontFamily: font.medium, fontSize: 15, color: colors.inkSoft, marginTop: 2 },
+  heroSub: { fontFamily: font.medium, fontSize: 14, color: colors.inkSoft, marginTop: 2 },
   meta: { fontFamily: font.regular, fontSize: 14, color: colors.inkMuted },
-  catName: { fontFamily: font.medium, fontSize: 15, color: colors.ink },
-  catAmt: { fontFamily: font.semibold, fontSize: 15, color: colors.ink },
+  catName: { fontFamily: font.medium, fontSize: 14, color: colors.ink },
+  catAmt: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
   catTrack: { height: 4, backgroundColor: colors.track, borderRadius: 2, overflow: 'hidden' },
   catBar: { height: 4, backgroundColor: colors.ink, borderRadius: 2 },
 });

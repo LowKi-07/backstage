@@ -88,11 +88,11 @@ function Row({ label: l, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   head: { alignItems: 'center', gap: 6, paddingTop: space.sm },
-  name: { fontFamily: font.display, fontSize: 28, letterSpacing: -0.6, color: colors.ink, marginTop: space.sm },
+  name: { fontFamily: font.display, fontSize: 24, letterSpacing: -0.6, color: colors.ink, marginTop: space.sm },
   role: { ...label, fontSize: 14, letterSpacing: 0.1, color: colors.accentInk },
-  sub: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center' },
+  sub: { fontFamily: font.regular, fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
   row: { paddingVertical: 12, gap: 3, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
   rowLabel: { ...label, fontSize: 12.5, letterSpacing: 0.1, color: colors.inkMuted },
-  rowValue: { fontFamily: font.medium, fontSize: 16, color: colors.ink },
-  note: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkSoft, lineHeight: 20 },
+  rowValue: { fontFamily: font.medium, fontSize: 15, color: colors.ink },
+  note: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft, lineHeight: 20 },
 });

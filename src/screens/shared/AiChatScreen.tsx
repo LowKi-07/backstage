@@ -140,8 +140,8 @@ export function AiChatScreen() {
 const styles = StyleSheet.create({
   thread: { paddingHorizontal: space.xl, paddingVertical: space.lg, gap: space.sm, flexGrow: 1 },
   intro: { alignItems: 'center', gap: space.md, paddingTop: space.lg },
-  introTitle: { fontFamily: font.display, fontSize: 26, letterSpacing: -0.6, color: colors.ink, textAlign: 'center', marginTop: space.sm },
-  introText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.md },
+  introTitle: { fontFamily: font.display, fontSize: 23, letterSpacing: -0.6, color: colors.ink, textAlign: 'center', marginTop: space.sm },
+  introText: { fontFamily: font.regular, fontSize: 14, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.md },
   suggestions: { gap: space.sm, alignSelf: 'stretch', marginTop: space.md },
   suggestion: {
     flexDirection: 'row',
@@ -156,13 +156,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     boxShadow: shadow.soft,
   },
-  suggestionText: { flex: 1, fontFamily: font.medium, fontSize: 15.5, color: colors.ink },
+  suggestionText: { flex: 1, fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
   bubble: { maxWidth: '86%', borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 12 },
   userBubble: { alignSelf: 'flex-end', backgroundColor: colors.button, borderBottomRightRadius: 6 },
   aiBubble: { alignSelf: 'flex-start', backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.lineSoft, borderBottomLeftRadius: 6 },
-  bubbleText: { fontFamily: font.medium, fontSize: 15.5, lineHeight: 22, color: colors.ink },
+  bubbleText: { fontFamily: font.medium, fontSize: 14.5, lineHeight: 22, color: colors.ink },
   thinking: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  thinkingText: { fontFamily: font.medium, fontSize: 14.5, color: colors.inkSoft },
+  thinkingText: { fontFamily: font.medium, fontSize: 13.5, color: colors.inkSoft },
   error: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', borderRadius: radius.md, padding: space.md, backgroundColor: '#FDEDEA' },
   errorText: { flex: 1, fontFamily: font.medium, fontSize: 14, color: colors.negative, lineHeight: 19 },
   composer: {
@@ -179,6 +179,6 @@ const styles = StyleSheet.create({
     paddingLeft: space.lg,
     boxShadow: shadow.raised,
   },
-  input: { flex: 1, fontFamily: font.medium, color: colors.ink, fontSize: 16, maxHeight: 120, paddingVertical: 11 },
+  input: { flex: 1, fontFamily: font.medium, color: colors.ink, fontSize: 15, maxHeight: 120, paddingVertical: 11 },
   send: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.button, alignItems: 'center', justifyContent: 'center' },
 });

@@ -85,7 +85,7 @@ export function ManagerDashboardScreen() {
                   <View style={[dashStyles.dot, { backgroundColor: count ? colors.pending : colors.positive }]} />
                   <Text style={[dashStyles.reviewLabel, { color: count ? colors.pending : colors.positive }]}>{count ? 'Pending your review' : 'All caught up'}</Text>
                 </View>
-                <Money value={review} size={28} display />
+                <Money value={review} size={24} display />
                 <Text style={dashStyles.detail}>
                   {count} {count === 1 ? 'bill' : 'bills'}
                   {!ms && overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}
@@ -140,7 +140,7 @@ const dashStyles = StyleSheet.create({
   detail: { fontFamily: font.regular, fontSize: 13, color: colors.inkSoft },
   budget: { padding: 14, paddingHorizontal: 16, borderRadius: 18, borderWidth: 1, borderColor: '#EDEDED', backgroundColor: colors.surface, gap: 10 },
   budgetLine: { fontFamily: font.regular, fontSize: 14, color: colors.inkSoft },
-  budgetSpent: { fontFamily: font.display, fontSize: 17, color: colors.ink },
+  budgetSpent: { fontFamily: font.display, fontSize: 16, color: colors.ink },
   budgetPct: { fontFamily: font.bold, fontSize: 13, color: colors.ink },
   track: { height: 4, borderRadius: 2, backgroundColor: '#EDEDED', overflow: 'hidden' },
   fill: { height: 4, borderRadius: 2, backgroundColor: colors.ink },
@@ -150,7 +150,7 @@ const dashStyles = StyleSheet.create({
   reviewLabel: { fontFamily: font.semibold, fontSize: 13 },
   mini: { flex: 1, gap: 2, padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, boxShadow: shadow.soft },
   miniLabel: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkSoft },
-  miniValue: { fontFamily: font.bold, fontSize: 17, color: colors.ink },
+  miniValue: { fontFamily: font.bold, fontSize: 16, color: colors.ink },
 });
 
 export function ManagerApprovalsScreen() {
@@ -327,15 +327,15 @@ function TertiaryLink({ label: text, onPress }: { label: string; onPress: () => 
 const expStyles = StyleSheet.create({
   dark: { padding: 20, borderRadius: radius.lg, backgroundColor: '#141414', gap: 4 },
   darkLabel: { fontFamily: font.regular, fontSize: 14, color: '#A8A8A8' },
-  darkBig: { fontFamily: font.bold, fontSize: 40, lineHeight: 48, color: colors.onInk, letterSpacing: -1.5 },
+  darkBig: { fontFamily: font.bold, fontSize: 30, lineHeight: 36, color: colors.onInk, letterSpacing: -1.5 },
   darkTrack: { marginTop: 8, height: 8, borderRadius: 4, backgroundColor: '#3A3A3A', overflow: 'hidden' },
   darkFill: { height: 8, borderRadius: 4, backgroundColor: '#E6E6E6' },
   darkSmall: { fontFamily: font.regular, fontSize: 13, color: '#A8A8A8' },
-  darkValue: { fontFamily: font.bold, fontSize: 16, color: colors.onInk },
+  darkValue: { fontFamily: font.bold, fontSize: 15, color: colors.onInk },
   pctPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill, borderWidth: 1, borderColor: '#3A3A3A', backgroundColor: '#262626', fontFamily: font.semibold, fontSize: 12, color: '#CFCFCF', overflow: 'hidden' },
   card: { padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft, gap: 14 },
   cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTitle: { fontFamily: font.bold, fontSize: 17, color: colors.ink },
+  cardTitle: { fontFamily: font.bold, fontSize: 16, color: colors.ink },
   cardNote: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
   catIcon: { width: 30, height: 30, borderRadius: 10, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   catName: { flex: 1, fontFamily: font.semibold, fontSize: 14, color: colors.ink },
@@ -344,7 +344,7 @@ const expStyles = StyleSheet.create({
   catTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFEFEF', overflow: 'hidden' },
   catFill: { height: 6, borderRadius: 3, backgroundColor: colors.ink },
   link: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 4 },
-  linkText: { fontFamily: font.bold, fontSize: 14.5, color: colors.ink, textDecorationLine: 'underline' },
+  linkText: { fontFamily: font.bold, fontSize: 13.5, color: colors.ink, textDecorationLine: 'underline' },
 });
 
 export function ManagerExpensesScreen({ pushed }: { pushed?: boolean } = {}) {

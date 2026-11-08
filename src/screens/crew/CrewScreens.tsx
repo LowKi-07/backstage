@@ -78,7 +78,7 @@ export function SampleTxns({ txns }: { txns: { icon: string; title: string; when
             </Text>
             <Text style={homeStyles.txnMeta}>{t.when}</Text>
           </View>
-          <Money value={t.amount} size={15.5} color={t.amount > 0 ? colors.positive : colors.ink} signed={t.amount > 0} />
+          <Money value={t.amount} size={14.5} color={t.amount > 0 ? colors.positive : colors.ink} signed={t.amount > 0} />
         </View>
       ))}
     </View>
@@ -87,7 +87,7 @@ export function SampleTxns({ txns }: { txns: { icon: string; title: string; when
 
 const homeStyles = StyleSheet.create({
   txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
-  txnTitle: { fontFamily: font.semibold, fontSize: 15, color: colors.ink },
+  txnTitle: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
   txnMeta: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
 });
 

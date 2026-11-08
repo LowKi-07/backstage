@@ -141,8 +141,8 @@ const styles = StyleSheet.create({
   fade: { position: 'absolute', left: 0, right: 0, top: 0, height: '58%' },
   panel: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: space.xl, paddingTop: 8, gap: 12, backgroundColor: '#000000' },
   panelFade: { position: 'absolute', left: 0, right: 0, top: -90, height: 90 },
-  title: { fontFamily: font.display, fontSize: 34, color: colors.onInk, textAlign: 'center', letterSpacing: -1 },
-  tagline: { fontFamily: font.regular, fontSize: 15, color: '#A8A8A8', textAlign: 'center', marginBottom: 8 },
+  title: { fontFamily: font.display, fontSize: 28, color: colors.onInk, textAlign: 'center', letterSpacing: -1 },
+  tagline: { fontFamily: font.regular, fontSize: 14, color: '#A8A8A8', textAlign: 'center', marginBottom: 8 },
   label: { fontFamily: font.semibold, fontSize: 14, color: '#A8A8A8' },
   select: {
     height: 54,
@@ -155,10 +155,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  selectText: { fontFamily: font.medium, fontSize: 16, color: colors.onInk },
+  selectText: { fontFamily: font.medium, fontSize: 15, color: colors.onInk },
   options: { borderRadius: radius.md, borderWidth: 1, borderColor: '#333333', backgroundColor: '#161616', overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 18, paddingVertical: 12 },
-  optionTitle: { fontFamily: font.semibold, fontSize: 15.5, color: colors.onInk },
+  optionTitle: { fontFamily: font.semibold, fontSize: 14.5, color: colors.onInk },
   optionSub: { fontFamily: font.regular, fontSize: 12.5, color: '#9A9A9A', marginTop: 2 },
   signIn: {
     height: 54,
@@ -170,6 +170,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  signInText: { fontFamily: font.bold, fontSize: 16, color: colors.ink },
+  signInText: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
   footnote: { fontFamily: font.regular, fontSize: 12.5, color: '#8C8C8C', textAlign: 'center', marginTop: 4 },
 });

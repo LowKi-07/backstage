@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   stage: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.16)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)' },
   stageDot: { width: 6, height: 6, borderRadius: 3 },
   stageText: { fontFamily: font.bold, fontSize: 12, color: colors.onInk, letterSpacing: 0.2 },
-  name: { fontFamily: font.display, fontSize: 26, lineHeight: 30, color: colors.onInk, letterSpacing: -0.6 },
+  name: { fontFamily: font.display, fontSize: 23, lineHeight: 27, color: colors.onInk, letterSpacing: -0.6 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   meta: { fontFamily: font.semibold, fontSize: 14, color: '#D6D6D6' },
   sep: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#8C8C8C' },

@@ -56,5 +56,5 @@ const styles = StyleSheet.create({
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.accentInk },
   eyebrow: { fontFamily: font.semibold, fontSize: 13, color: colors.accentInk },
-  title: { fontFamily: font.display, fontSize: 28, color: colors.ink, letterSpacing: -0.6 },
+  title: { fontFamily: font.display, fontSize: 24, color: colors.ink, letterSpacing: -0.6 },
 });

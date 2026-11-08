@@ -38,7 +38,7 @@ export function BudgetRequestScreen({ departmentId }: { departmentId?: string })
             <Icon name="check" size={38} color={colors.onInk} strokeWidth={2} />
           </View>
           <Hero eyebrow="sent to the producer" lines={['request sent']} amount={Number(amount)} />
-          <Text style={{ fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21 }}>
+          <Text style={{ fontFamily: font.regular, fontSize: 14, color: colors.inkSoft, textAlign: 'center', lineHeight: 21 }}>
             The department budget goes up automatically once the producer approves it.
           </Text>
         </View>
@@ -56,7 +56,7 @@ export function BudgetRequestScreen({ departmentId }: { departmentId?: string })
         ))}
       </ChipRow>
       {s ? (
-        <Text style={{ fontFamily: font.regular, color: colors.inkSoft, fontSize: 14.5 }}>
+        <Text style={{ fontFamily: font.regular, color: colors.inkSoft, fontSize: 13.5 }}>
           {formatCompact(s.spent)} spent of {formatCompact(s.budget)} ({Math.round(s.pct * 100)}%) · {formatCompact(s.pending)} pending
         </Text>
       ) : null}

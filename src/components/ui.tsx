@@ -113,7 +113,7 @@ export function AppHeader({ dark, search = true }: { dark?: boolean; search?: bo
 /* ---------- Type & money ---------- */
 
 // Amount with the paise part set lighter, e.g. ₹20,779.41
-export function Money({ value, size = 17, color = colors.ink, display, signed }: { value: number; size?: number; color?: string; display?: boolean; signed?: boolean }) {
+export function Money({ value, size = 16, color = colors.ink, display, signed }: { value: number; size?: number; color?: string; display?: boolean; signed?: boolean }) {
   const text = formatINR(Math.abs(value), { decimals: !Number.isInteger(value) });
   const [whole, paise] = text.split('.');
   const base: TextStyle = { fontSize: size, color, fontFamily: display ? font.display : font.semibold, letterSpacing: display ? -0.5 : 0 };
@@ -143,7 +143,7 @@ export function Hero({ eyebrow, lines, amount, children }: { eyebrow?: string; l
           {i === 0 ? sentence(l) : l}
         </Text>
       ))}
-      {amount !== undefined ? <Money value={amount} size={36} display /> : null}
+      {amount !== undefined ? <Money value={amount} size={30} display /> : null}
       {children}
     </View>
   );
@@ -307,7 +307,7 @@ export function Button({
       ) : (
         <>
           {icon ? <Icon name={icon} size={small ? 16 : 19} color={fg} strokeWidth={1.8} /> : null}
-          <Text style={[styles.buttonLabel, small && { fontSize: 14.5 }, { color: fg }]}>{text}</Text>
+          <Text style={[styles.buttonLabel, small && { fontSize: 13.5 }, { color: fg }]}>{text}</Text>
         </>
       )}
     </Pressable>
@@ -451,22 +451,22 @@ export const styles = StyleSheet.create({
   },
   bellBadgeText: { fontFamily: font.bold, fontSize: 10, color: colors.onInk },
   titleBlock: { gap: 6, marginBottom: space.sm },
-  title: { fontFamily: font.display, fontSize: 28, color: colors.ink, letterSpacing: -0.6 },
-  subtitle: { fontFamily: font.medium, fontSize: 15, color: colors.inkSoft },
+  title: { fontFamily: font.display, fontSize: 24, color: colors.ink, letterSpacing: -0.6 },
+  subtitle: { fontFamily: font.medium, fontSize: 14, color: colors.inkSoft },
   scrollBody: { paddingHorizontal: space.xl, paddingTop: space.md, paddingBottom: space.xxl * 1.5, gap: space.lg },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, backgroundColor: colors.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
   hero: { alignItems: 'flex-start', gap: 2, padding: space.xl, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.lineSoft, marginTop: space.sm },
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: space.sm, alignSelf: 'stretch' },
   eyebrowDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.accentInk },
   eyebrow: { ...label, fontSize: 13, color: colors.accentInk, flexShrink: 1 },
-  heroLine: { fontFamily: font.bold, fontSize: 22, lineHeight: 29, color: colors.ink, letterSpacing: -0.4 },
+  heroLine: { fontFamily: font.bold, fontSize: 20, lineHeight: 26, color: colors.ink, letterSpacing: -0.4 },
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
   statusDot: { width: 6, height: 6, borderRadius: 3 },
   statusText: { fontFamily: font.semibold, fontSize: 12 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: space.lg },
-  sectionTitle: { fontFamily: font.bold, fontSize: 17, color: colors.ink, letterSpacing: -0.2 },
+  sectionTitle: { fontFamily: font.bold, fontSize: 16, color: colors.ink, letterSpacing: -0.2 },
   sectionActionRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  sectionAction: { fontFamily: font.semibold, fontSize: 14.5, color: colors.inkSoft },
+  sectionAction: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.lg + 2, boxShadow: shadow.soft },
   iconCircle: { backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   tileGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space.lg },
@@ -482,20 +482,20 @@ export const styles = StyleSheet.create({
   },
   tileLabel: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink, textAlign: 'center', lineHeight: 18 },
   infoPill: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 16, paddingRight: 8, paddingVertical: 10, borderRadius: radius.md, backgroundColor: colors.surface, boxShadow: shadow.soft },
-  infoPillLabel: { fontFamily: font.medium, fontSize: 15, color: colors.ink },
-  infoPillValue: { fontFamily: font.semibold, fontSize: 15 },
+  infoPillLabel: { fontFamily: font.medium, fontSize: 14, color: colors.ink },
+  infoPillValue: { fontFamily: font.semibold, fontSize: 14 },
   infoPillChevron: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   statementRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.md, marginBottom: 2 },
   statementText: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkMuted },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.sm },
-  actionTitle: { fontFamily: font.semibold, fontSize: 17, color: colors.ink },
-  actionSub: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkSoft },
+  actionTitle: { fontFamily: font.semibold, fontSize: 16, color: colors.ink },
+  actionSub: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft },
   button: { minHeight: 54, borderRadius: radius.pill, paddingHorizontal: space.xl, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm },
   buttonSmall: { minHeight: 42, paddingHorizontal: space.lg, borderRadius: radius.pill },
   buttonPrimary: { backgroundColor: colors.button, boxShadow: shadow.button },
   buttonOutline: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.ink },
   buttonDanger: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line },
-  buttonLabel: { fontFamily: font.bold, fontSize: 16, letterSpacing: 0 },
+  buttonLabel: { fontFamily: font.bold, fontSize: 15, letterSpacing: 0 },
   chip: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
   chipActive: { backgroundColor: colors.ink, borderColor: colors.ink },
   chipText: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
@@ -506,7 +506,7 @@ export const styles = StyleSheet.create({
   track: { flexDirection: 'row', backgroundColor: colors.track, overflow: 'hidden' },
   stat: { flex: 1, gap: 3 },
   statLabel: { fontFamily: font.medium, fontSize: 12.5, color: colors.inkMuted },
-  statValue: { fontFamily: font.bold, fontSize: 20, color: colors.ink, letterSpacing: -0.3 },
+  statValue: { fontFamily: font.bold, fontSize: 19, color: colors.ink, letterSpacing: -0.3 },
   statHint: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
   fieldLabel: { fontFamily: font.semibold, fontSize: 14, color: colors.inkSoft },
   fieldHint: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
@@ -518,14 +518,14 @@ export const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingVertical: 14,
     fontFamily: font.medium,
-    fontSize: 16,
+    fontSize: 15,
     color: colors.ink,
   },
   notice: { flexDirection: 'row', gap: space.sm, alignItems: 'flex-start', padding: space.md + 2, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
-  noticeText: { flex: 1, fontFamily: font.medium, fontSize: 14.5, lineHeight: 20 },
+  noticeText: { flex: 1, fontFamily: font.medium, fontSize: 13.5, lineHeight: 20 },
   empty: { alignItems: 'center', paddingVertical: 40, gap: space.md },
-  emptyTitle: { fontFamily: font.semibold, fontSize: 17, color: colors.ink },
-  emptyMsg: { fontFamily: font.regular, fontSize: 14.5, color: colors.inkSoft, textAlign: 'center', paddingHorizontal: space.xl, lineHeight: 20 },
+  emptyTitle: { fontFamily: font.semibold, fontSize: 16, color: colors.ink },
+  emptyMsg: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft, textAlign: 'center', paddingHorizontal: space.xl, lineHeight: 20 },
   avatarRing: { borderWidth: 2.5, borderColor: '#F0643E', alignItems: 'center', justifyContent: 'center' },
   avatar: { backgroundColor: '#F3EDE6', alignItems: 'center', justifyContent: 'center' },
 });
