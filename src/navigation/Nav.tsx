@@ -42,6 +42,8 @@ export interface NavApi {
   pop(): void;
   setTab(key: string): void;
   popToTab(key: string): void;
+  // Open the centre button's bottom sheet (crew: add expense), from any screen.
+  openSheet(): void;
 }
 
 const NavContext = createContext<NavApi | null>(null);
@@ -79,6 +81,7 @@ export function TabNavigator({
         setStack([]);
         setTab(k);
       },
+      openSheet: () => setSheetOpen(true),
     }),
     [],
   );

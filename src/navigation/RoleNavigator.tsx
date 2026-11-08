@@ -49,7 +49,6 @@ export function RoleNavigator() {
 
   let tabs: TabDef[];
   let center: CenterDef;
-  let initialTab: string | undefined;
   if (currentUser.role === 'crew') {
     tabs = [
       { key: 'home', label: 'Home', glyph: 'home', render: () => <CrewHomeScreen /> },
@@ -58,8 +57,6 @@ export function RoleNavigator() {
       ai,
     ];
     center = { icon: 'plus', label: 'Add expense', sheet: (close, nav) => <AddChoiceSheet close={close} nav={nav} /> };
-    // Crew pick a project right after signing in.
-    if (!state.selectedProjectId) initialTab = 'project';
   } else if (currentUser.role === 'manager') {
     const ids = managedDepartmentIds(state, currentUser);
     const waiting = state.expenses.filter((e) => ids.includes(e.departmentId) && e.status === 'submitted' && e.userId !== currentUser.id).length;
@@ -81,5 +78,5 @@ export function RoleNavigator() {
     center = { icon: 'inbox', label: 'Inbox', badge: inbox, tab: { key: 'inbox', render: () => <ProducerInboxScreen /> } };
   }
 
-  return <TabNavigator key={currentUser.id} tabs={tabs} center={center} renderRoute={renderRoute} initialTab={initialTab} />;
+  return <TabNavigator key={currentUser.id} tabs={tabs} center={center} renderRoute={renderRoute} />;
 }

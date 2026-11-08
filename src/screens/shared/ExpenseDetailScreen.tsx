@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-import { DashedRule, Receipt, ReceiptRow, receiptType } from '../../components/receipt';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Icon, LongArrow } from '../../components/icons';
+import { ScallopEdge, TearLine } from '../../components/receipt';
 import { Text } from '../../components/Text';
 import { Button, Field, IconCircle, Notice, Screen, SectionTitle, sentence, StatementDivider, StatusText } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
@@ -29,6 +31,7 @@ const actionIcon: Record<AuditAction, string> = {
 export function ExpenseDetailScreen({ id }: { id: string }) {
   const { state, currentUser, managerDecide, producerDecide, markPaid } = useStore();
   const nav = useNav();
+  const insets = useSafeAreaInsets();
   const [note, setNote] = useState('');
   const [flash, setFlash] = useState<string | null>(null);
   const expense = state.expenses.find((e) => e.id === id);
@@ -84,103 +87,157 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
   const ref = expense.id.slice(-4).toUpperCase();
   const amountText = formatINR(expense.amount, { decimals: true });
 
+  const head =
+    deciding ? { icon: 'clock', text: 'Pending your approval' }
+    : expense.status === 'submitted' ? { icon: 'clock', text: 'Waiting for manager' }
+    : expense.status === 'escalated' ? { icon: 'clock', text: 'With the producer' }
+    : expense.status === 'approved' ? { icon: 'check', text: 'Approved · awaiting payment' }
+    : expense.status === 'paid' ? { icon: 'check', text: 'Paid' }
+    : { icon: 'close', text: 'Rejected' };
+  const [whole, paise] = amountText.split('.');
+
   return (
-    <Screen onBack={nav.pop} right={<StatusText status={expense.status} />}>
-      {/* The bill as a printed till receipt. */}
-      <View style={styles.tray}>
-        <Receipt>
-          <View style={{ alignItems: 'center', gap: 2 }}>
-            <Text style={receiptType.heading} numberOfLines={2}>
-              {(expense.vendor ?? expense.description).toUpperCase()}
-            </Text>
-            <Text style={receiptType.sub}>
-              {expense.category.toUpperCase()} · {deptName(state, expense.departmentId).toUpperCase()}
-            </Text>
-            <Text style={receiptType.sub}>
-              {formatDateTime(submittedAt)} · Ref {ref}
-            </Text>
+    <View style={styles.root}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + space.sm }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={styles.topBar}>
+          <Pressable onPress={nav.pop} hitSlop={14} accessibilityLabel="Go back" accessibilityRole="button">
+            <LongArrow color={colors.onInk} />
+          </Pressable>
+          <Text style={styles.topTitle}>{deciding ? 'Review a bill' : 'Expense'}</Text>
+          <StatusText status={expense.status} />
+        </View>
+
+        {/* The bill as a ticket: a white top stub over a wider off-white details card. */}
+        <View style={styles.ticket}>
+          <View style={styles.stub}>
+            <ScallopEdge edge="top" color="#FFFFFF" />
+            <View style={styles.stubBody}>
+              <View style={styles.headRow}>
+                <View style={styles.headIcon}>
+                  <Icon name={head.icon} size={13} color={colors.onInk} strokeWidth={2.6} />
+                </View>
+                <Text style={styles.headText}>{head.text}</Text>
+              </View>
+              <Text style={styles.vendor} numberOfLines={2}>
+                {(expense.vendor ?? expense.description).toUpperCase()}
+              </Text>
+              <Text style={styles.refText}>Bill reference #{ref}</Text>
+            </View>
           </View>
-          <DashedRule />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={receiptType.small}>ITEM</Text>
-            <Text style={receiptType.small}>AMOUNT</Text>
+          <View style={styles.details}>
+            <TearLine notch={BG} />
+            <View style={styles.rows}>
+              <Row label="Date & time" value={formatDateTime(submittedAt)} />
+              <Row label="Submitted by" value={userName(state, expense.userId)} />
+              <Row label="Department" value={deptName(state, expense.departmentId)} />
+              <Row label="Category" value={expense.category} />
+              <Row label="Item" value={expense.description} />
+              <Row label="Date of spend" value={formatDate(expense.date)} />
+              <Row label="Receipt photo" value={expense.receiptUri ? 'Attached' : 'Not attached'} />
+              {expense.gstin ? <Row label="Vendor GSTIN" value={expense.gstin} /> : null}
+              {(isManagerOfDept || isProducer) && dept ? (
+                <Row label="Dept budget" value={`${formatCompact(summary.spent)} / ${formatCompact(summary.budget)} · ${Math.round(((summary.spent + (openStatus ? expense.amount : 0)) / summary.budget) * 100)}%`} />
+              ) : null}
+            </View>
+            <TearLine notch={BG} />
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Total amount</Text>
+              <Text style={styles.total}>
+                {whole}
+                <Text style={[styles.total, { color: '#BDBDBD' }]}>.{paise}</Text>
+              </Text>
+            </View>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-            <Text style={[receiptType.body, { flex: 1 }]}>{expense.description}</Text>
-            <Text style={[receiptType.body, { fontFamily: font.monoBold }]}>{amountText.replace('₹', '')}</Text>
-          </View>
-          <DashedRule />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Text style={[receiptType.body, { fontFamily: font.monoBold, letterSpacing: 1 }]}>TOTAL</Text>
-            <Text style={receiptType.total}>{amountText}</Text>
-          </View>
-          <DashedRule />
-          <ReceiptRow label="Submitted by" value={userName(state, expense.userId)} />
-          <ReceiptRow label="Date of spend" value={formatDate(expense.date)} />
-          <ReceiptRow label="Receipt photo" value={expense.receiptUri ? 'Attached' : 'Not attached'} valueColor={expense.receiptUri ? colors.positive : colors.negative} />
-          {expense.gstin ? <ReceiptRow label="Vendor GSTIN" value={expense.gstin} /> : null}
-          {(isManagerOfDept || isProducer) && dept ? (
-            <ReceiptRow
-              label="Dept budget"
-              value={`${formatCompact(summary.spent)} / ${formatCompact(summary.budget)} · ${Math.round(((summary.spent + (openStatus ? expense.amount : 0)) / summary.budget) * 100)}%`}
-              valueColor={openStatus && summary.spent + expense.amount > summary.budget ? colors.negative : undefined}
+          <ScallopEdge edge="bottom" color={DETAILS} />
+        </View>
+
+        <View style={[styles.panel, { paddingBottom: insets.bottom + space.xl }]}>
+          {flash ? <Notice text={flash} /> : null}
+          {deciding ? (
+            <View style={{ gap: space.md }}>
+              <Field label="" placeholder="Add a note (needed to reject)" value={note} onChangeText={setNote} multiline />
+              <View style={{ flexDirection: 'row', gap: space.sm }}>
+                <Button label="Reject" variant="outline" small onPress={reject} style={{ flex: 1 }} />
+                {canManagerAct ? <Button label="Send to producer" variant="outline" small onPress={escalate} style={{ flex: 1.4 }} /> : null}
+              </View>
+              <Button label={`Approve ${formatINR(expense.amount)}`} onPress={approve} />
+            </View>
+          ) : null}
+          {canPay ? (
+            <Button
+              label={`Mark ${formatINR(expense.amount)} as paid`}
+              onPress={() => {
+                markPaid([expense.id], 'Paid via bank transfer');
+                setFlash('Marked as paid. The crew member sees it in their payouts.');
+              }}
             />
           ) : null}
-        </Receipt>
-      </View>
+          {dept && (isManagerOfDept || isProducer) ? (
+            <Button label={`Open ${dept.name} budget`} variant="outline" small onPress={() => nav.push({ name: 'department', id: dept.id })} />
+          ) : null}
 
-      {flash ? <Notice text={flash} /> : null}
+          {expense.receiptUri ? (
+            <>
+              <SectionTitle title="Receipt photo" />
+              <View style={styles.receipt}>
+                <Image source={{ uri: expense.receiptUri }} style={{ width: '100%', height: 320 }} resizeMode="cover" />
+              </View>
+            </>
+          ) : null}
 
-      {deciding ? (
-        <View style={{ gap: space.md }}>
-          <Field label="Note (needed to reject)" placeholder="e.g. Please attach the GST bill" value={note} onChangeText={setNote} multiline />
-          <View style={{ flexDirection: 'row', gap: space.sm }}>
-            <Button label="Reject" variant="danger" small onPress={reject} style={{ flex: 1 }} />
-            {canManagerAct ? <Button label="Send to producer" variant="outline" small onPress={escalate} style={{ flex: 1.6 }} /> : null}
-          </View>
-          <Button label={`Approve ${formatINR(expense.amount)}`} onPress={approve} />
+          <StatementDivider text="audit trail" />
+          {expense.history.map((h, i) => (
+            <View key={i} style={styles.auditRow}>
+              <IconCircle name={actionIcon[h.action]} size={46} />
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={styles.auditTitle}>{sentence(actionLabel[h.action])}</Text>
+                <Text style={styles.cardHint}>by {userName(state, h.byUserId)}</Text>
+                {h.note ? <Text style={styles.auditNote}>“{h.note}”</Text> : null}
+              </View>
+              <Text style={styles.auditTime}>{formatDateTime(h.at)}</Text>
+            </View>
+          ))}
         </View>
-      ) : null}
-      {canPay ? (
-        <Button
-          label={`Mark ${formatINR(expense.amount)} as paid`}
-          onPress={() => {
-            markPaid([expense.id], 'Paid via bank transfer');
-            setFlash('Marked as paid. The crew member sees it in their payouts.');
-          }}
-        />
-      ) : null}
-      {dept && (isManagerOfDept || isProducer) ? (
-        <Button label={`Open ${dept.name} budget`} variant="outline" small onPress={() => nav.push({ name: 'department', id: dept.id })} />
-      ) : null}
-
-      {expense.receiptUri ? (
-        <>
-          <SectionTitle title="Receipt photo" />
-          <View style={styles.receipt}>
-            <Image source={{ uri: expense.receiptUri }} style={{ width: '100%', height: 320 }} resizeMode="cover" />
-          </View>
-        </>
-      ) : null}
-
-      <StatementDivider text="audit trail" />
-      {expense.history.map((h, i) => (
-        <View key={i} style={styles.auditRow}>
-          <IconCircle name={actionIcon[h.action]} size={46} />
-          <View style={{ flex: 1, gap: 3 }}>
-            <Text style={styles.auditTitle}>{sentence(actionLabel[h.action])}</Text>
-            <Text style={styles.cardHint}>by {userName(state, h.byUserId)}</Text>
-            {h.note ? <Text style={styles.auditNote}>“{h.note}”</Text> : null}
-          </View>
-          <Text style={styles.auditTime}>{formatDateTime(h.at)}</Text>
-        </View>
-      ))}
-    </Screen>
+      </ScrollView>
+    </View>
   );
 }
 
+function Row({ label: text, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.rowLabel}>{text}</Text>
+      <Text style={styles.rowValue} numberOfLines={2}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+const BG = '#0E0E0E';
+const DETAILS = '#F2F1EE';
+
 const styles = StyleSheet.create({
-  tray: { backgroundColor: '#EFEFEC', borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 16 },
+  root: { flex: 1, backgroundColor: BG },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.xl, minHeight: 44 },
+  topTitle: { fontFamily: font.bold, fontSize: 16, color: colors.onInk },
+  ticket: { marginHorizontal: space.lg, marginTop: space.lg, marginBottom: space.xl },
+  stub: { zIndex: 2, marginHorizontal: 12, boxShadow: '0 8px 14px rgba(0,0,0,0.25)' },
+  stubBody: { backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 22, alignItems: 'center', gap: 6 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headIcon: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
+  headText: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
+  vendor: { marginTop: 10, fontFamily: font.display, fontSize: 22, color: colors.ink, letterSpacing: -0.4, textAlign: 'center' },
+  refText: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
+  details: { zIndex: 1, marginTop: -26, paddingTop: 32, backgroundColor: DETAILS, borderTopLeftRadius: 18, borderTopRightRadius: 18 },
+  rows: { paddingHorizontal: 22, paddingVertical: 16, gap: 13 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  rowLabel: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
+  rowValue: { flexShrink: 1, textAlign: 'right', fontFamily: font.bold, fontSize: 13, color: colors.ink },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 22, paddingTop: 18, paddingBottom: 16 },
+  totalLabel: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
+  total: { fontFamily: font.display, fontSize: 30, color: colors.ink, letterSpacing: -1 },
+  panel: { backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: space.xl, paddingTop: space.xl, gap: space.md },
   cardHint: { fontFamily: font.regular, fontSize: 14, color: colors.inkMuted },
   receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   auditRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.lg, paddingVertical: space.sm },

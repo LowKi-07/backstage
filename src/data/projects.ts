@@ -11,6 +11,11 @@ export interface ProjectListing {
   status: 'Shooting' | 'Pre-production' | 'Post-production';
   budgetLabel: string;
   poster: ImageSourcePropType;
+  // Shown on the crew home carousel.
+  callTime: string;
+  schedule: string;
+  // Sample numbers for listings without expense data behind them.
+  sample?: { pending: number; pendingCount: number; received: number; txns: { icon: string; title: string; when: string; amount: number }[] };
 }
 
 // Projects shown on the "Pick a project" screen. Only 'proj1' has expense data behind it for now;
@@ -24,6 +29,8 @@ export const PROJECTS: ProjectListing[] = [
     location: 'Film City, Stage 4',
     status: 'Shooting',
     budgetLabel: '₹4.5Cr',
+    callTime: '7:00 AM',
+    schedule: '',
     poster: require('../../assets/posters/bethlehem-kudumba-unit.png'),
   },
   {
@@ -31,9 +38,21 @@ export const PROJECTS: ProjectListing[] = [
     name: 'Kantara',
     kind: 'Film',
     kindLabel: 'Feature film',
-    location: 'Kundapura, Karnataka',
+    location: 'Kundapura, forest unit',
     status: 'Shooting',
     budgetLabel: '₹16Cr',
+    callTime: '6:00 AM',
+    schedule: 'Day 41 of 150',
+    sample: {
+      pending: 21300,
+      pendingCount: 6,
+      received: 46900,
+      txns: [
+        { icon: 'fuel', title: 'Diesel for generator truck', when: 'Yesterday', amount: -6600 },
+        { icon: 'package', title: 'Bamboo and rope for set', when: '2 days ago', amount: -9250 },
+        { icon: 'utensils', title: 'Village crew breakfast', when: '30 Oct', amount: 3400 },
+      ],
+    },
     poster: require('../../assets/posters/kantara.webp'),
   },
   {
@@ -41,9 +60,12 @@ export const PROJECTS: ProjectListing[] = [
     name: 'Big Dawgs',
     kind: 'Music video',
     kindLabel: 'Music video',
-    location: 'Mumbai',
+    location: 'Mumbai, Andheri studio',
     status: 'Pre-production',
     budgetLabel: '₹38L',
+    callTime: '10:00 AM',
+    schedule: 'Pre-production',
+    sample: { pending: 3200, pendingCount: 1, received: 0, txns: [{ icon: 'shirt', title: 'Costume fabric samples', when: 'Today', amount: -3200 }] },
     poster: require('../../assets/posters/big-dawgs.webp'),
   },
 ];

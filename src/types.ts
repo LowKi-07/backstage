@@ -104,4 +104,5 @@ export interface ExpenseDraft {
   amount?: number;
   category?: string;
   vendor?: string;
+  receiptUri?: string;
 }

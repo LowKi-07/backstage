@@ -73,5 +73,41 @@ const styles = StyleSheet.create({
   squareTop: { borderTopLeftRadius: 4, borderTopRightRadius: 4 },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   rowLabel: { fontFamily: font.mono, fontSize: 13, color: colors.inkSoft },
+  notch: { position: 'absolute', top: -10, width: 22, height: 22, borderRadius: 11 },
   rowValue: { fontFamily: font.mono, fontSize: 13, color: colors.ink, flexShrink: 1, textAlign: 'right' },
 });
+
+// Ticket edge: a row of round bumps, like a perforated ticket.
+function scallops(width: number, bumps: number, edge: 'top' | 'bottom') {
+  const step = width / bumps;
+  const r = 7;
+  if (edge === 'top') {
+    let d = `M0 ${r}`;
+    for (let i = 0; i < bumps; i++) d += ` A${(step / 2).toFixed(2)} ${r} 0 0 1 ${((i + 1) * step).toFixed(2)} ${r}`;
+    return `${d} Z`;
+  }
+  let d = `M0 0 L${width} 0`;
+  for (let i = bumps; i > 0; i--) d += ` A${(step / 2).toFixed(2)} ${r} 0 0 1 ${((i - 1) * step).toFixed(2)} 0`;
+  return `${d} Z`;
+}
+const SCALLOP_TOP = scallops(340, 24, 'top');
+const SCALLOP_BOTTOM = scallops(360, 25, 'bottom');
+
+export function ScallopEdge({ edge, color }: { edge: 'top' | 'bottom'; color: string }) {
+  return (
+    <Svg width="100%" height={7} viewBox={`0 0 ${edge === 'top' ? 340 : 360} 7`} preserveAspectRatio="none">
+      <Path d={edge === 'top' ? SCALLOP_TOP : SCALLOP_BOTTOM} fill={color} />
+    </Svg>
+  );
+}
+
+// Dashed tear line with round notches cut into both sides (notch colour = the background behind the ticket).
+export function TearLine({ notch }: { notch: string }) {
+  return (
+    <View style={{ height: 2, justifyContent: 'center' }}>
+      <DashedRule />
+      <View style={[styles.notch, { left: -11, backgroundColor: notch }]} />
+      <View style={[styles.notch, { right: -11, backgroundColor: notch }]} />
+    </View>
+  );
+}

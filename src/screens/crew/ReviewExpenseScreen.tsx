@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
+import { categoryIcon } from '../../components/rows';
 import { DashedRule, Receipt } from '../../components/receipt';
 import { Text, TextInput } from '../../components/Text';
-import { Avatar, Button } from '../../components/ui';
+import { Button } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { useStore } from '../../store/Store';
 import { colors, font, radius, space } from '../../theme';
 import { CATEGORIES, ExpenseDraft } from '../../types';
 import { toISODate } from '../../utils/format';
+import { pickImage } from '../../utils/pickImage';
 
 const PAPER = '#F8F7F3';
 const CHIP = '#ECEAE4';
@@ -39,11 +41,21 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
   const [vendor, setVendor] = useState(draft.vendor ?? '');
   const [category, setCategory] = useState<string | undefined>(draft.category);
   const [deptIndex, setDeptIndex] = useState(0);
+  const [receiptUri, setReceiptUri] = useState<string | undefined>(draft.receiptUri);
+  const [listOpen, setListOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   if (!currentUser) return null;
   const dept = myDepts[deptIndex];
 
-  const current = (): ExpenseDraft => ({ transcript: draft.transcript, description: description.trim(), amount: Number(amount) || undefined, category, vendor: vendor.trim() || undefined });
+  const addReceipt = async () => {
+    setError(null);
+    try {
+      const uri = await pickImage('camera');
+      if (uri) setReceiptUri(uri);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
 
   const confirm = () => {
     const value = Number(amount);
@@ -58,6 +70,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
       description: description.trim(),
       vendor: vendor.trim() || undefined,
       date: toISODate(new Date()),
+      receiptUri,
     });
     nav.popToTab('home');
     nav.push({ name: 'submitted', id: exp.id });
@@ -72,11 +85,11 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
             <View style={{ flex: 1, gap: 4 }}>
               <Text style={styles.title} accessibilityRole="header">
-                Does this look right?
+                {draft.transcript || draft.receiptUri ? 'Does this look right?' : 'New expense'}
               </Text>
               <Text style={styles.sub}>Nothing is submitted until you confirm.</Text>
             </View>
-            <Pressable onPress={nav.pop} style={styles.close} accessibilityLabel="Back to voice entry" accessibilityRole="button">
+            <Pressable onPress={nav.pop} style={styles.close} accessibilityLabel="Close" accessibilityRole="button">
               <Icon name="close" size={17} strokeWidth={2} />
             </Pressable>
           </View>
@@ -100,8 +113,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
 
           <DashedRule />
           <Row label="Paid by">
-            <View style={styles.pill}>
-              <Avatar name={currentUser.name} size={24} />
+            <View style={[styles.pill, { paddingLeft: 14, paddingVertical: 8 }]}>
               <Text style={styles.chipText}>You</Text>
             </View>
           </Row>
@@ -122,28 +134,76 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
           </Row>
 
           <DashedRule />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Text style={styles.rowLabel}>Category</Text>
-            <Text style={styles.hint}>{category && category === draft.category ? 'Suggested from what you said' : category ? 'Changed by you' : 'Pick one'}</Text>
-          </View>
-          <View style={styles.chips} accessibilityRole="radiogroup">
-            {CATEGORIES.map((c) => {
-              const on = c === category;
-              return (
-                <Pressable key={c} onPress={() => setCategory(c)} style={[styles.catChip, on && styles.catChipOn]} accessibilityRole="radio" accessibilityState={{ checked: on }}>
-                  <Text style={[styles.catChipText, on && { color: colors.onInk }]}>{SHORT[c] ?? c}</Text>
+          <Row label="Category">
+            <Pressable onPress={() => setListOpen(true)} style={styles.pill} accessibilityRole="button" accessibilityLabel={`Category: ${category ?? 'none'}. Change`}>
+              <View style={styles.catBadge}>
+                <Icon name={category ? categoryIcon[category] ?? 'receipt' : 'plus'} size={15} color={colors.onInk} strokeWidth={1.8} />
+              </View>
+              <Text style={styles.chipText}>{category ? SHORT[category] ?? category : 'Choose'}</Text>
+              <Icon name="chevron-down" size={14} strokeWidth={2} />
+            </Pressable>
+          </Row>
+          <Text style={styles.hint}>{!draft.category ? ' ' : category === draft.category ? 'Suggested from what you said' : 'Changed by you'}</Text>
+          {receiptUri ? (
+            <Row label="Receipt">
+              <View style={styles.pill}>
+                <Image source={{ uri: receiptUri }} style={styles.thumb} />
+                <Text style={styles.chipText}>Attached</Text>
+                <Pressable onPress={() => setReceiptUri(undefined)} hitSlop={8} accessibilityLabel="Remove receipt" accessibilityRole="button">
+                  <Icon name="close" size={14} strokeWidth={2} />
                 </Pressable>
-              );
-            })}
-          </View>
+              </View>
+            </Row>
+          ) : null}
         </Receipt>
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
-        <Button label="Add receipt" icon="camera" variant="outline" onPress={() => nav.push({ name: 'newExpense', draft: current() })} />
-        <Button label="Confirm & submit" onPress={confirm} />
-      </View>
+      {listOpen ? (
+        <View style={[styles.list, { paddingTop: insets.top + space.sm }]} accessibilityViewIsModal>
+          <View style={styles.listHead}>
+            <Pressable onPress={() => setListOpen(false)} style={styles.back} accessibilityLabel="Back" accessibilityRole="button">
+              <Icon name="chevron-right" size={18} strokeWidth={2} />
+            </Pressable>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={styles.listTitle} accessibilityRole="header">
+                Choose category
+              </Text>
+              {draft.category ? <Text style={styles.sub}>Suggested: {SHORT[draft.category] ?? draft.category}, from what you said</Text> : null}
+            </View>
+          </View>
+          <ScrollView contentContainerStyle={{ paddingHorizontal: space.md, paddingBottom: insets.bottom + space.lg }} showsVerticalScrollIndicator={false}>
+            {CATEGORIES.map((c) => {
+              const on = c === category;
+              return (
+                <Pressable
+                  key={c}
+                  onPress={() => {
+                    setCategory(c);
+                    setListOpen(false);
+                  }}
+                  style={({ pressed }) => [styles.listRow, (on || pressed) && { backgroundColor: '#F2F2F2' }]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
+                >
+                  <View style={[styles.listIcon, on && { backgroundColor: colors.ink }]}>
+                    <Icon name={categoryIcon[c] ?? 'receipt'} size={20} color={on ? colors.onInk : colors.ink} />
+                  </View>
+                  <Text style={[styles.listText, on && { fontFamily: font.bold }]}>{c}</Text>
+                  {on ? <Icon name="check" size={20} strokeWidth={2.2} /> : null}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      ) : null}
+
+      {listOpen ? null : (
+        <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
+          {receiptUri ? null : <Button label="Add receipt" icon="camera" variant="outline" onPress={addReceipt} />}
+          <Button label="Confirm & submit" onPress={confirm} />
+        </View>
+      )}
     </View>
   );
 }
@@ -171,11 +231,16 @@ const styles = StyleSheet.create({
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6, paddingRight: 12, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: CHIP },
   chipText: { fontFamily: font.semibold, fontSize: 14.5, color: colors.ink },
   vendor: { flex: 1, maxWidth: 200, textAlign: 'right', fontFamily: font.semibold, fontSize: 14.5, color: colors.ink, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: CHIP },
-  hint: { fontFamily: font.semibold, fontSize: 12, color: colors.accentInk },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
-  catChip: { paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill, borderWidth: 1, borderColor: '#E2DFD8', backgroundColor: colors.surface },
-  catChipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
-  catChipText: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
+  hint: { fontFamily: font.semibold, fontSize: 12, color: colors.accentInk, alignSelf: 'flex-end', marginTop: -4 },
+  catBadge: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
+  thumb: { width: 26, height: 26, borderRadius: 8 },
+  list: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: colors.surface, gap: space.md },
+  listHead: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: space.lg },
+  back: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F2F2F2', alignItems: 'center', justifyContent: 'center', transform: [{ scaleX: -1 }] },
+  listTitle: { fontFamily: font.display, fontSize: 20, color: colors.ink, letterSpacing: -0.4 },
+  listRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8, paddingVertical: 9, borderRadius: 16 },
+  listIcon: { width: 44, height: 44, borderRadius: 15, backgroundColor: colors.surface, boxShadow: '0 4px 14px rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' },
+  listText: { flex: 1, fontFamily: font.medium, fontSize: 15.5, color: colors.ink },
   error: { fontFamily: font.medium, fontSize: 14, color: colors.negative, paddingHorizontal: 4 },
   footer: { paddingHorizontal: space.lg, paddingTop: space.md, gap: 10, backgroundColor: '#EFEFEC' },
 });

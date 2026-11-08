@@ -2,6 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Icon } from '../../components/icons';
+import { SubmittedView } from '../../components/SubmittedView';
 import { categoryIcon } from '../../components/rows';
 import { Text, TextInput } from '../../components/Text';
 import { Button, Chip, ChipRow, Field, Hero, Screen, SectionTitle } from '../../components/ui';
@@ -205,35 +206,10 @@ export function SubmittedScreen({ id }: { id: string }) {
     <SubmittedView
       expense={expense}
       onAnother={() => {
-        nav.pop();
-        nav.push({ name: 'newExpense' });
+        nav.popToTab('home');
+        nav.openSheet();
       }}
     />
-  );
-}
-
-function SubmittedView({ expense, onAnother }: { expense: Expense; onAnother: () => void }) {
-  const nav = useNav();
-  const toProducer = expense.status === 'escalated';
-  return (
-    <Screen onBack={nav.pop}>
-      <View style={styles.success}>
-        <View style={styles.successIcon}>
-          <Icon name="check" size={38} color={colors.onInk} strokeWidth={2} />
-        </View>
-        <Hero eyebrow={toProducer ? 'sent to the producer' : 'sent to your manager'} lines={['submitted']} amount={expense.amount} />
-        <Text style={styles.successText}>You’ll see every update in your expenses, and the payout once it’s approved.</Text>
-      </View>
-      <Button label="Log another expense" icon="plus" onPress={onAnother} />
-      <Button
-        label="View expense"
-        variant="outline"
-        onPress={() => {
-          nav.pop();
-          nav.push({ name: 'expense', id: expense.id });
-        }}
-      />
-    </Screen>
   );
 }
 
@@ -261,7 +237,4 @@ const styles = StyleSheet.create({
   catText: { fontFamily: font.medium, fontSize: 12, color: colors.ink, textAlign: 'center', lineHeight: 15 },
   receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   removeReceipt: { flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', padding: space.md },
-  success: { alignItems: 'center', paddingTop: space.xl, gap: space.sm },
-  successIcon: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 24px rgba(0,0,0,0.2)' },
-  successText: { fontFamily: font.regular, fontSize: 15, color: colors.inkSoft, textAlign: 'center', lineHeight: 21, paddingHorizontal: space.lg, marginBottom: space.lg },
 });

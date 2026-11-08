@@ -73,7 +73,7 @@ export function Screen({ title, subtitle, onBack, right, children, scroll = true
   );
 }
 
-function AppHeader() {
+export function AppHeader({ dark }: { dark?: boolean } = {}) {
   const { state, currentUser } = useStore();
   const nav = useNav();
   if (!currentUser) return null;
@@ -89,14 +89,14 @@ function AppHeader() {
   return (
     <View style={styles.appHeader}>
       <Pressable onPress={() => nav.push({ name: 'projects' })} hitSlop={10} accessibilityLabel="Menu: switch project">
-        <Icon name="menu" size={26} strokeWidth={1.5} />
+        <Icon name="menu" size={26} strokeWidth={1.5} color={dark ? colors.onInk : colors.ink} />
       </Pressable>
       <View style={{ flex: 1 }} />
       <Pressable onPress={() => nav.popToTab('expenses')} hitSlop={10} accessibilityLabel="Search expenses">
-        <Icon name="search" size={25} strokeWidth={1.4} />
+        <Icon name="search" size={25} strokeWidth={1.4} color={dark ? colors.onInk : colors.ink} />
       </Pressable>
       <Pressable onPress={openAlerts} hitSlop={10} accessibilityLabel={`${alerts} alerts`}>
-        <Icon name="bell" size={25} strokeWidth={1.4} />
+        <Icon name="bell" size={25} strokeWidth={1.4} color={dark ? colors.onInk : colors.ink} />
         {alerts > 0 ? (
           <View style={styles.bellBadge}>
             <Text style={styles.bellBadgeText}>{alerts > 9 ? '9+' : alerts}</Text>
