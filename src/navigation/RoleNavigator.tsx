@@ -4,7 +4,7 @@ import { CrewExpensesScreen, CrewHomeScreen, CrewPayoutsScreen } from '../screen
 import { ReviewExpenseScreen } from '../screens/crew/ReviewExpenseScreen';
 import { VoiceExpenseScreen } from '../screens/crew/VoiceExpenseScreen';
 import { BudgetRequestScreen } from '../screens/manager/BudgetRequestScreen';
-import { ManagerApprovalsScreen, ManagerBudgetsScreen, ManagerDashboardScreen, ManagerExpensesScreen } from '../screens/manager/ManagerScreens';
+import { ManagerApprovalsScreen, ManagerBudgetsScreen, ManagerDashboardScreen, ManagerExpensesOverviewScreen, ManagerExpensesScreen } from '../screens/manager/ManagerScreens';
 import { ProducerDepartmentsScreen, ProducerExpensesScreen, ProducerInboxScreen, ProducerOverviewScreen } from '../screens/producer/ProducerScreens';
 import { AiChatScreen } from '../screens/shared/AiChatScreen';
 import { DepartmentScreen } from '../screens/shared/DepartmentScreen';
@@ -30,6 +30,10 @@ function renderRoute(r: Route) {
       return <SubmittedScreen key={r.id} id={r.id} />;
     case 'projects':
       return <ProjectPickerScreen pushed />;
+    case 'teamExpenses':
+      return <ManagerExpensesScreen pushed />;
+    case 'budgets':
+      return <ManagerBudgetsScreen pushed />;
     case 'payouts':
       return <CrewPayoutsScreen pushed />;
     case 'department':
@@ -53,7 +57,7 @@ export function RoleNavigator() {
     tabs = [
       { key: 'home', label: 'Home', glyph: 'home', render: () => <CrewHomeScreen /> },
       { key: 'expenses', label: 'Expenses', glyph: 'wallet', render: () => <CrewExpensesScreen /> },
-      { key: 'project', label: 'Project', glyph: 'receipt', render: () => <ProjectPickerScreen /> },
+      { key: 'project', label: 'Project', glyph: 'grid', render: () => <ProjectPickerScreen /> },
       ai,
     ];
     center = { icon: 'plus', label: 'Add expense', sheet: (close, nav) => <AddChoiceSheet close={close} nav={nav} /> };
@@ -62,8 +66,8 @@ export function RoleNavigator() {
     const waiting = state.expenses.filter((e) => ids.includes(e.departmentId) && e.status === 'submitted' && e.userId !== currentUser.id).length;
     tabs = [
       { key: 'home', label: 'Home', glyph: 'home', render: () => <ManagerDashboardScreen /> },
-      { key: 'expenses', label: 'Expenses', glyph: 'receipt', render: () => <ManagerExpensesScreen /> },
-      { key: 'budgets', label: 'Budgets', glyph: 'grid', render: () => <ManagerBudgetsScreen /> },
+      { key: 'expenses', label: 'Expenses', glyph: 'receipt', render: () => <ManagerExpensesOverviewScreen /> },
+      { key: 'projects', label: 'Projects', glyph: 'grid', render: () => <ProjectPickerScreen /> },
       ai,
     ];
     center = { icon: 'check-double', label: 'Approvals', badge: waiting, tab: { key: 'approvals', render: () => <ManagerApprovalsScreen /> } };

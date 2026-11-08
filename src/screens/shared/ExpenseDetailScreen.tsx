@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, LongArrow } from '../../components/icons';
-import { ScallopEdge, TearLine } from '../../components/receipt';
-import { Text } from '../../components/Text';
-import { Button, Field, IconCircle, Notice, Screen, SectionTitle, sentence, StatementDivider, StatusText } from '../../components/ui';
+import { DashedRule } from '../../components/receipt';
+import { Text, TextInput } from '../../components/Text';
+import { Avatar, Button, IconCircle, Notice, Screen, SectionTitle, sentence, StatementDivider, StatusText } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { deptName, departmentSummary, userName } from '../../store/selectors';
 import { useStore } from '../../store/Store';
@@ -29,7 +29,7 @@ const actionIcon: Record<AuditAction, string> = {
 };
 
 export function ExpenseDetailScreen({ id }: { id: string }) {
-  const { state, currentUser, managerDecide, producerDecide, markPaid } = useStore();
+  const { state, currentUser, managerDecide, producerDecide, markPaid, addComment } = useStore();
   const nav = useNav();
   const insets = useSafeAreaInsets();
   const [note, setNote] = useState('');
@@ -96,109 +96,176 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
     : { icon: 'close', text: 'Rejected' };
   const [whole, paise] = amountText.split('.');
 
+  const comments = expense.comments ?? [];
+  const post = () => {
+    if (!note.trim()) return;
+    addComment(expense.id, note);
+    setNote('');
+    setFlash(null);
+  };
+
   return (
     <View style={styles.root}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + space.sm }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + space.sm, flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.topBar}>
           <Pressable onPress={nav.pop} hitSlop={14} accessibilityLabel="Go back" accessibilityRole="button">
-            <LongArrow color={colors.onInk} />
+            <LongArrow color={colors.onInk} width={28} />
           </Pressable>
-          <Text style={styles.topTitle}>{deciding ? 'Review a bill' : 'Expense'}</Text>
-          <StatusText status={expense.status} />
+          <Text style={styles.topTitle}>{deciding ? 'Review a bill' : expense.userId === currentUser.id ? 'My expense' : 'Expense'}</Text>
+          <View style={styles.info} accessibilityLabel={`Status: ${head.text}`}>
+            <Text style={styles.infoText}>!</Text>
+          </View>
         </View>
 
-        {/* The bill as a ticket: a white top stub over a wider off-white details card. */}
-        <View style={styles.ticket}>
-          <View style={styles.stub}>
-            <ScallopEdge edge="top" color="#FFFFFF" />
-            <View style={styles.stubBody}>
-              <View style={styles.headRow}>
-                <View style={styles.headIcon}>
-                  <Icon name={head.icon} size={13} color={colors.onInk} strokeWidth={2.6} />
-                </View>
-                <Text style={styles.headText}>{head.text}</Text>
+        {/* The bill as one narrow ticket: perforated edges and side cut-outs, over an off-white panel. */}
+        <View style={styles.stub}>
+          <Perforation color={BG} edge="top" />
+          <View style={styles.stubBody}>
+            <View style={styles.headRow}>
+              <View style={styles.headIcon}>
+                <Icon name={head.icon} size={13} color={colors.onInk} strokeWidth={2.6} />
               </View>
-              <Text style={styles.vendor} numberOfLines={2}>
-                {(expense.vendor ?? expense.description).toUpperCase()}
-              </Text>
-              <Text style={styles.refText}>Bill reference #{ref}</Text>
+              <Text style={styles.headText}>{head.text}</Text>
             </View>
+            <Text style={styles.vendor} numberOfLines={2}>
+              {(expense.vendor ?? expense.description).toUpperCase()}
+            </Text>
+            <Text style={styles.refText}>Bill reference #{ref}</Text>
           </View>
-          <View style={styles.details}>
-            <TearLine notch={BG} />
+          <View style={styles.dashWrap}>
+            <DashedRule />
+          </View>
+        </View>
+
+        <View style={styles.panel}>
+          <View style={styles.ticketLower}>
             <View style={styles.rows}>
               <Row label="Date & time" value={formatDateTime(submittedAt)} />
               <Row label="Submitted by" value={userName(state, expense.userId)} />
               <Row label="Department" value={deptName(state, expense.departmentId)} />
               <Row label="Category" value={expense.category} />
               <Row label="Item" value={expense.description} />
-              <Row label="Date of spend" value={formatDate(expense.date)} />
               <Row label="Receipt photo" value={expense.receiptUri ? 'Attached' : 'Not attached'} />
               {expense.gstin ? <Row label="Vendor GSTIN" value={expense.gstin} /> : null}
               {(isManagerOfDept || isProducer) && dept ? (
-                <Row label="Dept budget" value={`${formatCompact(summary.spent)} / ${formatCompact(summary.budget)} · ${Math.round(((summary.spent + (openStatus ? expense.amount : 0)) / summary.budget) * 100)}%`} />
+                <Row label="Dept budget" value={`${formatCompact(summary.spent)} of ${formatCompact(summary.budget)} · ${Math.round(((summary.spent + (openStatus ? expense.amount : 0)) / summary.budget) * 100)}%`} />
               ) : null}
             </View>
-            <TearLine notch={BG} />
+            <View style={styles.notchRow}>
+              <View style={[styles.notch, { left: -12 }]} />
+              <View style={styles.dashWrap}>
+                <DashedRule />
+              </View>
+              <View style={[styles.notch, { right: -12 }]} />
+            </View>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Total amount</Text>
               <Text style={styles.total}>
                 {whole}
-                <Text style={[styles.total, { color: '#BDBDBD' }]}>.{paise}</Text>
+                <Text style={[styles.total, { color: '#C4C4C4' }]}>.{paise}</Text>
               </Text>
             </View>
+            <Perforation color={PANEL} edge="bottom" />
           </View>
-          <ScallopEdge edge="bottom" color={DETAILS} />
-        </View>
 
-        <View style={[styles.panel, { paddingBottom: insets.bottom + space.xl }]}>
-          {flash ? <Notice text={flash} /> : null}
-          {deciding ? (
-            <View style={{ gap: space.md }}>
-              <Field label="" placeholder="Add a note (needed to reject)" value={note} onChangeText={setNote} multiline />
-              <View style={{ flexDirection: 'row', gap: space.sm }}>
-                <Button label="Reject" variant="outline" small onPress={reject} style={{ flex: 1 }} />
-                {canManagerAct ? <Button label="Send to producer" variant="outline" small onPress={escalate} style={{ flex: 1.4 }} /> : null}
+          <View style={styles.below}>
+            {flash ? <Notice text={flash} /> : null}
+
+            {comments.length ? (
+              <View style={{ gap: space.sm }}>
+                {comments.map((c, i) => (
+                  <View key={i} style={styles.comment}>
+                    <Avatar name={userName(state, c.byUserId)} size={28} />
+                    <View style={{ flex: 1, gap: 1 }}>
+                      <Text style={styles.commentMeta}>
+                        {userName(state, c.byUserId).split(' ')[0]} · {formatDateTime(c.at)}
+                      </Text>
+                      <Text style={styles.commentText}>{c.text}</Text>
+                    </View>
+                  </View>
+                ))}
               </View>
-              <Button label={`Approve ${formatINR(expense.amount)}`} onPress={approve} />
+            ) : null}
+
+            <View style={styles.commentBox}>
+              <Icon name="file" size={18} color={colors.inkMuted} />
+              <TextInput
+                value={note}
+                onChangeText={setNote}
+                placeholder={deciding ? 'Add a comment about this bill' : 'Add a comment'}
+                multiline
+                style={[styles.commentInput, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]}
+                accessibilityLabel="Comment on this bill"
+              />
+              <Pressable onPress={post} disabled={!note.trim()} hitSlop={8} style={[styles.send, !note.trim() && { opacity: 0.35 }]} accessibilityLabel="Post comment" accessibilityRole="button">
+                <Icon name="send" size={16} color={colors.onInk} />
+              </Pressable>
             </View>
-          ) : null}
-          {canPay ? (
-            <Button
-              label={`Mark ${formatINR(expense.amount)} as paid`}
-              onPress={() => {
-                markPaid([expense.id], 'Paid via bank transfer');
-                setFlash('Marked as paid. The crew member sees it in their payouts.');
-              }}
-            />
-          ) : null}
-          {dept && (isManagerOfDept || isProducer) ? (
-            <Button label={`Open ${dept.name} budget`} variant="outline" small onPress={() => nav.push({ name: 'department', id: dept.id })} />
-          ) : null}
 
-          {expense.receiptUri ? (
-            <>
-              <SectionTitle title="Receipt photo" />
-              <View style={styles.receipt}>
-                <Image source={{ uri: expense.receiptUri }} style={{ width: '100%', height: 320 }} resizeMode="cover" />
-              </View>
-            </>
-          ) : null}
+            {deciding ? (
+              <>
+                {canManagerAct ? (
+                  <Pressable onPress={escalate} hitSlop={8} style={{ alignSelf: 'center' }} accessibilityRole="button">
+                    <Text style={styles.link}>Send to producer</Text>
+                  </Pressable>
+                ) : null}
+                <View style={{ flexDirection: 'row', gap: space.md }}>
+                  <Button label="Reject" icon="close" variant="outline" onPress={reject} style={{ flex: 1, backgroundColor: colors.surface, borderColor: colors.surface }} />
+                  <Button label={`Approve ${formatINR(expense.amount)}`} onPress={approve} style={{ flex: 1.3 }} />
+                </View>
+              </>
+            ) : null}
+            {canPay ? (
+              <Button
+                label={`Mark ${formatINR(expense.amount)} as paid`}
+                onPress={() => {
+                  markPaid([expense.id], 'Paid via bank transfer');
+                  setFlash('Marked as paid. The crew member sees it in their payouts.');
+                }}
+              />
+            ) : null}
+            {dept && (isManagerOfDept || isProducer) ? (
+              <Pressable onPress={() => nav.push({ name: 'department', id: dept.id })} hitSlop={8} style={{ alignSelf: 'center' }} accessibilityRole="link">
+                <Text style={styles.link}>Open {dept.name} budget</Text>
+              </Pressable>
+            ) : null}
 
-          <StatementDivider text="audit trail" />
-          {expense.history.map((h, i) => (
-            <View key={i} style={styles.auditRow}>
-              <IconCircle name={actionIcon[h.action]} size={46} />
-              <View style={{ flex: 1, gap: 3 }}>
-                <Text style={styles.auditTitle}>{sentence(actionLabel[h.action])}</Text>
-                <Text style={styles.cardHint}>by {userName(state, h.byUserId)}</Text>
-                {h.note ? <Text style={styles.auditNote}>“{h.note}”</Text> : null}
+            {expense.receiptUri ? (
+              <>
+                <SectionTitle title="Receipt photo" />
+                <View style={styles.receipt}>
+                  <Image source={{ uri: expense.receiptUri }} style={{ width: '100%', height: 320 }} resizeMode="cover" />
+                </View>
+              </>
+            ) : null}
+
+            <StatementDivider text="audit trail" />
+            {expense.history.map((h, i) => (
+              <View key={i} style={styles.auditRow}>
+                <IconCircle name={actionIcon[h.action]} size={46} />
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Text style={styles.auditTitle}>{sentence(actionLabel[h.action])}</Text>
+                  <Text style={styles.cardHint}>by {userName(state, h.byUserId)}</Text>
+                  {h.note ? <Text style={styles.auditNote}>“{h.note}”</Text> : null}
+                </View>
+                <Text style={styles.auditTime}>{formatDateTime(h.at)}</Text>
               </View>
-              <Text style={styles.auditTime}>{formatDateTime(h.at)}</Text>
-            </View>
-          ))}
+            ))}
+            <View style={{ height: insets.bottom + space.lg }} />
+          </View>
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+// Perforated ticket edge: a row of small round bites in the colour behind the ticket.
+function Perforation({ color, edge }: { color: string; edge: 'top' | 'bottom' }) {
+  return (
+    <View style={[styles.perf, edge === 'top' ? { alignItems: 'flex-start' } : { alignItems: 'flex-end' }]}>
+      {Array.from({ length: 24 }, (_, i) => (
+        <View key={i} style={[styles.bite, { backgroundColor: color }, edge === 'top' ? { marginTop: -6 } : { marginBottom: -6 }]} />
+      ))}
     </View>
   );
 }
@@ -214,30 +281,44 @@ function Row({ label: text, value }: { label: string; value: string }) {
   );
 }
 
-const BG = '#0E0E0E';
-const DETAILS = '#F2F1EE';
+const BG = '#0D0D0F';
+const PANEL = '#F4F2EE';
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: BG },
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.xl, minHeight: 44 },
-  topTitle: { fontFamily: font.bold, fontSize: 16, color: colors.onInk },
-  ticket: { marginHorizontal: space.lg, marginTop: space.lg, marginBottom: space.xl },
-  stub: { zIndex: 2, marginHorizontal: 12, boxShadow: '0 8px 14px rgba(0,0,0,0.25)' },
-  stubBody: { backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 22, alignItems: 'center', gap: 6 },
-  headRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  headIcon: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
-  headText: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
-  vendor: { marginTop: 10, fontFamily: font.display, fontSize: 22, color: colors.ink, letterSpacing: -0.4, textAlign: 'center' },
+  topBar: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: space.xl, minHeight: 44 },
+  topTitle: { flex: 1, fontFamily: font.display, fontSize: 20, color: colors.onInk, letterSpacing: -0.4 },
+  info: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.onInk, alignItems: 'center', justifyContent: 'center' },
+  infoText: { fontFamily: font.display, fontSize: 17, color: BG },
+  stub: { zIndex: 2, marginHorizontal: 34, marginTop: space.xl, backgroundColor: '#FFFFFF' },
+  stubBody: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 24, alignItems: 'center', gap: 8 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  headIcon: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
+  headText: { fontFamily: font.bold, fontSize: 16, color: colors.ink },
+  vendor: { marginTop: 14, fontFamily: font.display, fontSize: 23, lineHeight: 28, color: colors.ink, letterSpacing: -0.3, textAlign: 'center' },
   refText: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
-  details: { zIndex: 1, marginTop: -26, paddingTop: 32, backgroundColor: DETAILS, borderTopLeftRadius: 18, borderTopRightRadius: 18 },
-  rows: { paddingHorizontal: 22, paddingVertical: 16, gap: 13 },
+  dashWrap: { flex: 1, paddingHorizontal: 18 },
+  panel: { flexGrow: 1, zIndex: 1, marginHorizontal: 14, marginTop: -30, paddingTop: 30, backgroundColor: PANEL, borderTopLeftRadius: 26, borderTopRightRadius: 26 },
+  ticketLower: { marginHorizontal: 20, backgroundColor: '#FFFFFF', boxShadow: '0 10px 18px rgba(0,0,0,0.10)' },
+  rows: { paddingHorizontal: 22, paddingTop: 20, paddingBottom: 14, gap: 15 },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   rowLabel: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
   rowValue: { flexShrink: 1, textAlign: 'right', fontFamily: font.bold, fontSize: 13, color: colors.ink },
-  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 22, paddingTop: 18, paddingBottom: 16 },
-  totalLabel: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
+  notchRow: { height: 24, flexDirection: 'row', alignItems: 'center' },
+  notch: { position: 'absolute', top: 0, width: 24, height: 24, borderRadius: 12, backgroundColor: PANEL },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 22, paddingTop: 10, paddingBottom: 20 },
+  totalLabel: { fontFamily: font.bold, fontSize: 14, color: colors.ink },
   total: { fontFamily: font.display, fontSize: 30, color: colors.ink, letterSpacing: -1 },
-  panel: { backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: space.xl, paddingTop: space.xl, gap: space.md },
+  perf: { height: 10, flexDirection: 'row', justifyContent: 'space-between', overflow: 'hidden', paddingHorizontal: 3, backgroundColor: '#FFFFFF' },
+  bite: { width: 12, height: 12, borderRadius: 6 },
+  below: { paddingHorizontal: 16, paddingTop: space.xl, gap: space.md },
+  comment: { flexDirection: 'row', gap: 10, padding: 12, borderRadius: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#E6E3DD' },
+  commentMeta: { fontFamily: font.regular, fontSize: 12, color: colors.inkMuted },
+  commentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: colors.ink },
+  commentBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingLeft: 14, paddingRight: 8, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#E6E3DD' },
+  commentInput: { flex: 1, minHeight: 40, fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: colors.ink, paddingVertical: 2, textAlignVertical: 'top' },
+  send: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
+  link: { fontFamily: font.bold, fontSize: 14, color: colors.ink, textDecorationLine: 'underline' },
   cardHint: { fontFamily: font.regular, fontSize: 14, color: colors.inkMuted },
   receipt: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   auditRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.lg, paddingVertical: space.sm },

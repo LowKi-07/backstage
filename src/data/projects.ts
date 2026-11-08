@@ -15,6 +15,8 @@ export interface ProjectListing {
   callTime: string;
   schedule: string;
   // Sample numbers for listings without expense data behind them.
+  // Manager-home sample numbers for listings without data.
+  managerSample?: { budget: number; spent: number; review: number; reviewCount: number; manage: string };
   sample?: { pending: number; pendingCount: number; received: number; txns: { icon: string; title: string; when: string; amount: number }[] };
 }
 
@@ -43,6 +45,7 @@ export const PROJECTS: ProjectListing[] = [
     budgetLabel: '₹16Cr',
     callTime: '6:00 AM',
     schedule: 'Day 41 of 150',
+    managerSample: { budget: 16000000, spent: 3800000, review: 18250, reviewCount: 4, manage: 'Transport' },
     sample: {
       pending: 21300,
       pendingCount: 6,
@@ -64,7 +67,8 @@ export const PROJECTS: ProjectListing[] = [
     status: 'Pre-production',
     budgetLabel: '₹38L',
     callTime: '10:00 AM',
-    schedule: 'Pre-production',
+    schedule: 'Shoot starts in 12 days',
+    managerSample: { budget: 800000, spent: 120000, review: 3200, reviewCount: 1, manage: 'Costume' },
     sample: { pending: 3200, pendingCount: 1, received: 0, txns: [{ icon: 'shirt', title: 'Costume fabric samples', when: 'Today', amount: -3200 }] },
     poster: require('../../assets/posters/big-dawgs.webp'),
   },

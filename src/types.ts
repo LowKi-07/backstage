@@ -40,6 +40,12 @@ export interface AuditEntry {
   note?: string;
 }
 
+export interface ExpenseComment {
+  at: string; // ISO datetime
+  byUserId: string;
+  text: string;
+}
+
 export interface Expense {
   id: string;
   userId: string;
@@ -54,6 +60,8 @@ export interface Expense {
   status: ExpenseStatus;
   createdAt: string;
   history: AuditEntry[];
+  // Conversation between the submitter and reviewers about this bill.
+  comments?: ExpenseComment[];
 }
 
 export type BudgetRequestStatus = 'pending' | 'approved' | 'rejected';

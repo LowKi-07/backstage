@@ -20,6 +20,7 @@ interface StoreApi {
   managerDecide(expenseId: string, decision: 'approve' | 'reject' | 'escalate', note?: string): ExpenseStatus | null;
   producerDecide(expenseId: string, decision: 'approve' | 'reject', note?: string): void;
   markPaid(expenseIds: string[], note?: string): void;
+  addComment(expenseId: string, text: string): void;
   requestBudget(departmentId: string, amount: number, reason: string): void;
   decideBudget(requestId: string, approve: boolean, note?: string): void;
   resetDemo(): void;
@@ -130,6 +131,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const addComment: StoreApi['addComment'] = (expenseId, text) => {
+    const body = text.trim();
+    if (!body) return;
+    const comment = { at: new Date().toISOString(), byUserId: actorId(), text: body };
+    setState((s) => ({ ...s, expenses: s.expenses.map((e) => (e.id === expenseId ? { ...e, comments: [...(e.comments ?? []), comment] } : e)) }));
+  };
+
   const markPaid: StoreApi['markPaid'] = (ids, note) => {
     const set = new Set(ids);
     setState((s) => ({
@@ -195,6 +203,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     managerDecide,
     producerDecide,
     markPaid,
+    addComment,
     requestBudget,
     decideBudget,
     resetDemo,

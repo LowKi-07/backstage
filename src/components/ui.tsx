@@ -73,7 +73,7 @@ export function Screen({ title, subtitle, onBack, right, children, scroll = true
   );
 }
 
-export function AppHeader({ dark }: { dark?: boolean } = {}) {
+export function AppHeader({ dark, search = true }: { dark?: boolean; search?: boolean } = {}) {
   const { state, currentUser } = useStore();
   const nav = useNav();
   if (!currentUser) return null;
@@ -92,9 +92,11 @@ export function AppHeader({ dark }: { dark?: boolean } = {}) {
         <Icon name="menu" size={26} strokeWidth={1.5} color={dark ? colors.onInk : colors.ink} />
       </Pressable>
       <View style={{ flex: 1 }} />
-      <Pressable onPress={() => nav.popToTab('expenses')} hitSlop={10} accessibilityLabel="Search expenses">
-        <Icon name="search" size={25} strokeWidth={1.4} color={dark ? colors.onInk : colors.ink} />
-      </Pressable>
+      {search ? (
+        <Pressable onPress={() => nav.popToTab('expenses')} hitSlop={10} accessibilityLabel="Search expenses">
+          <Icon name="search" size={25} strokeWidth={1.4} color={dark ? colors.onInk : colors.ink} />
+        </Pressable>
+      ) : null}
       <Pressable onPress={openAlerts} hitSlop={10} accessibilityLabel={`${alerts} alerts`}>
         <Icon name="bell" size={25} strokeWidth={1.4} color={dark ? colors.onInk : colors.ink} />
         {alerts > 0 ? (

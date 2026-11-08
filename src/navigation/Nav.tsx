@@ -13,6 +13,8 @@ export type Route =
   | { name: 'reviewExpense'; draft: ExpenseDraft }
   | { name: 'submitted'; id: string }
   | { name: 'projects' }
+  | { name: 'teamExpenses' }
+  | { name: 'budgets' }
   | { name: 'payouts' }
   | { name: 'department'; id: string }
   | { name: 'budgetRequest'; departmentId?: string }

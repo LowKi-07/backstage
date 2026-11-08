@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ProjectCard } from '../../components/project';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { HomeShell } from '../../components/HomeShell';
+import { Icon } from '../../components/icons';
+import { SampleTxns } from '../crew/CrewScreens';
 import { Text } from '../../components/Text';
-import { projectListing } from '../../data/projects';
-import { BudgetRequestRow, DepartmentCard, ExpenseCard, ExpenseList } from '../../components/rows';
+import { BudgetRequestRow, categoryIcon, DepartmentCard, ExpenseCard, ExpenseList } from '../../components/rows';
 import { Button, Chip, ChipRow, EmptyState, Hero, Money, Notice, Screen, SectionTitle, Segmented } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
-import { byNewest, departmentSummary, isPending, managedDepartmentIds, sum } from '../../store/selectors';
+import { byNewest, categoryBreakdown, departmentSummary, isPending, isSpent, managedDepartmentIds, sum } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, font, radius, shadow, space } from '../../theme';
 import { Expense } from '../../types';
@@ -37,8 +38,10 @@ function approvalNote(e: Expense, threshold: number) {
   return e.amount > threshold ? { note: `Over ${formatCompact(threshold)}`, color: colors.escalated } : { note: relativeDay(e.date), color: colors.pending };
 }
 
+// Manager home: project artwork carousel on top; budget used, bills to review, money matters, recent team
+// spend and department budgets below.
 export function ManagerDashboardScreen() {
-  const { state, currentUser, depts, toReview } = useManagerData();
+  const { state, currentUser, depts, toReview, teamExpenses } = useManagerData();
   const nav = useNav();
   if (!currentUser) return null;
 
@@ -51,53 +54,74 @@ export function ManagerDashboardScreen() {
   );
   const threshold = state.project.escalationThreshold;
   const overLimit = toReview.filter((e) => e.amount > threshold).length;
-  const hour = new Date().getHours();
-  const hello = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
-    <Screen>
-      <Text style={dashStyles.greeting}>
-        {hello}, {currentUser.name.split(' ')[0]}
-      </Text>
-      <ProjectCard
-        listing={projectListing(state.selectedProjectId)}
-        onPress={() => nav.push({ name: 'projects' })}
-        detail={
-          <Text style={dashStyles.detail} numberOfLines={2}>
-            You manage <Text style={dashStyles.detailStrong}>{depts.map((d) => d.name).join(' · ')}</Text>
-          </Text>
-        }
-      />
+    <HomeShell>
+      {(listing) => {
+        const ms = listing.managerSample;
+        const budget = ms ? ms.budget : totals.budget;
+        const spent = ms ? ms.spent : totals.spent;
+        const review = ms ? ms.review : sum(toReview);
+        const count = ms ? ms.reviewCount : toReview.length;
+        const pct = budget ? Math.round((spent / budget) * 100) : 0;
+        return (
+          <>
+            <View style={dashStyles.budget}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Text style={dashStyles.budgetLine}>
+                  <Text style={dashStyles.budgetSpent}>{formatCompact(spent)}</Text> spent of {formatCompact(budget)}
+                </Text>
+                <Text style={dashStyles.budgetPct}>{pct}%</Text>
+              </View>
+              <View style={dashStyles.track}>
+                <View style={[dashStyles.fill, { width: `${Math.min(100, pct)}%` }]} />
+              </View>
+              <Text style={dashStyles.budgetLeft}>{formatCompact(budget - spent)} remaining</Text>
+            </View>
 
-      <View style={dashStyles.review}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={[dashStyles.dot, { backgroundColor: toReview.length ? colors.pending : colors.positive }]} />
-            <Text style={[dashStyles.reviewLabel, { color: toReview.length ? colors.pending : colors.positive }]}>{toReview.length ? 'Pending your review' : 'All caught up'}</Text>
-          </View>
-          <Money value={sum(toReview)} size={28} display />
-          <Text style={dashStyles.detail}>
-            {toReview.length} {toReview.length === 1 ? 'bill' : 'bills'}
-            {overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}
-          </Text>
-        </View>
-        {toReview.length ? <Button label="Review" small onPress={() => nav.setTab('approvals')} style={{ minWidth: 104 }} /> : null}
-      </View>
+            <View style={dashStyles.review}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <View style={[dashStyles.dot, { backgroundColor: count ? colors.pending : colors.positive }]} />
+                  <Text style={[dashStyles.reviewLabel, { color: count ? colors.pending : colors.positive }]}>{count ? 'Pending your review' : 'All caught up'}</Text>
+                </View>
+                <Money value={review} size={28} display />
+                <Text style={dashStyles.detail}>
+                  {count} {count === 1 ? 'bill' : 'bills'}
+                  {!ms && overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}
+                </Text>
+              </View>
+              {count ? <Button label="Review" small onPress={() => nav.setTab('approvals')} style={{ minWidth: 104 }} /> : null}
+            </View>
 
-      <SectionTitle title="Money matters" />
-      <View style={{ flexDirection: 'row', gap: space.sm }}>
-        <MiniStat label="Remaining" value={formatCompact(totals.budget - totals.spent)} tone={colors.positive} />
-        <MiniStat label="Spent" value={formatCompact(totals.spent)} />
-        <MiniStat label="Budget" value={formatCompact(totals.budget)} />
-      </View>
+            <SectionTitle title="Money matters" />
+            <View style={{ flexDirection: 'row', gap: space.sm }}>
+              <MiniStat label="Remaining" value={formatCompact(budget - spent)} tone={colors.positive} />
+              <MiniStat label="Spent" value={formatCompact(spent)} />
+              <MiniStat label="Budget" value={formatCompact(budget)} />
+            </View>
 
-      <SectionTitle title="Department budgets" action="Request more" onAction={() => nav.push({ name: 'budgetRequest' })} />
-      <View style={{ gap: space.md }}>
-        {depts.map((d) => (
-          <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
-        ))}
-      </View>
-    </Screen>
+            <SectionTitle title="Recent transactions" action={ms ? undefined : 'View all'} onAction={() => nav.setTab('expenses')} />
+            {ms && listing.sample ? (
+              <SampleTxns txns={listing.sample.txns} />
+            ) : (
+              <ExpenseList expenses={teamExpenses.slice(0, 3)} grouped={false} empty={<EmptyState icon="inbox" title="No team expenses yet" />} />
+            )}
+
+            <SectionTitle title="Department budgets" action="Request more" onAction={() => nav.push({ name: 'budgetRequest' })} />
+            {ms ? (
+              <Text style={dashStyles.detail}>You manage {ms.manage} on {listing.name}. Department detail appears once its first bills come in.</Text>
+            ) : (
+              <View style={{ gap: space.md }}>
+                {depts.map((d) => (
+                  <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
+                ))}
+              </View>
+            )}
+          </>
+        );
+      }}
+    </HomeShell>
   );
 }
 
@@ -113,9 +137,14 @@ function MiniStat({ label: text, value, tone }: { label: string; value: string; 
 }
 
 const dashStyles = StyleSheet.create({
-  greeting: { fontFamily: font.display, fontSize: 22, color: colors.ink, letterSpacing: -0.5 },
   detail: { fontFamily: font.regular, fontSize: 13, color: colors.inkSoft },
-  detailStrong: { fontFamily: font.bold, fontSize: 13, color: colors.ink },
+  budget: { padding: 14, paddingHorizontal: 16, borderRadius: 18, borderWidth: 1, borderColor: '#EDEDED', backgroundColor: colors.surface, gap: 10 },
+  budgetLine: { fontFamily: font.regular, fontSize: 14, color: colors.inkSoft },
+  budgetSpent: { fontFamily: font.display, fontSize: 17, color: colors.ink },
+  budgetPct: { fontFamily: font.bold, fontSize: 13, color: colors.ink },
+  track: { height: 4, borderRadius: 2, backgroundColor: '#EDEDED', overflow: 'hidden' },
+  fill: { height: 4, borderRadius: 2, backgroundColor: colors.ink },
+  budgetLeft: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   review: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.lineSoft },
   dot: { width: 7, height: 7, borderRadius: 4 },
   reviewLabel: { fontFamily: font.semibold, fontSize: 13 },
@@ -145,7 +174,10 @@ export function ManagerApprovalsScreen() {
   };
 
   return (
-    <Screen title="approvals">
+    <Screen
+      title="approvals"
+      footer={tab === 'review' && quick.length > 1 ? <Button label={`Approve all ${quick.length} under ${formatCompact(threshold)}`} icon="check-double" variant="outline" onPress={approveAll} /> : undefined}
+    >
       <Segmented
         options={[
           { key: 'review', label: `To review ${toReview.length}` },
@@ -163,7 +195,6 @@ export function ManagerApprovalsScreen() {
         ) : (
           <>
             <Hero lines={[`${toReview.length} ${toReview.length === 1 ? 'bill' : 'bills'} to review`]} amount={sum(toReview)} />
-            {quick.length > 1 ? <Button label={`Approve all ${quick.length} under ${formatCompact(threshold)}`} icon="check-double" variant="outline" onPress={approveAll} /> : null}
             <View style={{ gap: space.md }}>
               {toReview.map((e) => {
                 const n = approvalNote(e, threshold);
@@ -186,8 +217,139 @@ export function ManagerApprovalsScreen() {
   );
 }
 
-export function ManagerExpensesScreen() {
+// Expenses tab: spend against budget, the latest bills, and spend by category and by department.
+export function ManagerExpensesOverviewScreen() {
+  const { state, currentUser, depts, teamExpenses } = useManagerData();
+  const nav = useNav();
+  if (!currentUser) return null;
+  const totals = depts.reduce(
+    (acc, d) => {
+      const s = departmentSummary(state, d.id);
+      return { budget: acc.budget + s.budget, spent: acc.spent + s.spent };
+    },
+    { budget: 0, spent: 0 },
+  );
+  const pct = totals.budget ? Math.round((totals.spent / totals.budget) * 100) : 0;
+  const spentList = teamExpenses.filter(isSpent);
+  const cats = categoryBreakdown(spentList).slice(0, 5);
+  const catTotal = sum(spentList);
+
+  return (
+    <Screen title="Expenses" subtitle={`${state.project.name} · ${depts.map((d) => d.name).join(', ')}`}>
+      <View style={expStyles.dark}>
+        <Text style={expStyles.darkLabel}>Total spent</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+          <Text style={expStyles.darkBig}>{formatCompact(totals.spent)}</Text>
+          <Text style={expStyles.darkLabel}>of {formatCompact(totals.budget)}</Text>
+        </View>
+        <Text style={[expStyles.darkLabel, { marginTop: 10 }]}>Budget utilised</Text>
+        <View style={expStyles.darkTrack}>
+          <View style={[expStyles.darkFill, { width: `${Math.min(100, pct)}%` }]} />
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 12 }}>
+          <View style={{ gap: 4 }}>
+            <Text style={expStyles.darkSmall}>Spent</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={expStyles.darkValue}>{formatCompact(totals.spent)}</Text>
+              <Text style={expStyles.pctPill}>{pct}%</Text>
+            </View>
+          </View>
+          <View style={{ gap: 4, alignItems: 'flex-end' }}>
+            <Text style={expStyles.darkSmall}>Remaining</Text>
+            <Text style={expStyles.darkValue}>{formatCompact(totals.budget - totals.spent)}</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={expStyles.card}>
+        <View style={expStyles.cardHead}>
+          <Text style={expStyles.cardTitle}>Recent transactions</Text>
+          <Text style={expStyles.cardNote}>
+            {Math.min(5, teamExpenses.length)} of {teamExpenses.length}
+          </Text>
+        </View>
+        <ExpenseList expenses={teamExpenses.slice(0, 5)} grouped={false} empty={<EmptyState icon="inbox" title="No team expenses yet" />} />
+        <TertiaryLink label="View all transactions" onPress={() => nav.push({ name: 'teamExpenses' })} />
+      </View>
+
+      <View style={expStyles.card}>
+        <View style={expStyles.cardHead}>
+          <Text style={expStyles.cardTitle}>Spend by category</Text>
+          <Text style={expStyles.cardNote}>{formatCompact(catTotal)}</Text>
+        </View>
+        {cats.map((c) => {
+          const share = catTotal ? Math.round((c.amount / catTotal) * 100) : 0;
+          return (
+            <View key={c.category} style={{ gap: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={expStyles.catIcon}>
+                  <Icon name={categoryIcon[c.category] ?? 'receipt'} size={16} />
+                </View>
+                <Text style={expStyles.catName} numberOfLines={1}>
+                  {c.category}
+                </Text>
+                <Text style={expStyles.catAmt}>{formatCompact(c.amount)}</Text>
+                <Text style={expStyles.catPct}>{share}%</Text>
+              </View>
+              <View style={expStyles.catTrack}>
+                <View style={[expStyles.catFill, { width: `${share}%` }]} />
+              </View>
+            </View>
+          );
+        })}
+      </View>
+
+      <View style={expStyles.card}>
+        <View style={expStyles.cardHead}>
+          <Text style={expStyles.cardTitle}>Spend by department</Text>
+          <Text style={expStyles.cardNote}>
+            {depts.length} {depts.length === 1 ? 'department' : 'departments'}
+          </Text>
+        </View>
+        {depts.map((d) => (
+          <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
+        ))}
+        <TertiaryLink label="View department breakdown" onPress={() => nav.push({ name: 'budgets' })} />
+      </View>
+    </Screen>
+  );
+}
+
+function TertiaryLink({ label: text, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} hitSlop={8} style={expStyles.link} accessibilityRole="link">
+      <Text style={expStyles.linkText}>{text}</Text>
+      <Icon name="chevron-right" size={16} />
+    </Pressable>
+  );
+}
+
+const expStyles = StyleSheet.create({
+  dark: { padding: 20, borderRadius: radius.lg, backgroundColor: '#141414', gap: 4 },
+  darkLabel: { fontFamily: font.regular, fontSize: 14, color: '#A8A8A8' },
+  darkBig: { fontFamily: font.bold, fontSize: 40, lineHeight: 48, color: colors.onInk, letterSpacing: -1.5 },
+  darkTrack: { marginTop: 8, height: 8, borderRadius: 4, backgroundColor: '#3A3A3A', overflow: 'hidden' },
+  darkFill: { height: 8, borderRadius: 4, backgroundColor: '#E6E6E6' },
+  darkSmall: { fontFamily: font.regular, fontSize: 13, color: '#A8A8A8' },
+  darkValue: { fontFamily: font.bold, fontSize: 16, color: colors.onInk },
+  pctPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill, borderWidth: 1, borderColor: '#3A3A3A', backgroundColor: '#262626', fontFamily: font.semibold, fontSize: 12, color: '#CFCFCF', overflow: 'hidden' },
+  card: { padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft, gap: 14 },
+  cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardTitle: { fontFamily: font.bold, fontSize: 17, color: colors.ink },
+  cardNote: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
+  catIcon: { width: 30, height: 30, borderRadius: 10, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  catName: { flex: 1, fontFamily: font.semibold, fontSize: 14, color: colors.ink },
+  catAmt: { fontFamily: font.bold, fontSize: 14, color: colors.ink },
+  catPct: { width: 36, textAlign: 'right', fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
+  catTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFEFEF', overflow: 'hidden' },
+  catFill: { height: 6, borderRadius: 3, backgroundColor: colors.ink },
+  link: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 4 },
+  linkText: { fontFamily: font.bold, fontSize: 14.5, color: colors.ink, textDecorationLine: 'underline' },
+});
+
+export function ManagerExpensesScreen({ pushed }: { pushed?: boolean } = {}) {
   const { currentUser, depts, teamExpenses } = useManagerData();
+  const nav = useNav();
   const [dept, setDept] = useState<string | 'all'>('all');
   const [status, setStatus] = useState<'all' | 'pending' | 'approved' | 'paid' | 'rejected'>('all');
   if (!currentUser) return null;
@@ -195,7 +357,7 @@ export function ManagerExpensesScreen() {
   const shown = teamExpenses.filter((e) => (dept === 'all' || e.departmentId === dept) && (status === 'all' || (status === 'pending' ? isPending(e) : e.status === status)));
 
   return (
-    <Screen title="team expenses" subtitle={`${shown.length} bills · ${formatINR(sum(shown))}`}>
+    <Screen title="team expenses" subtitle={`${shown.length} bills · ${formatINR(sum(shown))}`} onBack={pushed ? nav.pop : undefined}>
       {depts.length > 1 ? (
         <ChipRow>
           <Chip label="All depts" active={dept === 'all'} onPress={() => setDept('all')} />
@@ -214,7 +376,7 @@ export function ManagerExpensesScreen() {
   );
 }
 
-export function ManagerBudgetsScreen() {
+export function ManagerBudgetsScreen({ pushed }: { pushed?: boolean } = {}) {
   const { state, currentUser, depts, deptIds } = useManagerData();
   const nav = useNav();
   if (!currentUser) return null;
@@ -222,7 +384,7 @@ export function ManagerBudgetsScreen() {
   const budget = depts.reduce((a, d) => a + d.budget, 0);
 
   return (
-    <Screen title="budgets" subtitle={`${depts.length} departments · ${formatCompact(budget)} allocated`}>
+    <Screen title="budgets" subtitle={`${depts.length} departments · ${formatCompact(budget)} allocated`} onBack={pushed ? nav.pop : undefined}>
       <View style={{ gap: space.md }}>
         {depts.map((d) => (
           <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
