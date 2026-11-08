@@ -10,9 +10,12 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Backstage" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="theme-color" content="#000000" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="preload" as="image" href="/posters/raftaar.jpg" />
+    <link rel="preload" as="image" href="/posters/retro.jpg" />
+    <link rel="preload" as="image" href="/posters/f1.jpg" />
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
       /* These styles make the body full-height */
@@ -31,12 +34,35 @@
         height: 100%;
         flex: 1;
       }
+
+      /* Instant splash: plain HTML painted before the app script loads; React replaces it on mount. */
+      #bs-splash { position: relative; flex: 1; overflow: hidden; background: #000; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: #fff; max-width: 440px; margin: 0 auto; width: 100%; }
+      #bs-splash .bs-collage { position: absolute; left: 14px; right: 14px; top: 0; height: 58%; display: flex; gap: 12px; overflow: hidden; }
+      #bs-splash .bs-col { flex: 1; min-width: 0; }
+      #bs-splash .bs-strip { display: flex; flex-direction: column; gap: 14px; animation-timing-function: linear; animation-iteration-count: infinite; }
+      #bs-splash .bs-up { animation-name: bs-up; }
+      #bs-splash .bs-down { animation-name: bs-down; }
+      #bs-splash .bs-tile { height: 188px; border-radius: 22px; background: #1a1a1a center / cover no-repeat; flex-shrink: 0; }
+      #bs-splash .bs-fade { position: absolute; left: 0; right: 0; top: 0; height: 58%; background: linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.3) 45%, rgba(0,0,0,.8) 80%, #000 100%); }
+      #bs-splash .bs-panel { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 20px calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; background: #000; }
+      #bs-splash .bs-panel::before { content: ''; position: absolute; left: 0; right: 0; top: -90px; height: 90px; background: linear-gradient(to bottom, rgba(0,0,0,0), #000); }
+      #bs-splash h1 { margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -1px; text-align: center; }
+      #bs-splash .bs-tag { margin: 0 0 8px; font-size: 15px; color: #a8a8a8; text-align: center; }
+      #bs-splash .bs-label { font-size: 14px; font-weight: 600; color: #a8a8a8; }
+      #bs-splash .bs-select { height: 54px; box-sizing: border-box; border-radius: 16px; border: 1px solid #333; background: #1c1c1c; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; font-size: 16px; font-weight: 500; }
+      #bs-splash .bs-signin { height: 54px; margin-top: 4px; border-radius: 999px; background: #fff; color: #141414; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; }
+      #bs-splash .bs-note { margin: 4px 0 0; font-size: 12.5px; color: #8c8c8c; text-align: center; }
+      @keyframes bs-up { from { transform: translateY(0); } to { transform: translateY(-808px); } }
+      @keyframes bs-down { from { transform: translateY(-808px); } to { transform: translateY(0); } }
+      @media (prefers-reduced-motion: reduce) { #bs-splash .bs-strip { animation: none; } }
     </style>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" />
   </head>
 
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <!-- The root element for your Expo app. -->
-    <div id="root"></div>
+    <div id="root"><div id="bs-splash" aria-busy="true"><div class="bs-collage" aria-hidden="true"><div class="bs-col" style="margin-top:0px"><div class="bs-strip bs-up" style="animation-duration:38s"><div class="bs-tile" style="background-image:url(/posters/f1.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/retro.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/dhurandhar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/big-dawgs.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/f1.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/retro.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/dhurandhar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/big-dawgs.jpg)"></div></div></div><div class="bs-col" style="margin-top:-120px"><div class="bs-strip bs-down" style="animation-duration:44s"><div class="bs-tile" style="background-image:url(/posters/raftaar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/kuthanthram.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/f1.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/retro.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/raftaar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/kuthanthram.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/f1.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/retro.jpg)"></div></div></div><div class="bs-col" style="margin-top:-60px"><div class="bs-strip bs-up" style="animation-duration:34s"><div class="bs-tile" style="background-image:url(/posters/dhurandhar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/big-dawgs.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/raftaar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/kuthanthram.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/dhurandhar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/big-dawgs.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/raftaar.jpg)"></div><div class="bs-tile" style="background-image:url(/posters/kuthanthram.jpg)"></div></div></div></div><div class="bs-fade"></div><div class="bs-panel"><div style="display:flex;justify-content:center;position:relative"><svg width="54" height="54" viewBox="0 0 100 100" fill="none" aria-hidden="true"><path d="M14 33 L82 17 L85.5 30 L17.5 46 Z" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M33 28.5 L41 41.5 M52 24 L60 37 M71 19.5 L78 31.5" stroke="#fff" stroke-width="5" stroke-linecap="round"/><rect x="16" y="46" width="70" height="42" rx="5" stroke="#fff" stroke-width="5"/><path d="M40 56 V78 M40 56 H52.5 a5.5 5.5 0 0 1 0 11 H40 M40 67 H54.5 a5.5 5.5 0 0 1 0 11 H40" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1 style="position:relative">Backstage</h1><p class="bs-tag" style="position:relative">Every rupee on set, accounted for.</p><span class="bs-label" style="position:relative">Choose role</span><div class="bs-select" style="position:relative">Crew member<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div><div class="bs-signin" style="position:relative">Sign in</div><p class="bs-note" style="position:relative">Demo sign-in. Phone OTP switches on with the cloud backend.</p></div></div></div>
   </body>
 </html>

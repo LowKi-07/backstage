@@ -22,7 +22,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function Root() {
   const { ready, currentUser } = useStore();
-  const [fontsLoaded, fontError] = useFonts({
+  useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
     PlusJakartaSans_600SemiBold,
@@ -31,16 +31,16 @@ function Root() {
     IBMPlexMono_500Medium,
     IBMPlexMono_700Bold,
   });
-  const appReady = ready && (fontsLoaded || !!fontError);
-
+  // Don't hold the first paint for fonts or storage: the sign-in splash shows at once and the
+  // brand font swaps in when it arrives. Only the signed-in app waits for saved data.
   useEffect(() => {
-    if (appReady) SplashScreen.hideAsync().catch(() => {});
-  }, [appReady]);
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
 
   // The app always opens on the sign-in splash (LoginScreen); there's no separate logo screen.
   return (
     <View style={{ flex: 1, backgroundColor: currentUser ? colors.bg : '#000000' }}>
-      {appReady ? currentUser ? <RoleNavigator /> : <LoginScreen /> : null}
+      {currentUser && ready ? <RoleNavigator /> : <LoginScreen />}
       <StatusBar style={currentUser ? 'dark' : 'light'} />
     </View>
   );

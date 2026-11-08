@@ -1,57 +1,56 @@
-import {
-  ArrowUp,
-  ArrowUpRight,
-  Banknote,
-  BedDouble,
-  Bell,
-  Brush,
-  Calendar,
-  Camera,
-  Car,
-  Check,
-  CheckCheck,
-  ChevronDown,
-  ChevronRight,
-  CircleAlert,
-  Clapperboard,
-  Clock,
-  Ellipsis,
-  FileText,
-  Fuel,
-  Hammer,
-  Image,
-  Inbox,
-  IndianRupee,
-  Info,
-  Layers,
-  LogOut,
-  LucideIcon,
-  MapPin,
-  Menu,
-  Mic,
-  Package,
-  Palette,
-  PenLine,
-  Phone,
-  Plus,
-  Printer,
-  Receipt,
-  RotateCcw,
-  ScanLine,
-  Search,
-  Send,
-  ShieldCheck,
-  Shirt,
-  Sparkles,
-  Trash2,
-  TrendingUp,
-  User,
-  Users,
-  UtensilsCrossed,
-  Video,
-  Wallet,
-  X,
-} from 'lucide-react-native';
+// One file per icon so only the icons in use are bundled (the package index pulls in all of them).
+import type { LucideIcon } from 'lucide-react-native';
+import ArrowUp from 'lucide-react-native/icons/arrow-up';
+import ArrowUpRight from 'lucide-react-native/icons/arrow-up-right';
+import Banknote from 'lucide-react-native/icons/banknote';
+import BedDouble from 'lucide-react-native/icons/bed-double';
+import Bell from 'lucide-react-native/icons/bell';
+import Brush from 'lucide-react-native/icons/brush';
+import Calendar from 'lucide-react-native/icons/calendar';
+import Camera from 'lucide-react-native/icons/camera';
+import Car from 'lucide-react-native/icons/car';
+import Check from 'lucide-react-native/icons/check';
+import CheckCheck from 'lucide-react-native/icons/check-check';
+import ChevronDown from 'lucide-react-native/icons/chevron-down';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
+import CircleAlert from 'lucide-react-native/icons/circle-alert';
+import Clapperboard from 'lucide-react-native/icons/clapperboard';
+import Clock from 'lucide-react-native/icons/clock';
+import Ellipsis from 'lucide-react-native/icons/ellipsis';
+import FileText from 'lucide-react-native/icons/file-text';
+import Fuel from 'lucide-react-native/icons/fuel';
+import Hammer from 'lucide-react-native/icons/hammer';
+import Image from 'lucide-react-native/icons/image';
+import Inbox from 'lucide-react-native/icons/inbox';
+import IndianRupee from 'lucide-react-native/icons/indian-rupee';
+import Info from 'lucide-react-native/icons/info';
+import Layers from 'lucide-react-native/icons/layers';
+import LogOut from 'lucide-react-native/icons/log-out';
+import MapPin from 'lucide-react-native/icons/map-pin';
+import Menu from 'lucide-react-native/icons/menu';
+import Mic from 'lucide-react-native/icons/mic';
+import Package from 'lucide-react-native/icons/package';
+import Palette from 'lucide-react-native/icons/palette';
+import PenLine from 'lucide-react-native/icons/pen-line';
+import Phone from 'lucide-react-native/icons/phone';
+import Plus from 'lucide-react-native/icons/plus';
+import Printer from 'lucide-react-native/icons/printer';
+import Receipt from 'lucide-react-native/icons/receipt';
+import RotateCcw from 'lucide-react-native/icons/rotate-ccw';
+import ScanLine from 'lucide-react-native/icons/scan-line';
+import Search from 'lucide-react-native/icons/search';
+import Send from 'lucide-react-native/icons/send';
+import ShieldCheck from 'lucide-react-native/icons/shield-check';
+import Shirt from 'lucide-react-native/icons/shirt';
+import Sparkles from 'lucide-react-native/icons/sparkles';
+import Trash2 from 'lucide-react-native/icons/trash';
+import TrendingUp from 'lucide-react-native/icons/trending-up';
+import User from 'lucide-react-native/icons/user';
+import Users from 'lucide-react-native/icons/users';
+import UtensilsCrossed from 'lucide-react-native/icons/utensils-crossed';
+import Video from 'lucide-react-native/icons/video';
+import Wallet from 'lucide-react-native/icons/wallet';
+import X from 'lucide-react-native/icons/x';
 import React, { useId } from 'react';
 import Svg, { Circle, Defs, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { colors } from '../theme';

@@ -41,7 +41,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!raw) return;
         const parsed = JSON.parse(raw) as AppState;
         // Every launch opens on the sign-in splash, so the saved session is not restored.
-        if (parsed.version === STATE_VERSION) setState({ ...parsed, currentUserId: null });
+        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, currentUserId: cur.currentUserId }));
       })
       .catch(() => {})
       .finally(() => setReady(true));
