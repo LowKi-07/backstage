@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { HomeShell } from '../../components/HomeShell';
-import { ExpenseList, SummaryTile, TransactionRow } from '../../components/rows';
+import { ExpenseList, ExpenseStatementRow, StatementRow, SummaryTile, ViewAllLink } from '../../components/rows';
 import { Text } from '../../components/Text';
 import { Chip, ChipRow, EmptyState, Hero, IconCircle, Money, Screen, SectionTitle, Segmented } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
@@ -46,14 +46,15 @@ export function CrewHomeScreen() {
               )}
             </View>
 
-            <SectionTitle title="Recent transactions" action={!sample && mine.length > 5 ? 'View all' : undefined} onAction={() => nav.setTab('expenses')} />
+            <SectionTitle title="Recent transactions" />
             {sample ? (
               <SampleTxns txns={sample.txns} />
             ) : mine.length ? (
               <View>
                 {mine.slice(0, 5).map((e) => (
-                  <TransactionRow key={e.id} expense={e} />
+                  <ExpenseStatementRow key={e.id} expense={e} />
                 ))}
+                <ViewAllLink onPress={() => nav.setTab('expenses')} />
               </View>
             ) : (
               <EmptyState icon="receipt" title="Nothing logged yet" message="Tap the + button below to log your first expense." />
@@ -66,30 +67,18 @@ export function CrewHomeScreen() {
 }
 
 // Transaction rows for sample projects that have no expense data behind them.
+const SAMPLE_CAT: Record<string, string> = { fuel: 'fuel', package: 'props & materials', utensils: 'food & catering', shirt: 'costume & fabric' };
+
 export function SampleTxns({ txns }: { txns: { icon: string; title: string; when: string; amount: number }[] }) {
   return (
     <View>
       {txns.map((t) => (
-        <View key={t.title} style={homeStyles.txn}>
-          <IconCircle name={t.icon} size={44} />
-          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-            <Text style={homeStyles.txnTitle} numberOfLines={1}>
-              {t.title}
-            </Text>
-            <Text style={homeStyles.txnMeta}>{t.when}</Text>
-          </View>
-          <Money value={t.amount} size={14.5} color={t.amount > 0 ? colors.positive : colors.ink} signed={t.amount > 0} />
-        </View>
+        <StatementRow key={t.title} icon={t.icon} title={t.title} sub={t.amount > 0 ? 'reimbursed' : SAMPLE_CAT[t.icon] ?? 'others'} amount={Math.abs(t.amount)} date={t.when} credit={t.amount > 0} />
       ))}
     </View>
   );
 }
 
-const homeStyles = StyleSheet.create({
-  txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
-  txnTitle: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
-  txnMeta: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
-});
 
 const FILTERS: { key: 'all' | ExpenseStatus | 'pending'; label: string }[] = [
   { key: 'all', label: 'All' },

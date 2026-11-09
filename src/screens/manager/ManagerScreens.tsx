@@ -4,7 +4,7 @@ import { HomeShell } from '../../components/HomeShell';
 import { Icon } from '../../components/icons';
 import { SampleTxns } from '../crew/CrewScreens';
 import { Text } from '../../components/Text';
-import { BudgetRequestRow, categoryIcon, DepartmentCard, ExpenseCard, ExpenseList } from '../../components/rows';
+import { BudgetRequestRow, categoryIcon, DepartmentCard, ExpenseCard, ExpenseList, ExpenseStatementRow, ViewAllLink } from '../../components/rows';
 import { Button, Chip, ChipRow, EmptyState, Hero, Money, Notice, Screen, SectionTitle, Segmented } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { byNewest, categoryBreakdown, departmentSummary, isPending, isSpent, managedDepartmentIds, sum } from '../../store/selectors';
@@ -101,11 +101,16 @@ export function ManagerDashboardScreen() {
               <MiniStat label="Budget" value={formatCompact(budget)} />
             </View>
 
-            <SectionTitle title="Recent transactions" action={ms ? undefined : 'View all'} onAction={() => nav.setTab('expenses')} />
+            <SectionTitle title="Recent transactions" />
             {ms && listing.sample ? (
               <SampleTxns txns={listing.sample.txns} />
             ) : (
-              <ExpenseList expenses={teamExpenses.slice(0, 3)} grouped={false} empty={<EmptyState icon="inbox" title="No team expenses yet" />} />
+              <View>
+                {teamExpenses.slice(0, 5).map((e) => (
+                  <ExpenseStatementRow key={e.id} expense={e} showPerson />
+                ))}
+                <ViewAllLink onPress={() => nav.push({ name: 'teamExpenses' })} />
+              </View>
             )}
 
             <SectionTitle title="Department budgets" action="Request more" onAction={() => nav.push({ name: 'budgetRequest' })} />
@@ -268,8 +273,12 @@ export function ManagerExpensesOverviewScreen() {
             {Math.min(5, teamExpenses.length)} of {teamExpenses.length}
           </Text>
         </View>
-        <ExpenseList expenses={teamExpenses.slice(0, 5)} grouped={false} empty={<EmptyState icon="inbox" title="No team expenses yet" />} />
-        <TertiaryLink label="View all transactions" onPress={() => nav.push({ name: 'teamExpenses' })} />
+        <View>
+          {teamExpenses.slice(0, 5).map((e) => (
+            <ExpenseStatementRow key={e.id} expense={e} showPerson />
+          ))}
+        </View>
+        <ViewAllLink onPress={() => nav.push({ name: 'teamExpenses' })} />
       </View>
 
       <View style={expStyles.card}>

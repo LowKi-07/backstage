@@ -6,6 +6,7 @@ import { useStore } from '../store/Store';
 import { colors, font, label, radius, shadow, space } from '../theme';
 import { BudgetRequest, Department, Expense } from '../types';
 import { formatCompact, formatShortDate, relativeDay } from '../utils/format';
+import { Icon } from './icons';
 import { Text } from './Text';
 import { Button, IconCircle, Money, ProgressBar, StatementDivider, StatusText } from './ui';
 
@@ -175,6 +176,58 @@ export function TransactionRow({ expense }: { expense: Expense }) {
   );
 }
 
+// Statement-style transaction line (as in a card statement): outlined round icon, title over a muted
+// category, amount over the date, with generous spacing. Money paid back shows as +green.
+export function StatementRow({ icon, title, sub, amount, date, credit, onPress }: { icon: string; title: string; sub: string; amount: number; date: string; credit?: boolean; onPress?: () => void }) {
+  return (
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [rowStyles.stmt, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+      <View style={rowStyles.stmtIcon}>
+        <Icon name={icon} size={18} color={colors.ink} strokeWidth={1.6} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+        <Text style={rowStyles.stmtTitle} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={rowStyles.stmtSub} numberOfLines={1}>
+          {sub}
+        </Text>
+      </View>
+      <View style={{ alignItems: 'flex-end', gap: 6 }}>
+        <Money value={amount} size={14.5} color={credit ? colors.positive : colors.ink} signed={credit} />
+        <Text style={rowStyles.stmtSub}>{date}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+// A team or personal expense as a statement row.
+export function ExpenseStatementRow({ expense, showPerson }: { expense: Expense; showPerson?: boolean }) {
+  const { state } = useStore();
+  const nav = useNav();
+  const credit = !showPerson && expense.status === 'paid';
+  const sub = showPerson ? `${userName(state, expense.userId).split(' ')[0]} · ${expense.category.toLowerCase()}` : credit ? 'reimbursed' : expense.category.toLowerCase();
+  return (
+    <StatementRow
+      icon={categoryIcon[expense.category] ?? 'receipt'}
+      title={expense.description}
+      sub={sub}
+      amount={expense.amount}
+      date={formatShortDate(expense.date)}
+      credit={credit}
+      onPress={() => nav.push({ name: 'expense', id: expense.id })}
+    />
+  );
+}
+
+// Centred underlined link under a list, e.g. "View all transactions".
+export function ViewAllLink({ label: text = 'View all transactions', onPress }: { label?: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} hitSlop={10} style={rowStyles.viewAll} accessibilityRole="link">
+      <Text style={rowStyles.viewAllText}>{text}</Text>
+    </Pressable>
+  );
+}
+
 export function DepartmentCard({ dept, onPress }: { dept: Department; onPress?: () => void }) {
   const { state } = useStore();
   const s = departmentSummary(state, dept.id);
@@ -230,6 +283,12 @@ export const rowStyles = StyleSheet.create({
   summary: { flex: 1, gap: 4, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
   summaryLabel: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
+  stmt: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14 },
+  stmtIcon: { width: 42, height: 42, borderRadius: 21, borderWidth: 1, borderColor: '#ECECEC', backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  stmtTitle: { fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
+  stmtSub: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
+  viewAll: { alignSelf: 'center', paddingVertical: 6, marginTop: 10 },
+  viewAllText: { fontFamily: font.medium, fontSize: 14, color: colors.ink, textDecorationLine: 'underline' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.md },
   title: { fontFamily: font.medium, fontSize: 16, color: colors.ink },
   meta: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkMuted },
