@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Svg, { Circle, G } from 'react-native-svg';
 import { HomeShell } from '../../components/HomeShell';
 import { Icon } from '../../components/icons';
 import { SampleTxns } from '../crew/CrewScreens';
@@ -236,8 +237,6 @@ export function ManagerExpensesOverviewScreen() {
   );
   const pct = totals.budget ? Math.round((totals.spent / totals.budget) * 100) : 0;
   const spentList = teamExpenses.filter(isSpent);
-  const cats = categoryBreakdown(spentList).slice(0, 5);
-  const catTotal = sum(spentList);
 
   return (
     <Screen title="Expenses" subtitle={`${state.project.name} · ${depts.map((d) => d.name).join(', ')}`}>
@@ -281,32 +280,7 @@ export function ManagerExpensesOverviewScreen() {
         <ViewAllLink onPress={() => nav.push({ name: 'teamExpenses' })} />
       </View>
 
-      <View style={expStyles.card}>
-        <View style={expStyles.cardHead}>
-          <Text style={expStyles.cardTitle}>Spend by category</Text>
-          <Text style={expStyles.cardNote}>{formatCompact(catTotal)}</Text>
-        </View>
-        {cats.map((c) => {
-          const share = catTotal ? Math.round((c.amount / catTotal) * 100) : 0;
-          return (
-            <View key={c.category} style={{ gap: 6 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={expStyles.catIcon}>
-                  <Icon name={categoryIcon[c.category] ?? 'receipt'} size={16} />
-                </View>
-                <Text style={expStyles.catName} numberOfLines={1}>
-                  {c.category}
-                </Text>
-                <Text style={expStyles.catAmt}>{formatCompact(c.amount)}</Text>
-                <Text style={expStyles.catPct}>{share}%</Text>
-              </View>
-              <View style={expStyles.catTrack}>
-                <View style={[expStyles.catFill, { width: `${share}%` }]} />
-              </View>
-            </View>
-          );
-        })}
-      </View>
+      <SpendDonut expenses={spentList} />
 
       <View style={expStyles.card}>
         <View style={expStyles.cardHead}>
@@ -321,6 +295,86 @@ export function ManagerExpensesOverviewScreen() {
         <TertiaryLink label="View department breakdown" onPress={() => nav.push({ name: 'budgets' })} />
       </View>
     </Screen>
+  );
+}
+
+const SHADES = ['#141414', '#4A4A4A', '#8C8C8C', '#BDBDBD', '#E2E2E2'];
+
+// Spending by category: a black-and-white donut with the total in the middle, the top category as a
+// headline, and a legend with transaction counts.
+function SpendDonut({ expenses }: { expenses: Expense[] }) {
+  const total = sum(expenses);
+  const all = categoryBreakdown(expenses);
+  if (!total || !all.length) return null;
+  const top = all.slice(0, 4);
+  const rest = all.slice(4).reduce((a, c) => a + c.amount, 0);
+  const slices = rest > 0 ? [...top, { category: 'Other', amount: rest }] : top;
+  const count = (cat: string) => (cat === 'Other' ? expenses.filter((e) => !top.some((t) => t.category === e.category)).length : expenses.filter((e) => e.category === cat).length);
+  const size = 200;
+  const stroke = 30;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  let offset = 0;
+  const lead = slices[0];
+  const leadPct = ((lead.amount / total) * 100).toFixed(1);
+
+  return (
+    <View style={expStyles.card}>
+      <Text style={expStyles.kicker}>TOP SPEND CATEGORY</Text>
+      <Text style={expStyles.headline}>
+        {leadPct}% on {lead.category.toLowerCase()}
+      </Text>
+      <Text style={expStyles.cardNote}>Across your team's approved and paid bills this project.</Text>
+
+      <View style={{ alignItems: 'center', paddingVertical: space.md }}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <G rotation={-90} origin={`${size / 2}, ${size / 2}`}>
+            <Circle cx={size / 2} cy={size / 2} r={r} stroke="#F2F2F2" strokeWidth={stroke} fill="none" />
+            {slices.map((sl, i) => {
+              const len = (sl.amount / total) * c;
+              const el = (
+                <Circle
+                  key={sl.category}
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={r}
+                  stroke={SHADES[i]}
+                  strokeWidth={stroke}
+                  fill="none"
+                  strokeDasharray={`${Math.max(0, len - 2)} ${c}`}
+                  strokeDashoffset={-offset}
+                />
+              );
+              offset += len;
+              return el;
+            })}
+          </G>
+        </Svg>
+        <View style={expStyles.donutCenter} pointerEvents="none">
+          <Text style={expStyles.cardNote}>Total spent</Text>
+          <Money value={total} size={17} display />
+        </View>
+      </View>
+
+      {slices.map((sl, i) => {
+        const n = count(sl.category);
+        return (
+          <View key={sl.category} style={[expStyles.legendRow, i > 0 && expStyles.legendDivider]}>
+            <View style={[expStyles.swatch, { backgroundColor: SHADES[i] }]} />
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={expStyles.legendName}>{sl.category.toLowerCase()}</Text>
+              <Text style={expStyles.cardNote}>
+                {n} {n === 1 ? 'transaction' : 'transactions'}
+              </Text>
+            </View>
+            <View style={{ alignItems: 'flex-end', gap: 4 }}>
+              <Money value={sl.amount} size={14.5} />
+              <Text style={expStyles.cardNote}>{((sl.amount / total) * 100).toFixed(1)}%</Text>
+            </View>
+          </View>
+        );
+      })}
+    </View>
   );
 }
 
@@ -352,6 +406,13 @@ const expStyles = StyleSheet.create({
   catPct: { width: 36, textAlign: 'right', fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   catTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFEFEF', overflow: 'hidden' },
   catFill: { height: 6, borderRadius: 3, backgroundColor: colors.ink },
+  kicker: { fontFamily: font.semibold, fontSize: 11.5, letterSpacing: 2, color: colors.inkMuted },
+  headline: { fontFamily: font.display, fontSize: 24, color: colors.ink, letterSpacing: -0.6, marginTop: -6 },
+  donutCenter: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  legendRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, paddingVertical: 12 },
+  legendDivider: { borderTopWidth: 1, borderTopColor: '#EFEFEF', borderStyle: 'dashed' },
+  swatch: { width: 12, height: 12, borderRadius: 3, marginTop: 3 },
+  legendName: { fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
   link: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 4 },
   linkText: { fontFamily: font.bold, fontSize: 13.5, color: colors.ink, textDecorationLine: 'underline' },
 });
