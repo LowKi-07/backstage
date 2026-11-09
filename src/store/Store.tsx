@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, AuditEntry, BudgetRequest, Expense, ExpenseStatus, User } from '../types';
+import { AppState, AuditEntry, BudgetRequest, Expense, ExpenseStatus, ProjectStage, Task, User } from '../types';
 import { formatINR, uid } from '../utils/format';
 import { createSeedState, STATE_VERSION } from './seed';
 import { departmentSummary } from './selectors';
@@ -21,6 +21,9 @@ interface StoreApi {
   producerDecide(expenseId: string, decision: 'approve' | 'reject', note?: string): void;
   markPaid(expenseIds: string[], note?: string): void;
   addComment(expenseId: string, text: string): void;
+  setStage(projectId: string, stage: ProjectStage): void;
+  addTask(input: Pick<Task, 'projectId' | 'title' | 'note' | 'assigneeId' | 'due'>): void;
+  toggleTask(taskId: string): void;
   requestBudget(departmentId: string, amount: number, reason: string): void;
   decideBudget(requestId: string, approve: boolean, note?: string): void;
   resetDemo(): void;
@@ -41,7 +44,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!raw) return;
         const parsed = JSON.parse(raw) as AppState;
         // Every launch opens on the sign-in splash, so the saved session is not restored.
-        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, currentUserId: cur.currentUserId }));
+        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, stages: parsed.stages ?? cur.stages, tasks: parsed.tasks ?? cur.tasks, currentUserId: cur.currentUserId }));
       })
       .catch(() => {})
       .finally(() => setReady(true));
@@ -138,6 +141,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, expenses: s.expenses.map((e) => (e.id === expenseId ? { ...e, comments: [...(e.comments ?? []), comment] } : e)) }));
   };
 
+  const setStage: StoreApi['setStage'] = (projectId, stage) => setState((s) => ({ ...s, stages: { ...s.stages, [projectId]: stage } }));
+
+  const addTask: StoreApi['addTask'] = (input) => {
+    const task: Task = { ...input, id: uid('task'), assignedBy: actorId(), status: 'todo', createdAt: new Date().toISOString() };
+    setState((s) => ({ ...s, tasks: [task, ...s.tasks] }));
+  };
+
+  const toggleTask: StoreApi['toggleTask'] = (taskId) =>
+    setState((s) => ({
+      ...s,
+      tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status: t.status === 'done' ? 'todo' : 'done', doneAt: t.status === 'done' ? undefined : new Date().toISOString() } : t)),
+    }));
+
   const markPaid: StoreApi['markPaid'] = (ids, note) => {
     const set = new Set(ids);
     setState((s) => ({
@@ -204,6 +220,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     producerDecide,
     markPaid,
     addComment,
+    setStage,
+    addTask,
+    toggleTask,
     requestBudget,
     decideBudget,
     resetDemo,

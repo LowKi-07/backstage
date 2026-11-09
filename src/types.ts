@@ -79,6 +79,22 @@ export interface BudgetRequest {
   note?: string;
 }
 
+export type ProjectStage = 'Pre-production' | 'In shoot' | 'Post-production' | 'Wrapped';
+
+// Work a manager hands to a crew member on a project.
+export interface Task {
+  id: string;
+  projectId: string; // ProjectListing id
+  title: string;
+  note?: string;
+  assigneeId: string;
+  assignedBy: string;
+  due: string; // ISO date
+  status: 'todo' | 'done';
+  createdAt: string;
+  doneAt?: string;
+}
+
 export interface AppState {
   version: number;
   currentUserId: string | null;
@@ -88,6 +104,9 @@ export interface AppState {
   departments: Department[];
   expenses: Expense[];
   budgetRequests: BudgetRequest[];
+  // Production stage per project, set by managers.
+  stages: Record<string, ProjectStage>;
+  tasks: Task[];
 }
 
 export const CATEGORIES = [

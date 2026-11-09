@@ -6,12 +6,12 @@ import { PROJECTS, ProjectListing } from '../data/projects';
 import { projectSummary } from '../store/selectors';
 import { useStore } from '../store/Store';
 import { colors, font, radius, space } from '../theme';
+import { stageOf } from './projectPlan';
 import { Text } from './Text';
 import { AppHeader } from './ui';
 
 const native = Platform.OS !== 'web';
 const BG = '#0E0E0E';
-const STAGE: Record<ProjectListing['status'], string> = { Shooting: 'In shoot', 'Pre-production': 'Pre-production', 'Post-production': 'Post-production' };
 
 // Home layout shared by crew and managers: a full-bleed project artwork carousel (about a third of the screen)
 // and a white sheet below that follows the selected project and slides up to full screen on scroll.
@@ -72,7 +72,7 @@ export function HomeShell({ children }: { children: (listing: ProjectListing) =>
               {PROJECTS.map((pr) => {
                 const day = pr.id === 'proj1' ? `Day ${summary.daysElapsed} of ${summary.totalDays}` : pr.schedule;
                 return (
-                  <Pressable key={pr.id} style={{ width, height: heroH }} accessibilityLabel={`${pr.name}, ${STAGE[pr.status]}, ${pr.location}`}>
+                  <Pressable key={pr.id} style={{ width, height: heroH }} accessibilityLabel={`${pr.name}, ${stageOf(state, pr)}, ${pr.location}`}>
                     <Image source={pr.poster} style={{ position: 'absolute', left: 0, top: 0, width, height: heroH }} resizeMode="cover" />
                     <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" pointerEvents="none">
                       <Defs>
@@ -88,8 +88,8 @@ export function HomeShell({ children }: { children: (listing: ProjectListing) =>
                     </Svg>
                     <View style={styles.caption}>
                       <View style={styles.stage}>
-                        <View style={[styles.stageDot, { backgroundColor: pr.status === 'Shooting' ? colors.onInk : '#A8A8A8' }]} />
-                        <Text style={styles.stageText}>{STAGE[pr.status]}</Text>
+                        <View style={[styles.stageDot, { backgroundColor: stageOf(state, pr) === 'In shoot' ? colors.onInk : '#A8A8A8' }]} />
+                        <Text style={styles.stageText}>{stageOf(state, pr)}</Text>
                       </View>
                       <Text style={styles.name} numberOfLines={2}>
                         {pr.name}

@@ -11,6 +11,7 @@ import { AiChatScreen } from '../screens/shared/AiChatScreen';
 import { DepartmentScreen } from '../screens/shared/DepartmentScreen';
 import { ExpenseDetailScreen } from '../screens/shared/ExpenseDetailScreen';
 import { NewExpenseScreen, SubmittedScreen } from '../screens/shared/NewExpenseScreen';
+import { CrewProjectScreen, ManagerProjectScreen } from '../screens/shared/ProjectPlanScreens';
 import { ProjectPickerScreen } from '../screens/shared/ProjectPickerScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
 import { managedDepartmentIds } from '../store/selectors';
@@ -60,7 +61,7 @@ export function RoleNavigator() {
     tabs = [
       { key: 'home', label: 'Home', glyph: 'home', render: () => <CrewHomeScreen /> },
       { key: 'expenses', label: 'Expenses', glyph: 'wallet', render: () => <CrewExpensesScreen /> },
-      { key: 'project', label: 'Project', glyph: 'grid', render: () => <ProjectPickerScreen /> },
+      { key: 'project', label: 'Project', glyph: 'grid', render: () => <CrewProjectScreen /> },
       ai,
     ];
     center = { icon: 'plus', label: 'Add expense', sheet: (close, nav) => <AddChoiceSheet close={close} nav={nav} /> };
@@ -70,7 +71,7 @@ export function RoleNavigator() {
     tabs = [
       { key: 'home', label: 'Home', glyph: 'home', render: () => <ManagerDashboardScreen /> },
       { key: 'expenses', label: 'Expenses', glyph: 'receipt', render: () => <ManagerExpensesOverviewScreen /> },
-      { key: 'projects', label: 'Projects', glyph: 'grid', render: () => <ProjectPickerScreen /> },
+      { key: 'projects', label: 'Projects', glyph: 'grid', render: () => <ManagerProjectScreen /> },
       ai,
     ];
     center = { icon: 'check-double', label: 'Approvals', badge: waiting, tab: { key: 'approvals', render: () => <ManagerApprovalsScreen /> } };
