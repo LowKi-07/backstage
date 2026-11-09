@@ -95,12 +95,6 @@ export function ManagerDashboardScreen() {
               {count ? <Button label="Review" small onPress={() => nav.setTab('approvals')} style={{ minWidth: 104 }} /> : null}
             </View>
 
-            <SectionTitle title="Money matters" />
-            <View style={{ flexDirection: 'row', gap: space.sm }}>
-              <MiniStat label="Remaining" value={formatCompact(budget - spent)} tone={colors.positive} />
-              <MiniStat label="Spent" value={formatCompact(spent)} />
-              <MiniStat label="Budget" value={formatCompact(budget)} />
-            </View>
 
             <SectionTitle title="Recent transactions" />
             {ms && listing.sample ? (
