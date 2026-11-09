@@ -117,6 +117,7 @@ const TEX = {
   fabric: makeTex((g, s) => { g.fillStyle = '#fff'; g.fillRect(0, 0, s, s); for (let i = 0; i < s; i += 4) { g.fillStyle = 'rgba(0,0,0,0.05)'; g.fillRect(i, 0, 2, s); g.fillRect(0, i, s, 2); } }, 128),
 };
 
+TEX.fabric.repeat.set(6, 6);
 // ---------------------------------------------------------------- materials
 const M = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.85, ...o });
 const mats = {
@@ -339,7 +340,7 @@ for (const r of ROOMS) {
   const area = (r.x2 - r.x1) * (r.z2 - r.z1);
   for (const [x, z] of spots) {
     const small = area < 60;
-    if (r.name === 'Staircase') { lightSpots.push({ x, y: 12, z, lvl: 0, power: 0.8 }); lightSpots.push({ x, y: 12, z, lvl: 1, power: 0.8 }); continue; }
+    if (r.name === 'Staircase') { lightSpots.push({ x, y: 9, z, lvl: 0, power: 0.45 }); lightSpots.push({ x, y: 13, z, lvl: 1, power: 0.45 }); continue; }
     addMesh(new THREE.CylinderGeometry(small ? 0.45 : 0.75, small ? 0.45 : 0.75, 0.08, 24), mats.lightOn, x, base + WH - 0.05, z, groups[r.lvl], false);
     lightSpots.push({ x, y: base + WH - 0.6, z, lvl: r.lvl, power: small ? 0.6 : 1 });
   }
@@ -648,7 +649,7 @@ function assignLights(lvlHint) {
 }
 function setNight(v) {
   night = v;
-  sun.intensity = v ? 0.0 : 3.0; hemi.intensity = v ? 0.12 : 1.0;
+  sun.intensity = v ? 0.0 : 3.0; hemi.intensity = v ? 0.05 : 1.0;
   scene.background.copy(v ? NIGHT_SKY : DAY_SKY); scene.fog.color.copy(v ? NIGHT_SKY : DAY_SKY);
   mats.lightOn.emissiveIntensity = v ? 2.5 : 0.6;
   document.getElementById('bNight').classList.toggle('on', v);
@@ -665,12 +666,12 @@ for (const r of ROOMS) {
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(r.name, 256, 66);
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
-  sp.scale.set(10, 2.5, 1); sp.position.set(r.cx, r.lvl * FH + 4, r.cz); sp.userData.lvl = r.lvl; sp.renderOrder = 10;
+  sp.scale.set(14, 3.5, 1); sp.position.set(r.cx, r.lvl * FH + 4, r.cz); sp.userData.lvl = r.lvl; sp.renderOrder = 10;
   labelGroup.add(sp);
 }
 
 // ---------------------------------------------------------------- controls
-const player = { x: X(150), z: Z(1085), h: 0, yaw: 0, pitch: 0.02 };
+const player = { x: X(150), z: Z(1150), h: 0, yaw: 0, pitch: 0.12 };
 let camH = EYE;
 const keys = {};
 addEventListener('keydown', (e) => { keys[e.code] = true; if (e.code === 'KeyM') toggleMap(); });
