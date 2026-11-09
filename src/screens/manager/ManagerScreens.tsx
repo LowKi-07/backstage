@@ -6,9 +6,9 @@ import { Icon } from '../../components/icons';
 import { SampleTxns } from '../crew/CrewScreens';
 import { Text } from '../../components/Text';
 import { BudgetRequestRow, categoryIcon, DepartmentCard, ExpenseCard, ExpenseList, ExpenseStatementRow, ViewAllLink } from '../../components/rows';
-import { Button, Chip, ChipRow, EmptyState, Hero, Money, Notice, Screen, SectionTitle, Segmented } from '../../components/ui';
+import { Avatar, Button, Chip, ChipRow, EmptyState, Hero, Money, Notice, Screen, SectionTitle, Segmented } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
-import { byNewest, categoryBreakdown, departmentSummary, isPending, isSpent, managedDepartmentIds, sum } from '../../store/selectors';
+import { byNewest, categoryBreakdown, departmentSummary, isPending, isSpent, managedDepartmentIds, sum, userName } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, font, radius, shadow, space } from '../../theme';
 import { Expense } from '../../types';
@@ -276,6 +276,10 @@ export function ManagerExpensesOverviewScreen() {
 
       <SpendDonut expenses={spentList} />
 
+      <TopMerchants expenses={spentList} onViewAll={() => nav.push({ name: 'teamExpenses' })} />
+
+      <TopSpenders expenses={spentList} />
+
       <View style={expStyles.card}>
         <View style={expStyles.cardHead}>
           <Text style={expStyles.cardTitle}>Spend by department</Text>
@@ -372,6 +376,73 @@ function SpendDonut({ expenses }: { expenses: Expense[] }) {
   );
 }
 
+// Where the team's money goes: the six biggest vendors as a grid of round icons, amount and name.
+function TopMerchants({ expenses, onViewAll }: { expenses: Expense[]; onViewAll: () => void }) {
+  const map = new Map<string, { amount: number; category: string }>();
+  expenses.forEach((e) => {
+    const name = e.vendor?.trim() || e.description.split(/[–-]/)[0].trim();
+    const cur = map.get(name);
+    map.set(name, { amount: (cur?.amount ?? 0) + e.amount, category: cur?.category ?? e.category });
+  });
+  const top = [...map.entries()].sort((a, b) => b[1].amount - a[1].amount).slice(0, 6);
+  if (!top.length) return null;
+  return (
+    <View style={expStyles.card}>
+      <Text style={expStyles.kicker}>TOP MERCHANTS</Text>
+      <View style={expStyles.merchGrid}>
+        {top.map(([name, m]) => (
+          <View key={name} style={expStyles.merch}>
+            <View style={expStyles.merchIcon}>
+              <Icon name={categoryIcon[m.category] ?? 'receipt'} size={20} />
+            </View>
+            <Money value={m.amount} size={14.5} />
+            <Text style={expStyles.merchName} numberOfLines={2}>
+              {name}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <ViewAllLink label="View all merchants" onPress={onViewAll} />
+    </View>
+  );
+}
+
+// Who on the team spends the most: up to six people with their photo (initials for now), total and name.
+function TopSpenders({ expenses }: { expenses: Expense[] }) {
+  const { state } = useStore();
+  const map = new Map<string, { amount: number; count: number }>();
+  expenses.forEach((e) => {
+    const cur = map.get(e.userId);
+    map.set(e.userId, { amount: (cur?.amount ?? 0) + e.amount, count: (cur?.count ?? 0) + 1 });
+  });
+  const top = [...map.entries()].sort((a, b) => b[1].amount - a[1].amount).slice(0, 6);
+  if (!top.length) return null;
+  return (
+    <View style={expStyles.card}>
+      <Text style={expStyles.kicker}>TOP SPENDERS</Text>
+      <View style={expStyles.merchGrid}>
+        {top.map(([id, m]) => {
+          const name = userName(state, id);
+          return (
+            <View key={id} style={expStyles.merch}>
+              <View style={{ marginBottom: 4 }}>
+                <Avatar name={name} size={52} />
+              </View>
+              <Money value={m.amount} size={14.5} />
+              <Text style={expStyles.merchName} numberOfLines={2}>
+                {name}
+              </Text>
+              <Text style={[expStyles.merchName, { marginTop: -4 }]}>
+                {m.count} {m.count === 1 ? 'bill' : 'bills'}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 function TertiaryLink({ label: text, onPress }: { label: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} hitSlop={8} style={expStyles.link} accessibilityRole="link">
@@ -400,6 +471,10 @@ const expStyles = StyleSheet.create({
   catPct: { width: 36, textAlign: 'right', fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   catTrack: { height: 6, borderRadius: 3, backgroundColor: '#EFEFEF', overflow: 'hidden' },
   catFill: { height: 6, borderRadius: 3, backgroundColor: colors.ink },
+  merchGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 22, marginTop: 6 },
+  merch: { width: '33.33%', alignItems: 'center', gap: 6, paddingHorizontal: 4 },
+  merchIcon: { width: 52, height: 52, borderRadius: 26, borderWidth: 1, borderColor: '#ECECEC', backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  merchName: { fontFamily: font.regular, fontSize: 13, lineHeight: 17, color: colors.inkMuted, textAlign: 'center' },
   kicker: { fontFamily: font.semibold, fontSize: 11.5, letterSpacing: 2, color: colors.inkMuted },
   headline: { fontFamily: font.display, fontSize: 24, color: colors.ink, letterSpacing: -0.6, marginTop: -6 },
   donutCenter: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center', gap: 2 },
