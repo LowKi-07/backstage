@@ -20,21 +20,9 @@ export interface ProjectListing {
   sample?: { pending: number; pendingCount: number; received: number; txns: { icon: string; title: string; when: string; amount: number }[] };
 }
 
-// Projects shown on the "Pick a project" screen. Only 'proj1' has expense data behind it for now;
+// Projects shown on the home carousel and the "Pick a project" screen; the first is the default. Only 'proj1' has expense data behind it for now;
 // the others are sample listings that open the same demo production.
 export const PROJECTS: ProjectListing[] = [
-  {
-    id: 'proj1',
-    name: 'Bethlehem Kudumba Unit',
-    kind: 'Film',
-    kindLabel: 'Feature film',
-    location: 'Film City, Stage 4',
-    status: 'Shooting',
-    budgetLabel: '₹4.5Cr',
-    callTime: '7:00 AM',
-    schedule: '',
-    poster: require('../../assets/posters/bethlehem-kudumba-unit.png'),
-  },
   {
     id: 'kantara',
     name: 'Kantara',
@@ -57,6 +45,18 @@ export const PROJECTS: ProjectListing[] = [
       ],
     },
     poster: require('../../assets/posters/kantara.webp'),
+  },
+  {
+    id: 'proj1',
+    name: 'Bethlehem Kudumba Unit',
+    kind: 'Film',
+    kindLabel: 'Feature film',
+    location: 'Film City, Stage 4',
+    status: 'Shooting',
+    budgetLabel: '₹4.5Cr',
+    callTime: '7:00 AM',
+    schedule: '',
+    poster: require('../../assets/posters/bethlehem-kudumba-unit.png'),
   },
   {
     id: 'big-dawgs',
