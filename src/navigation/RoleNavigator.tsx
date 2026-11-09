@@ -3,6 +3,7 @@ import { AddChoiceSheet } from '../screens/crew/AddChoiceSheet';
 import { CrewExpensesScreen, CrewHomeScreen, CrewPayoutsScreen } from '../screens/crew/CrewScreens';
 import { ReviewExpenseScreen } from '../screens/crew/ReviewExpenseScreen';
 import { VoiceExpenseScreen } from '../screens/crew/VoiceExpenseScreen';
+import { AllTransactionsSheet } from '../screens/manager/AllTransactionsSheet';
 import { BudgetRequestScreen } from '../screens/manager/BudgetRequestScreen';
 import { ManagerApprovalsScreen, ManagerBudgetsScreen, ManagerDashboardScreen, ManagerExpensesOverviewScreen, ManagerExpensesScreen } from '../screens/manager/ManagerScreens';
 import { ProducerDepartmentsScreen, ProducerExpensesScreen, ProducerInboxScreen, ProducerOverviewScreen } from '../screens/producer/ProducerScreens';
@@ -30,6 +31,8 @@ function renderRoute(r: Route) {
       return <SubmittedScreen key={r.id} id={r.id} />;
     case 'projects':
       return <ProjectPickerScreen pushed />;
+    case 'allTransactions':
+      return <AllTransactionsSheet />;
     case 'teamExpenses':
       return <ManagerExpensesScreen pushed />;
     case 'budgets':

@@ -104,7 +104,7 @@ export function ManagerDashboardScreen() {
                 {teamExpenses.slice(0, 5).map((e) => (
                   <ExpenseStatementRow key={e.id} expense={e} showPerson />
                 ))}
-                <ViewAllLink onPress={() => nav.push({ name: 'teamExpenses' })} />
+                <ViewAllLink onPress={() => nav.push({ name: 'allTransactions' })} />
               </View>
             )}
 
@@ -271,7 +271,7 @@ export function ManagerExpensesOverviewScreen() {
             <ExpenseStatementRow key={e.id} expense={e} showPerson />
           ))}
         </View>
-        <ViewAllLink onPress={() => nav.push({ name: 'teamExpenses' })} />
+        <ViewAllLink onPress={() => nav.push({ name: 'allTransactions' })} />
       </View>
 
       <SpendDonut expenses={spentList} />

@@ -16,6 +16,7 @@ import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import CircleAlert from 'lucide-react-native/icons/circle-alert';
 import Clapperboard from 'lucide-react-native/icons/clapperboard';
 import Clock from 'lucide-react-native/icons/clock';
+import Download from 'lucide-react-native/icons/download';
 import Ellipsis from 'lucide-react-native/icons/ellipsis';
 import FileText from 'lucide-react-native/icons/file-text';
 import Fuel from 'lucide-react-native/icons/fuel';
@@ -72,6 +73,7 @@ const LINE: Record<string, LucideIcon> = {
   alert: CircleAlert,
   clapperboard: Clapperboard,
   clock: Clock,
+  download: Download,
   ellipsis: Ellipsis,
   file: FileText,
   fuel: Fuel,
