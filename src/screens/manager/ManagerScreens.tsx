@@ -276,22 +276,9 @@ export function ManagerExpensesOverviewScreen() {
 
       <SpendDonut expenses={spentList} />
 
-      <TopMerchants expenses={spentList} onViewAll={() => nav.push({ name: 'teamExpenses' })} />
-
       <TopSpenders expenses={spentList} />
 
-      <View style={expStyles.card}>
-        <View style={expStyles.cardHead}>
-          <Text style={expStyles.cardTitle}>Spend by department</Text>
-          <Text style={expStyles.cardNote}>
-            {depts.length} {depts.length === 1 ? 'department' : 'departments'}
-          </Text>
-        </View>
-        {depts.map((d) => (
-          <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
-        ))}
-        <TertiaryLink label="View department breakdown" onPress={() => nav.push({ name: 'budgets' })} />
-      </View>
+      <TopMerchants expenses={spentList} onViewAll={() => nav.push({ name: 'teamExpenses' })} />
     </Screen>
   );
 }
