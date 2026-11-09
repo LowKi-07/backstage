@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { planStyles, ProjectOverview, ProjectSwitcher, STAGES, stageOf, TaskRow, Timeline } from '../../components/projectPlan';
 import { Text, TextInput } from '../../components/Text';
-import { Avatar, Button, EmptyState, Notice, Screen } from '../../components/ui';
+import { Avatar, Button, EmptyState, Screen } from '../../components/ui';
 import { PROJECTS } from '../../data/projects';
 import { managedDepartmentIds } from '../../store/selectors';
 import { useStore } from '../../store/Store';
@@ -29,13 +29,13 @@ function useProject() {
 export function ManagerProjectScreen() {
   const { state, currentUser, setStage, addTask, toggleTask } = useStore();
   const { listing, select } = useProject();
-  const [composing, setComposing] = useState(false);
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [assignee, setAssignee] = useState<string | null>(null);
   const [due, setDue] = useState(1);
   const [show, setShow] = useState<'open' | 'done'>('open');
   const [flash, setFlash] = useState<string | null>(null);
+  const [error, setError] = useState(false);
   if (!currentUser) return null;
 
   const deptIds = managedDepartmentIds(state, currentUser);
@@ -48,14 +48,20 @@ export function ManagerProjectScreen() {
   const noOutline = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null;
 
   const assign = () => {
-    if (title.trim().length < 3) return setFlash('Add a short task title.');
-    if (!assignee) return setFlash('Pick who the task is for.');
+    if (title.trim().length < 3) {
+      setError(true);
+      return setFlash('Type what the task is first.');
+    }
+    if (!assignee) {
+      setError(true);
+      return setFlash('Pick a crew member to assign it to.');
+    }
     addTask({ projectId: listing.id, title: title.trim(), note: note.trim() || undefined, assigneeId: assignee, due: toISODate(new Date(Date.now() + due * DAY)) });
-    setFlash(`Assigned to ${crew.find((c) => c.id === assignee)?.name.split(' ')[0]}.`);
+    setError(false);
+    setFlash(`Assigned to ${crew.find((c) => c.id === assignee)?.name.split(' ')[0]}. It's in their Project tab.`);
     setTitle('');
     setNote('');
     setAssignee(null);
-    setComposing(false);
     setShow('open');
   };
 
@@ -76,62 +82,68 @@ export function ManagerProjectScreen() {
         })}
       </View>
 
-      <Text style={planStyles.section}>Timeline</Text>
-      <Timeline listing={listing} />
-
       <View style={styles.headRow}>
         <Text style={planStyles.section}>Crew tasks</Text>
         <Text style={styles.muted}>
           {open.length} open · {done.length} done
         </Text>
       </View>
-      {flash ? <Notice text={flash} /> : null}
-
-      {composing ? (
-        <View style={[planStyles.card, { gap: space.md }]}>
-          <Text style={styles.label}>Task</Text>
-          <TextInput value={title} onChangeText={setTitle} placeholder="e.g. Dress the market set by 4 PM" style={[styles.input, noOutline]} accessibilityLabel="Task title" />
-          <TextInput value={note} onChangeText={setNote} placeholder="Details (optional)" multiline style={[styles.input, { minHeight: 64, textAlignVertical: 'top' }, noOutline]} accessibilityLabel="Task details" />
-          <Text style={styles.label}>Assign to</Text>
-          <View style={styles.people}>
-            {crew.map((u) => {
-              const on = u.id === assignee;
-              return (
-                <Pressable key={u.id} onPress={() => setAssignee(u.id)} style={[styles.person, on && styles.personOn]} accessibilityRole="radio" accessibilityState={{ checked: on }}>
-                  <Avatar name={u.name} size={30} />
-                  <View>
-                    <Text style={[styles.personName, on && { color: colors.onInk }]}>{u.name.split(' ')[0]}</Text>
-                    <Text style={[styles.personRole, on && { color: '#CFCFCF' }]} numberOfLines={1}>
-                      {u.title}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-          <Text style={styles.label}>Due</Text>
-          <View style={styles.dueRow}>
-            {DUE.map((d) => (
-              <Pressable key={d.label} onPress={() => setDue(d.days)} style={[styles.stage, d.days === due && styles.stageOn]} accessibilityRole="radio" accessibilityState={{ checked: d.days === due }}>
-                <Text style={[styles.stageText, d.days === due && { color: colors.onInk }]}>{d.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <View style={{ flexDirection: 'row', gap: space.sm }}>
-            <Button label="Cancel" variant="outline" onPress={() => setComposing(false)} style={{ flex: 1 }} />
-            <Button label="Assign task" onPress={assign} style={{ flex: 1.4 }} />
-          </View>
-        </View>
-      ) : (
-        <Button
-          label="Assign a task"
-          icon="plus"
-          onPress={() => {
+      <View style={[planStyles.card, { gap: space.md }]}>
+        <Text style={styles.addTitle}>Add a task</Text>
+        <TextInput
+          value={title}
+          onChangeText={(v) => {
+            setTitle(v);
             setFlash(null);
-            setComposing(true);
+            setError(false);
           }}
+          placeholder="What needs doing? e.g. Dress the market set by 4 PM"
+          style={[styles.input, noOutline]}
+          accessibilityLabel="Task title"
         />
-      )}
+        <TextInput value={note} onChangeText={setNote} placeholder="Details (optional)" multiline style={[styles.input, { minHeight: 56, textAlignVertical: 'top' }, noOutline]} accessibilityLabel="Task details" />
+        <Text style={styles.label}>Assign to</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} style={{ flexGrow: 0, marginHorizontal: -space.lg }} contentInset={{ left: 0 }}>
+          <View style={{ width: space.lg - 8 }} />
+          {crew.map((u) => {
+            const on = u.id === assignee;
+            return (
+              <Pressable
+                key={u.id}
+                onPress={() => {
+                  setAssignee(u.id);
+                  setFlash(null);
+                  setError(false);
+                }}
+                style={[styles.person, on && styles.personOn]}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: on }}
+              >
+                <Avatar name={u.name} size={30} />
+                <View>
+                  <Text style={[styles.personName, on && { color: colors.onInk }]}>{u.name.split(' ')[0]}</Text>
+                  <Text style={[styles.personRole, on && { color: '#CFCFCF' }]} numberOfLines={1}>
+                    {u.title}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
+          <View style={{ width: space.lg - 8 }} />
+        </ScrollView>
+        <Text style={styles.label}>Due</Text>
+        <View style={styles.dueRow}>
+          {DUE.map((d) => (
+            <Pressable key={d.label} onPress={() => setDue(d.days)} style={[styles.stage, d.days === due && styles.stageOn]} accessibilityRole="radio" accessibilityState={{ checked: d.days === due }}>
+              <Text style={[styles.stageText, d.days === due && { color: colors.onInk }]}>{d.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <Text style={[styles.hint, error && { color: colors.negative }]}>
+          {flash ?? (assignee ? `Assigning to ${crew.find((c) => c.id === assignee)?.name.split(' ')[0]} · due ${DUE.find((d) => d.days === due)?.label.toLowerCase()}` : 'Type the task, pick a crew member, then assign.')}
+        </Text>
+        <Button label="Assign task" onPress={assign} />
+      </View>
 
       <View style={styles.dueRow}>
         {(['open', 'done'] as const).map((k) => (
@@ -150,6 +162,9 @@ export function ManagerProjectScreen() {
         ))}
         {(show === 'open' ? open : done).length === 0 ? <EmptyState icon="check" title={show === 'open' ? 'No open tasks' : 'Nothing done yet'} message="Tasks you assign to your crew show up here." /> : null}
       </View>
+
+      <Text style={planStyles.section}>Timeline</Text>
+      <Timeline listing={listing} />
     </Screen>
   );
 }
@@ -209,8 +224,9 @@ const styles = StyleSheet.create({
   stageOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   stageText: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
   label: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
+  addTitle: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
+  hint: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   input: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 14, paddingVertical: 11, fontFamily: font.regular, fontSize: 14.5, color: colors.ink },
-  people: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   person: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 4, paddingRight: 12, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, maxWidth: '100%' },
   personOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   personName: { fontFamily: font.semibold, fontSize: 13.5, color: colors.ink },
