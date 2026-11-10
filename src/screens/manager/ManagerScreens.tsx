@@ -283,7 +283,7 @@ export function ManagerExpensesOverviewScreen() {
   );
 }
 
-const SHADES = ['#141414', '#4A4A4A', '#8C8C8C', '#BDBDBD', '#E2E2E2'];
+const SHADES = ['#7C93B5', '#C9A27E', '#9DB89A', '#D6B8C8', '#D8D0C4'];
 
 // Spending by category: a black-and-white donut with the total in the middle, the top category as a
 // headline, and a legend with transaction counts.
