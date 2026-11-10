@@ -186,16 +186,17 @@ export function Card({ children, style, onPress }: { children: React.ReactNode; 
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
-export function IconCircle({ name, size = 52, color = colors.ink, filled }: { name: string; size?: number; color?: string; filled?: boolean }) {
+export function IconCircle({ name, size = 52, color = colors.ink, filled, outline }: { name: string; size?: number; color?: string; filled?: boolean; outline?: boolean }) {
   return (
     <View
       style={[
         styles.iconCircle,
         { width: size, height: size, borderRadius: Math.round(size * 0.32) },
         filled && { backgroundColor: colors.ink },
+        outline && { borderRadius: size / 2, borderWidth: 1, borderColor: '#ECECEC', backgroundColor: colors.surface },
       ]}
     >
-      <Icon name={name} size={size * 0.44} color={filled ? colors.onInk : color} />
+      <Icon name={name} size={outline ? size * 0.42 : size * 0.44} color={filled ? colors.onInk : color} />
     </View>
   );
 }

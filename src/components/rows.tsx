@@ -34,7 +34,7 @@ export function ExpenseRow({ expense, showPerson = true }: { expense: Expense; s
   const meta = [showPerson ? userName(state, expense.userId) : expense.category.toLowerCase(), formatShortDate(expense.date)].join(' · ');
   return (
     <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} />
+      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} outline />
       <View style={{ flex: 1, gap: 4 }}>
         <Text style={rowStyles.title} numberOfLines={1}>
           {expense.description}
@@ -115,7 +115,7 @@ export function ExpenseCard({
         style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: space.md }, pressed && { opacity: 0.7 }]}
         accessibilityRole="button"
       >
-        <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} />
+        <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} outline />
         <View style={{ flex: 1, gap: 4 }}>
           <Text style={rowStyles.expTitle} numberOfLines={1}>
             {expense.description}
@@ -162,7 +162,7 @@ export function TransactionRow({ expense }: { expense: Expense }) {
   const status = expense.status === 'paid' ? 'Reimbursed' : expense.status === 'approved' ? 'Approved' : expense.status === 'rejected' ? 'Rejected' : expense.status === 'escalated' ? 'With producer' : 'Pending';
   return (
     <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.txn, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={38} />
+      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={38} outline />
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
         <Text style={rowStyles.title} numberOfLines={1}>
           {expense.description}
