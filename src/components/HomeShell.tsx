@@ -26,7 +26,7 @@ export function HomeShell({ children }: { children: (listing: ProjectListing) =>
   const [expanded, setExpanded] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
   const carousel = useRef<ScrollViewInstance>(null);
-  const heroH = Math.round(Math.min(Math.max(winH * 0.35, 260), 340)) + insets.top;
+  const heroH = Math.round(Math.min(Math.max(winH * 0.28, 208), 272)) + insets.top;
   const summary = projectSummary(state);
 
   const select = (n: number) => {
