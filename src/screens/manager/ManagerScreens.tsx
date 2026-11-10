@@ -287,9 +287,11 @@ const SHADES = ['#141414', '#4A4A4A', '#8C8C8C', '#BDBDBD', '#E2E2E2'];
 
 // Spending by category: a black-and-white donut with the total in the middle, the top category as a
 // headline, and a legend with transaction counts.
-function SpendDonut({ expenses }: { expenses: Expense[] }) {
+export function SpendDonut({ expenses, note = "Across your team's approved and paid bills this project." }: { expenses: Expense[]; note?: string }) {
   const total = sum(expenses);
-  const all = categoryBreakdown(expenses);
+  const byCat = new Map<string, number>();
+  expenses.forEach((e) => byCat.set(e.category, (byCat.get(e.category) ?? 0) + e.amount));
+  const all = [...byCat.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
   if (!total || !all.length) return null;
   const top = all.slice(0, 4);
   const rest = all.slice(4).reduce((a, c) => a + c.amount, 0);
@@ -309,7 +311,7 @@ function SpendDonut({ expenses }: { expenses: Expense[] }) {
       <Text style={expStyles.headline}>
         {leadPct}% on {lead.category.toLowerCase()}
       </Text>
-      <Text style={expStyles.cardNote}>Across your team's approved and paid bills this project.</Text>
+      <Text style={expStyles.cardNote}>{note}</Text>
 
       <View style={{ alignItems: 'center', paddingVertical: space.md }}>
         <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -364,7 +366,7 @@ function SpendDonut({ expenses }: { expenses: Expense[] }) {
 }
 
 // Where the team's money goes: the six biggest vendors as a grid of round icons, amount and name.
-function TopMerchants({ expenses, onViewAll }: { expenses: Expense[]; onViewAll: () => void }) {
+export function TopMerchants({ expenses, onViewAll }: { expenses: Expense[]; onViewAll?: () => void }) {
   const map = new Map<string, { amount: number; category: string }>();
   expenses.forEach((e) => {
     const name = e.vendor?.trim() || e.description.split(/[–-]/)[0].trim();
@@ -389,7 +391,7 @@ function TopMerchants({ expenses, onViewAll }: { expenses: Expense[]; onViewAll:
           </View>
         ))}
       </View>
-      <ViewAllLink label="View all merchants" onPress={onViewAll} />
+      {onViewAll ? <ViewAllLink label="View all merchants" onPress={onViewAll} /> : null}
     </View>
   );
 }

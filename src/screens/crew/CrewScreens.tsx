@@ -4,12 +4,14 @@ import { HomeShell } from '../../components/HomeShell';
 import { ExpenseList, ExpenseStatementRow, StatementRow, SummaryTile, ViewAllLink } from '../../components/rows';
 import { Text } from '../../components/Text';
 import { Chip, ChipRow, EmptyState, Hero, IconCircle, Money, Screen, SectionTitle, Segmented } from '../../components/ui';
+import { planStyles, TaskRow } from '../../components/projectPlan';
 import { useNav } from '../../navigation/Nav';
+import { SpendDonut, TopMerchants } from '../manager/ManagerScreens';
 import { byNewest, isPending, sum } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, font, space } from '../../theme';
 import { ExpenseStatus } from '../../types';
-import { formatINR } from '../../utils/format';
+import { formatINR, toISODate } from '../../utils/format';
 
 function useMine() {
   const { state, currentUser } = useStore();
@@ -19,7 +21,8 @@ function useMine() {
 
 // Crew home: project artwork carousel on top; my expenses and recent transactions for the selected project below.
 export function CrewHomeScreen() {
-  const { currentUser, mine } = useMine();
+  const { state, currentUser, mine } = useMine();
+  const { toggleTask } = useStore();
   const nav = useNav();
   if (!currentUser) return null;
   const pending = mine.filter(isPending);
@@ -29,6 +32,11 @@ export function CrewHomeScreen() {
     <HomeShell>
       {(listing) => {
         const sample = listing.sample;
+        const today = toISODate(new Date());
+        const todays = state.tasks
+          .filter((t) => t.projectId === listing.id && t.assigneeId === currentUser.id && (t.due === today || (t.due < today && t.status === 'todo')))
+          .sort((a, b) => a.due.localeCompare(b.due));
+        const left = todays.filter((t) => t.status === 'todo').length;
         return (
           <>
             <SectionTitle title="My expenses" action="View all" onAction={() => nav.setTab('expenses')} />
@@ -48,17 +56,31 @@ export function CrewHomeScreen() {
 
             <SectionTitle title="Recent transactions" />
             {sample ? (
-              <SampleTxns txns={sample.txns} />
+              <View>
+                <SampleTxns txns={sample.txns.slice(0, 5)} />
+                <ViewAllLink onPress={() => nav.push({ name: 'allTransactions' })} />
+              </View>
             ) : mine.length ? (
               <View>
                 {mine.slice(0, 5).map((e) => (
                   <ExpenseStatementRow key={e.id} expense={e} />
                 ))}
-                <ViewAllLink onPress={() => nav.setTab('expenses')} />
+                <ViewAllLink onPress={() => nav.push({ name: 'allTransactions' })} />
               </View>
             ) : (
               <EmptyState icon="receipt" title="Nothing logged yet" message="Tap the + button below to log your first expense." />
             )}
+
+            <SectionTitle title="Today's tasks" action={todays.length ? (left ? `${left} left` : 'All done') : undefined} onAction={() => nav.setTab('project')} />
+            <View style={planStyles.card}>
+              {todays.map((t, i) => (
+                <View key={t.id} style={i > 0 ? { borderTopWidth: 1, borderTopColor: '#F0F0F0' } : null}>
+                  <TaskRow task={t} onToggle={() => toggleTask(t.id)} />
+                </View>
+              ))}
+              {todays.length === 0 ? <Text style={{ fontFamily: font.regular, fontSize: 13, color: colors.inkMuted, paddingVertical: 8 }}>Nothing assigned for today.</Text> : null}
+            </View>
+            <ViewAllLink label="Open project" onPress={() => nav.setTab('project')} />
           </>
         );
       }}
@@ -94,6 +116,7 @@ export function CrewExpensesScreen() {
   if (!currentUser) return null;
   const match = (k: (typeof FILTERS)[number]['key']) => (e: (typeof mine)[number]) => (k === 'all' ? true : k === 'pending' ? isPending(e) : e.status === k);
   const shown = mine.filter(match(filter));
+  const counted = mine.filter((e) => e.status !== 'rejected');
 
   return (
     <Screen title="my expenses" subtitle={`${mine.length} bills · ${formatINR(sum(mine))}`}>
@@ -103,6 +126,8 @@ export function CrewExpensesScreen() {
         ))}
       </ChipRow>
       <ExpenseList expenses={shown} showPerson={false} empty={<EmptyState icon="inbox" title="nothing here" message="No expenses match this filter." />} />
+      <SpendDonut expenses={counted} note="Across all the bills you've logged this project, rejected ones left out." />
+      <TopMerchants expenses={counted} />
     </Screen>
   );
 }

@@ -33,10 +33,12 @@ export function AllTransactionsSheet() {
   const [note, setNote] = useState<string | null>(null);
 
   const all = useMemo(() => {
+    if (currentUser?.role === 'crew') return state.expenses.filter((e) => e.userId === currentUser.id).sort(byNewest);
     const ids = managedDepartmentIds(state, currentUser);
     return state.expenses.filter((e) => ids.includes(e.departmentId)).sort(byNewest);
   }, [state, currentUser]);
 
+  const crew = currentUser?.role === 'crew';
   const ql = q.trim().toLowerCase();
   const shown = all.filter((e) => matches(filter, e) && (!ql || [e.description, e.vendor ?? '', e.category, userName(state, e.userId)].join(' ').toLowerCase().includes(ql)));
 
@@ -61,7 +63,7 @@ export function AllTransactionsSheet() {
         const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backstage-team-expenses-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `backstage-${crew ? 'my' : 'team'}-expenses-${new Date().toISOString().slice(0, 10)}.csv`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -102,7 +104,7 @@ export function AllTransactionsSheet() {
           <TextInput
             value={q}
             onChangeText={setQ}
-            placeholder="Search by item, person or vendor"
+            placeholder={crew ? 'Search by item, category or vendor' : 'Search by item, person or vendor'}
             style={[styles.searchInput, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]}
             accessibilityLabel="Search transactions"
           />
@@ -141,7 +143,7 @@ export function AllTransactionsSheet() {
                         {e.description}
                       </Text>
                       <Text style={styles.muted} numberOfLines={1}>
-                        {userName(state, e.userId).split(' ')[0]} · {e.category.toLowerCase()}
+                        {crew ? e.vendor || e.category.toLowerCase() : `${userName(state, e.userId).split(' ')[0]} · ${e.category.toLowerCase()}`}
                       </Text>
                     </View>
                     <View style={{ alignItems: 'flex-end', gap: 6 }}>

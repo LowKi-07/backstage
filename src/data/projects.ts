@@ -42,6 +42,8 @@ export const PROJECTS: ProjectListing[] = [
         { icon: 'fuel', title: 'Diesel for generator truck', when: 'Yesterday', amount: -6600 },
         { icon: 'package', title: 'Bamboo and rope for set', when: '2 days ago', amount: -9250 },
         { icon: 'utensils', title: 'Village crew breakfast', when: '30 Oct', amount: 3400 },
+        { icon: 'package', title: 'Brass lamps for shrine set', when: '29 Oct', amount: -4800 },
+        { icon: 'fuel', title: 'Jeep fuel, forest unit', when: '28 Oct', amount: -2150 },
       ],
     },
     poster: require('../../assets/posters/kantara.webp'),
