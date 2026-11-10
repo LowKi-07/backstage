@@ -252,14 +252,14 @@ export function ExpenseStatementRow({ expense, showPerson }: { expense: Expense;
   const { state } = useStore();
   const nav = useNav();
   const credit = !showPerson && expense.status === 'paid';
-  const sub = showPerson ? `${userName(state, expense.userId)} · ${formatShortDate(expense.date)}` : credit ? 'reimbursed' : expense.category.toLowerCase();
+  const sub = showPerson ? `${userName(state, expense.userId)} · ${statusMeta[expense.status].label}` : credit ? 'reimbursed' : expense.category.toLowerCase();
   return (
     <StatementRow
       icon={categoryIcon[expense.category] ?? 'receipt'}
       title={expense.description}
       sub={sub}
       amount={expense.amount}
-      date={showPerson ? statusMeta[expense.status].label : formatShortDate(expense.date)}
+      date={formatShortDate(expense.date)}
       credit={credit}
       onPress={() => nav.push({ name: 'expense', id: expense.id })}
     />

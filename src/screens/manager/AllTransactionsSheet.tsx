@@ -143,12 +143,12 @@ export function AllTransactionsSheet() {
                         {e.description}
                       </Text>
                       <Text style={[styles.muted, { fontSize: 12 }]} numberOfLines={1}>
-                        {crew ? `${e.category.toLowerCase()} · ${formatShortDate(e.date)}` : `${userName(state, e.userId)} · ${formatShortDate(e.date)}`}
+                        {crew ? `${e.category.toLowerCase()} · ${meta.label}` : `${userName(state, e.userId)} · ${meta.label}`}
                       </Text>
                     </View>
                     <View style={{ alignItems: 'flex-end', gap: 4 }}>
                       <Money value={e.amount} size={13.5} />
-                      <Text style={styles.rowMeta}>{meta.label}</Text>
+                      <Text style={styles.rowMeta}>{formatShortDate(e.date)}</Text>
                     </View>
                   </Pressable>
                 );
