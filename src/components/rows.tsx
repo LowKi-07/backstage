@@ -3,7 +3,7 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useNav } from '../navigation/Nav';
 import { deptName, departmentSummary, userName } from '../store/selectors';
 import { useStore } from '../store/Store';
-import { colors, font, label, radius, shadow, space } from '../theme';
+import { colors, font, label, radius, shadow, space, statusMeta } from '../theme';
 import { BudgetRequest, Department, Expense } from '../types';
 import { formatCompact, formatINR, formatShortDate, relativeDay } from '../utils/format';
 import { Icon } from './icons';
@@ -252,14 +252,14 @@ export function ExpenseStatementRow({ expense, showPerson }: { expense: Expense;
   const { state } = useStore();
   const nav = useNav();
   const credit = !showPerson && expense.status === 'paid';
-  const sub = showPerson ? `${userName(state, expense.userId).split(' ')[0]} · ${expense.category.toLowerCase()}` : credit ? 'reimbursed' : expense.category.toLowerCase();
+  const sub = showPerson ? `${userName(state, expense.userId)} · ${formatShortDate(expense.date)}` : credit ? 'reimbursed' : expense.category.toLowerCase();
   return (
     <StatementRow
       icon={categoryIcon[expense.category] ?? 'receipt'}
       title={expense.description}
       sub={sub}
       amount={expense.amount}
-      date={formatShortDate(expense.date)}
+      date={showPerson ? statusMeta[expense.status].label : formatShortDate(expense.date)}
       credit={credit}
       onPress={() => nav.push({ name: 'expense', id: expense.id })}
     />

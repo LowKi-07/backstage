@@ -143,14 +143,12 @@ export function AllTransactionsSheet() {
                         {e.description}
                       </Text>
                       <Text style={[styles.muted, { fontSize: 12 }]} numberOfLines={1}>
-                        {crew ? e.vendor || e.category.toLowerCase() : `${userName(state, e.userId).split(' ')[0]} · ${e.category.toLowerCase()}`}
+                        {crew ? `${e.category.toLowerCase()} · ${formatShortDate(e.date)}` : `${userName(state, e.userId)} · ${formatShortDate(e.date)}`}
                       </Text>
                     </View>
                     <View style={{ alignItems: 'flex-end', gap: 4 }}>
                       <Money value={e.amount} size={13.5} />
-                      <Text style={[styles.rowMeta, { color: e.status === 'approved' ? colors.ink : meta.color }]}>
-                        {meta.label} · {formatShortDate(e.date)}
-                      </Text>
+                      <Text style={styles.rowMeta}>{meta.label}</Text>
                     </View>
                   </Pressable>
                 );
@@ -191,7 +189,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 },
   rowIcon: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: '#ECECEC', alignItems: 'center', justifyContent: 'center' },
   rowTitle: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
-  rowMeta: { fontFamily: font.regular, fontSize: 11.5 },
+  rowMeta: { fontFamily: font.regular, fontSize: 11.5, color: colors.inkMuted },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, gap: 8, borderTopWidth: 1, borderTopColor: '#F0F0F0' },
   dl: { height: 52, borderRadius: radius.pill, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
   dlText: { fontFamily: font.bold, fontSize: 14.5, color: colors.onInk },
