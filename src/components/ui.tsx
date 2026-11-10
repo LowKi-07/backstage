@@ -307,7 +307,7 @@ export function Button({
       ) : (
         <>
           {icon ? <Icon name={icon} size={small ? 16 : 19} color={fg} strokeWidth={1.8} /> : null}
-          <Text style={[styles.buttonLabel, small && { fontSize: 13.5 }, { color: fg }]}>{text}</Text>
+          <Text style={[styles.buttonLabel, small && { fontSize: 13 }, { color: fg }]}>{text}</Text>
         </>
       )}
     </Pressable>

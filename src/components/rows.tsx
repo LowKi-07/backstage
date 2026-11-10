@@ -115,9 +115,9 @@ export function ExpenseCard({
         style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: space.md }, pressed && { opacity: 0.7 }]}
         accessibilityRole="button"
       >
-        <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={54} />
+        <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} />
         <View style={{ flex: 1, gap: 4 }}>
-          <Text style={rowStyles.cardTitle} numberOfLines={1}>
+          <Text style={rowStyles.expTitle} numberOfLines={1}>
             {expense.description}
           </Text>
           <Text style={rowStyles.meta} numberOfLines={1}>
@@ -126,7 +126,7 @@ export function ExpenseCard({
         </View>
         {!hasAction ? (
           <View style={{ alignItems: 'flex-end', gap: 6 }}>
-            <Money value={expense.amount} size={18} />
+            <Money value={expense.amount} size={14} />
             {status}
           </View>
         ) : null}
@@ -134,7 +134,7 @@ export function ExpenseCard({
       {hasAction ? (
         <View style={rowStyles.cardActions}>
           {status}
-          <Button label={actionLabel!} small onPress={onAction!} style={{ minWidth: 150 }} />
+          <Button label={actionLabel!} small onPress={onAction!} style={{ minHeight: 36, paddingHorizontal: 16 }} />
         </View>
       ) : null}
     </View>
@@ -293,17 +293,18 @@ export const rowStyles = StyleSheet.create({
   title: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
   meta: { fontFamily: font.regular, fontSize: 12, color: colors.inkMuted },
   card: {
-    gap: space.md,
+    gap: 12,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg + 4,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.line,
-    paddingVertical: space.lg,
-    paddingHorizontal: space.lg,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     boxShadow: shadow.soft,
   },
   cardTitle: { fontFamily: font.medium, fontSize: 17.5, color: colors.ink },
-  cardNote: { ...label, fontSize: 12.5, letterSpacing: 0.1 },
+  expTitle: { fontFamily: font.medium, fontSize: 14, color: colors.ink },
+  cardNote: { ...label, fontSize: 11.5, letterSpacing: 0.1 },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.md, paddingLeft: 4 },
   deptCard: {
     gap: space.md,
