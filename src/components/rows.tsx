@@ -34,7 +34,7 @@ export function ExpenseRow({ expense, showPerson = true }: { expense: Expense; s
   const meta = [showPerson ? userName(state, expense.userId) : expense.category.toLowerCase(), formatShortDate(expense.date)].join(' · ');
   return (
     <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={50} />
+      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} />
       <View style={{ flex: 1, gap: 4 }}>
         <Text style={rowStyles.title} numberOfLines={1}>
           {expense.description}
@@ -44,7 +44,7 @@ export function ExpenseRow({ expense, showPerson = true }: { expense: Expense; s
         </Text>
       </View>
       <View style={{ alignItems: 'flex-end', gap: 5 }}>
-        <Money value={expense.amount} />
+        <Money value={expense.amount} size={13.5} />
         <StatusText status={expense.status} />
       </View>
     </Pressable>
@@ -162,7 +162,7 @@ export function TransactionRow({ expense }: { expense: Expense }) {
   const status = expense.status === 'paid' ? 'Reimbursed' : expense.status === 'approved' ? 'Approved' : expense.status === 'rejected' ? 'Rejected' : expense.status === 'escalated' ? 'With producer' : 'Pending';
   return (
     <Pressable onPress={() => nav.push({ name: 'expense', id: expense.id })} style={({ pressed }) => [rowStyles.txn, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={44} />
+      <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={38} />
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
         <Text style={rowStyles.title} numberOfLines={1}>
           {expense.description}
@@ -171,7 +171,7 @@ export function TransactionRow({ expense }: { expense: Expense }) {
           {relativeDay(expense.date)} · {status}
         </Text>
       </View>
-      <Money value={received ? expense.amount : -expense.amount} size={14.5} color={received ? colors.positive : colors.ink} signed={received} />
+      <Money value={received ? expense.amount : -expense.amount} size={13.5} color={received ? colors.positive : colors.ink} signed={received} />
     </Pressable>
   );
 }
@@ -182,9 +182,9 @@ export function StatementRow({ icon, title, sub, amount, date, credit, onPress }
   return (
     <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [rowStyles.stmt, pressed && { opacity: 0.6 }]} accessibilityRole="button">
       <View style={rowStyles.stmtIcon}>
-        <Icon name={icon} size={18} color={colors.ink} strokeWidth={1.6} />
+        <Icon name={icon} size={16} color={colors.ink} strokeWidth={1.6} />
       </View>
-      <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+      <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
         <Text style={rowStyles.stmtTitle} numberOfLines={1}>
           {title}
         </Text>
@@ -192,8 +192,8 @@ export function StatementRow({ icon, title, sub, amount, date, credit, onPress }
           {sub}
         </Text>
       </View>
-      <View style={{ alignItems: 'flex-end', gap: 6 }}>
-        <Money value={amount} size={14.5} color={credit ? colors.positive : colors.ink} signed={credit} />
+      <View style={{ alignItems: 'flex-end', gap: 4 }}>
+        <Money value={amount} size={13.5} color={credit ? colors.positive : colors.ink} signed={credit} />
         <Text style={rowStyles.stmtSub}>{date}</Text>
       </View>
     </Pressable>
@@ -283,15 +283,15 @@ export const rowStyles = StyleSheet.create({
   summary: { flex: 1, gap: 4, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
   summaryLabel: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
-  stmt: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14 },
-  stmtIcon: { width: 42, height: 42, borderRadius: 21, borderWidth: 1, borderColor: '#ECECEC', backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  stmtTitle: { fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
-  stmtSub: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
+  stmt: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 },
+  stmtIcon: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: '#ECECEC', backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  stmtTitle: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
+  stmtSub: { fontFamily: font.regular, fontSize: 12, color: colors.inkMuted },
   viewAll: { alignSelf: 'center', paddingVertical: 6, marginTop: 10 },
-  viewAllText: { fontFamily: font.medium, fontSize: 14, color: colors.ink, textDecorationLine: 'underline' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.md },
-  title: { fontFamily: font.medium, fontSize: 16, color: colors.ink },
-  meta: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkMuted },
+  viewAllText: { fontFamily: font.medium, fontSize: 13, color: colors.ink, textDecorationLine: 'underline' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10 },
+  title: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
+  meta: { fontFamily: font.regular, fontSize: 12, color: colors.inkMuted },
   card: {
     gap: space.md,
     backgroundColor: colors.surface,

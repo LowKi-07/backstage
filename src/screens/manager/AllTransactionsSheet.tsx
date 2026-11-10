@@ -129,25 +129,25 @@ export function AllTransactionsSheet() {
             <View key={g.key}>
               <View style={styles.monthRow}>
                 <Text style={styles.month}>{g.title}</Text>
-                <Money value={sum(g.items)} size={13} />
+                <Money value={sum(g.items)} size={12} />
               </View>
               {g.items.map((e) => {
                 const meta = statusMeta[e.status];
                 return (
                   <Pressable key={e.id} onPress={() => nav.push({ name: 'expense', id: e.id })} style={({ pressed }) => [styles.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
                     <View style={styles.rowIcon}>
-                      <Icon name={categoryIcon[e.category] ?? 'receipt'} size={18} />
+                      <Icon name={categoryIcon[e.category] ?? 'receipt'} size={16} />
                     </View>
-                    <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+                    <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
                       <Text style={styles.rowTitle} numberOfLines={1}>
                         {e.description}
                       </Text>
-                      <Text style={styles.muted} numberOfLines={1}>
+                      <Text style={[styles.muted, { fontSize: 12 }]} numberOfLines={1}>
                         {crew ? e.vendor || e.category.toLowerCase() : `${userName(state, e.userId).split(' ')[0]} · ${e.category.toLowerCase()}`}
                       </Text>
                     </View>
-                    <View style={{ alignItems: 'flex-end', gap: 6 }}>
-                      <Money value={e.amount} size={14.5} />
+                    <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                      <Money value={e.amount} size={13.5} />
                       <Text style={[styles.rowMeta, { color: e.status === 'approved' ? colors.ink : meta.color }]}>
                         {meta.label} · {formatShortDate(e.date)}
                       </Text>
@@ -183,15 +183,15 @@ const styles = StyleSheet.create({
   search: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, marginHorizontal: space.xl, marginTop: space.md, paddingHorizontal: 14, borderRadius: 14, backgroundColor: '#F5F5F5' },
   searchInput: { flex: 1, fontFamily: font.regular, fontSize: 14, color: colors.ink, paddingVertical: 0 },
   chips: { gap: 8, paddingHorizontal: space.xl, paddingVertical: space.md },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line },
   chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
-  chipText: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
+  chipText: { fontFamily: font.medium, fontSize: 12, color: colors.inkSoft },
   monthRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: '#EAEAEA', borderStyle: 'dashed' },
-  month: { fontFamily: font.semibold, fontSize: 11.5, letterSpacing: 2, color: colors.inkMuted },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14 },
-  rowIcon: { width: 42, height: 42, borderRadius: 21, borderWidth: 1, borderColor: '#ECECEC', alignItems: 'center', justifyContent: 'center' },
-  rowTitle: { fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
-  rowMeta: { fontFamily: font.regular, fontSize: 12.5 },
+  month: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 2, color: colors.inkMuted },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 },
+  rowIcon: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: '#ECECEC', alignItems: 'center', justifyContent: 'center' },
+  rowTitle: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
+  rowMeta: { fontFamily: font.regular, fontSize: 11.5 },
   footer: { paddingHorizontal: space.xl, paddingTop: space.md, gap: 8, borderTopWidth: 1, borderTopColor: '#F0F0F0' },
   dl: { height: 52, borderRadius: radius.pill, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
   dlText: { fontFamily: font.bold, fontSize: 14.5, color: colors.onInk },

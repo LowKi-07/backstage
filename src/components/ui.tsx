@@ -244,7 +244,7 @@ export function StatementDivider({ text, amount }: { text: string; amount?: numb
   return (
     <View style={styles.statementRow}>
       <Text style={styles.statementText}>{sentence(text)}</Text>
-      {amount !== undefined ? <Money value={amount} size={14} color={colors.inkSoft} /> : null}
+      {amount !== undefined ? <Money value={amount} size={12.5} color={colors.inkSoft} /> : null}
     </View>
   );
 }
@@ -332,7 +332,7 @@ export function ChipRow({ children }: { children: React.ReactNode }) {
       horizontal
       showsHorizontalScrollIndicator={false}
       style={{ marginHorizontal: -space.xl, flexGrow: 0 }}
-      contentContainerStyle={{ gap: space.md, paddingVertical: 6, paddingHorizontal: space.xl }}
+      contentContainerStyle={{ gap: 8, paddingVertical: 4, paddingHorizontal: space.xl }}
     >
       {children}
     </ScrollView>
@@ -460,9 +460,9 @@ export const styles = StyleSheet.create({
   eyebrowDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.accentInk },
   eyebrow: { ...label, fontSize: 13, color: colors.accentInk, flexShrink: 1 },
   heroLine: { fontFamily: font.bold, fontSize: 20, lineHeight: 26, color: colors.ink, letterSpacing: -0.4 },
-  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
-  statusDot: { width: 6, height: 6, borderRadius: 3 },
-  statusText: { fontFamily: font.semibold, fontSize: 12 },
+  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill, alignSelf: 'flex-start' },
+  statusDot: { width: 5, height: 5, borderRadius: 3 },
+  statusText: { fontFamily: font.semibold, fontSize: 10.5 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: space.lg },
   sectionTitle: { fontFamily: font.bold, fontSize: 16, color: colors.ink, letterSpacing: -0.2 },
   sectionActionRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
@@ -486,7 +486,7 @@ export const styles = StyleSheet.create({
   infoPillValue: { fontFamily: font.semibold, fontSize: 14 },
   infoPillChevron: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   statementRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.md, marginBottom: 2 },
-  statementText: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkMuted },
+  statementText: { fontFamily: font.semibold, fontSize: 12, color: colors.inkMuted },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingVertical: space.sm },
   actionTitle: { fontFamily: font.semibold, fontSize: 16, color: colors.ink },
   actionSub: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft },
@@ -496,9 +496,9 @@ export const styles = StyleSheet.create({
   buttonOutline: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.ink },
   buttonDanger: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line },
   buttonLabel: { fontFamily: font.bold, fontSize: 15, letterSpacing: 0 },
-  chip: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
   chipActive: { backgroundColor: colors.ink, borderColor: colors.ink },
-  chipText: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
+  chipText: { fontFamily: font.medium, fontSize: 12, color: colors.inkSoft },
   segTrack: { flexDirection: 'row', backgroundColor: colors.sunken, borderRadius: radius.pill, padding: 4 },
   segItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 13, borderRadius: radius.pill },
   segActive: { backgroundColor: colors.surface, boxShadow: '0 2px 6px rgba(0,0,0,0.10)' },
