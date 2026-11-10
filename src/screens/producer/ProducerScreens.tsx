@@ -17,7 +17,8 @@ function escalationNote(state: ReturnType<typeof useStore>['state'], e: Expense)
 }
 
 export function ProducerOverviewScreen() {
-  const { state, producerDecide } = useStore();
+  const { state, producerDecide, addComment } = useStore();
+  const [openId, setOpenId] = useState<string | null>(null);
   const nav = useNav();
   const [message, setMessage] = useState<string | null>(null);
   const p = projectSummary(state);
@@ -59,10 +60,21 @@ export function ProducerOverviewScreen() {
                 <ExpenseCard
                   key={e.id}
                   expense={e}
-                  actionLabel={`Approve ${formatINR(e.amount)}`}
-                  onAction={() => {
-                    producerDecide(e.id, 'approve');
-                    setMessage(`Approved ${formatINR(e.amount)}. It’s ready to pay.`);
+                  open={openId === e.id}
+                  onToggle={() => setOpenId((c) => (c === e.id ? null : e.id))}
+                  actions={{
+                    approve: () => {
+                      producerDecide(e.id, 'approve');
+                      setMessage(`Approved ${formatINR(e.amount)}. It’s ready to pay.`);
+                    },
+                    decline: () => {
+                      producerDecide(e.id, 'reject', 'Declined by producer');
+                      setMessage(`Declined ${formatINR(e.amount)}.`);
+                    },
+                    comment: (t) => {
+                      addComment(e.id, t);
+                      setMessage('Comment sent.');
+                    },
                   }}
                   note={n.note}
                   noteColor={n.color}
@@ -127,7 +139,8 @@ export function ProducerOverviewScreen() {
 type InboxTab = 'escalations' | 'budget' | 'pay';
 
 export function ProducerInboxScreen() {
-  const { state, producerDecide, decideBudget, markPaid } = useStore();
+  const { state, producerDecide, decideBudget, markPaid, addComment } = useStore();
+  const [openId, setOpenId] = useState<string | null>(null);
   const [tab, setTab] = useState<InboxTab>('escalations');
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
@@ -166,10 +179,21 @@ export function ProducerInboxScreen() {
                   <ExpenseCard
                     key={e.id}
                     expense={e}
-                    actionLabel={`Approve ${formatINR(e.amount)}`}
-                    onAction={() => {
-                      producerDecide(e.id, 'approve');
-                      setMessage(`Approved ${formatINR(e.amount)}.`);
+                    open={openId === e.id}
+                    onToggle={() => setOpenId((c) => (c === e.id ? null : e.id))}
+                    actions={{
+                      approve: () => {
+                        producerDecide(e.id, 'approve');
+                        setMessage(`Approved ${formatINR(e.amount)}.`);
+                      },
+                      decline: () => {
+                        producerDecide(e.id, 'reject', 'Declined by producer');
+                        setMessage(`Declined ${formatINR(e.amount)}.`);
+                      },
+                      comment: (t) => {
+                        addComment(e.id, t);
+                        setMessage('Comment sent.');
+                      },
                     }}
                     note={n.note}
                     noteColor={n.color}

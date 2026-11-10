@@ -155,9 +155,10 @@ const dashStyles = StyleSheet.create({
 
 export function ManagerApprovalsScreen() {
   const { state, currentUser, toReview, teamExpenses } = useManagerData();
-  const { managerDecide } = useStore();
+  const { managerDecide, addComment } = useStore();
   const { message, setMessage, approve } = useQuickApprove();
   const [tab, setTab] = useState<'review' | 'producer'>('review');
+  const [openId, setOpenId] = useState<string | null>(null);
   if (!currentUser) return null;
 
   const threshold = state.project.escalationThreshold;
@@ -198,10 +199,36 @@ export function ManagerApprovalsScreen() {
             <View style={{ gap: space.md }}>
               {toReview.map((e) => {
                 const n = approvalNote(e, threshold);
-                return <ExpenseCard key={e.id} expense={e} actionLabel={`Approve ${formatINR(e.amount)}`} onAction={() => approve(e)} note={n.note} noteColor={n.color} />;
+                const first = userName(state, e.userId).split(' ')[0];
+                return (
+                  <ExpenseCard
+                    key={e.id}
+                    expense={e}
+                    note={n.note}
+                    noteColor={n.color}
+                    open={(openId ?? toReview[0]?.id) === e.id}
+                    onToggle={() => setOpenId((cur) => ((cur ?? toReview[0]?.id) === e.id ? '' : e.id))}
+                    actions={{
+                      approve: () => approve(e),
+                      decline: () => {
+                        managerDecide(e.id, 'reject', 'Declined by manager');
+                        setMessage(`Declined ${formatINR(e.amount)} from ${first}.`);
+                      },
+                      sendBack: () => {
+                        addComment(e.id, 'Sent back: please check the bill and resubmit.');
+                        managerDecide(e.id, 'reject', 'Sent back for changes');
+                        setMessage(`Sent back to ${first} to fix and resubmit.`);
+                      },
+                      comment: (t) => {
+                        addComment(e.id, t);
+                        setMessage(`Comment sent to ${first}.`);
+                      },
+                    }}
+                  />
+                );
               })}
             </View>
-            <Notice text="Tap a bill to see the receipt, reject it with a reason, or send it to the producer." tone={colors.inkSoft} />
+            <Notice text="Tap a bill to approve, decline, send it back or leave a comment." tone={colors.inkSoft} />
           </>
         )
       ) : escalated.length === 0 ? (

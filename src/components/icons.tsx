@@ -38,6 +38,8 @@ import Plus from 'lucide-react-native/icons/plus';
 import Printer from 'lucide-react-native/icons/printer';
 import Receipt from 'lucide-react-native/icons/receipt';
 import RotateCcw from 'lucide-react-native/icons/rotate-ccw';
+import Undo2 from 'lucide-react-native/icons/undo-2';
+import MessageSquare from 'lucide-react-native/icons/message-square';
 import ScanLine from 'lucide-react-native/icons/scan-line';
 import Search from 'lucide-react-native/icons/search';
 import Send from 'lucide-react-native/icons/send';
@@ -95,6 +97,8 @@ const LINE: Record<string, LucideIcon> = {
   printer: Printer,
   receipt: Receipt,
   reset: RotateCcw,
+  'send-back': Undo2,
+  comment: MessageSquare,
   scan: ScanLine,
   search: Search,
   send: Send,

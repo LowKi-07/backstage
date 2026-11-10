@@ -1,13 +1,13 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useNav } from '../navigation/Nav';
 import { deptName, departmentSummary, userName } from '../store/selectors';
 import { useStore } from '../store/Store';
 import { colors, font, label, radius, shadow, space } from '../theme';
 import { BudgetRequest, Department, Expense } from '../types';
-import { formatCompact, formatShortDate, relativeDay } from '../utils/format';
+import { formatCompact, formatINR, formatShortDate, relativeDay } from '../utils/format';
 import { Icon } from './icons';
-import { Text } from './Text';
+import { Text, TextInput } from './Text';
 import { Button, IconCircle, Money, ProgressBar, StatementDivider, StatusText } from './ui';
 
 export const categoryIcon: Record<string, string> = {
@@ -88,32 +88,53 @@ export function ExpenseList({ expenses, showPerson, empty, grouped = true }: { e
   );
 }
 
-// Bill-style card with a solid action button and a status line beneath it.
+export type CardActions = {
+  approve: () => void;
+  decline: () => void;
+  sendBack?: () => void;
+  comment?: (text: string) => void;
+};
+
+// Bill card: icon, what and who, amount on the right. With actions, tapping the card opens a row of
+// icon buttons (approve, decline, send back, comment) instead of putting the amount in a button.
 export function ExpenseCard({
   expense,
-  actionLabel,
-  onAction,
+  actions,
   note,
   noteColor,
+  open,
+  onToggle,
 }: {
   expense: Expense;
-  actionLabel?: string;
-  onAction?: () => void;
+  actions?: CardActions;
   note?: string;
   noteColor?: string;
+  open?: boolean;
+  onToggle?: () => void;
 }) {
   const { state, currentUser } = useStore();
   const nav = useNav();
+  const [commenting, setCommenting] = React.useState(false);
+  const [text, setText] = React.useState('');
   const who = expense.userId === currentUser?.id ? relativeDay(expense.date).toLowerCase() : userName(state, expense.userId);
   const status = note ? <Text style={[rowStyles.cardNote, { color: noteColor ?? colors.pending }]}>{note}</Text> : <StatusText status={expense.status} />;
-  const hasAction = !!(actionLabel && onAction);
-  // The details row opens the bill; the action row sits outside it so buttons never nest.
+  const expanded = !!actions && !!open;
+  const first = userName(state, expense.userId).split(' ')[0];
+  const buttons = actions
+    ? [
+        { key: 'approve', label: 'Approve', icon: 'check', solid: true, color: colors.onInk, onPress: actions.approve },
+        { key: 'decline', label: 'Decline', icon: 'close', color: colors.negative, onPress: actions.decline },
+        ...(actions.sendBack ? [{ key: 'back', label: 'Send back', icon: 'send-back', color: colors.ink, onPress: actions.sendBack }] : []),
+        ...(actions.comment ? [{ key: 'comment', label: 'Comment', icon: 'comment', color: colors.ink, onPress: () => setCommenting((c) => !c) }] : []),
+      ]
+    : [];
   return (
-    <View style={rowStyles.card}>
+    <View style={[rowStyles.card, expanded && { borderColor: '#DCDCDC' }]}>
       <Pressable
-        onPress={() => nav.push({ name: 'expense', id: expense.id })}
+        onPress={() => (actions && onToggle ? onToggle() : nav.push({ name: 'expense', id: expense.id }))}
         style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: space.md }, pressed && { opacity: 0.7 }]}
         accessibilityRole="button"
+        accessibilityState={actions ? { expanded } : undefined}
       >
         <IconCircle name={categoryIcon[expense.category] ?? 'receipt'} size={40} outline />
         <View style={{ flex: 1, gap: 4 }}>
@@ -124,17 +145,43 @@ export function ExpenseCard({
             {who} · {deptName(state, expense.departmentId)}
           </Text>
         </View>
-        {!hasAction ? (
-          <View style={{ alignItems: 'flex-end', gap: 6 }}>
-            <Money value={expense.amount} size={14} />
-            {status}
-          </View>
-        ) : null}
-      </Pressable>
-      {hasAction ? (
-        <View style={rowStyles.cardActions}>
+        <View style={{ alignItems: 'flex-end', gap: 4 }}>
+          <Money value={expense.amount} size={14} />
           {status}
-          <Button label={actionLabel!} small onPress={onAction!} style={{ minHeight: 36, paddingHorizontal: 16 }} />
+        </View>
+      </Pressable>
+      {expanded ? (
+        <View style={{ gap: 12 }}>
+          <View style={rowStyles.dash} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            {buttons.map((b) => (
+              <Pressable key={b.key} onPress={b.onPress} hitSlop={6} style={({ pressed }) => [{ alignItems: 'center', gap: 6, width: 64 }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={`${b.label} ${formatINR(expense.amount)}`}>
+                <View style={[rowStyles.actBtn, b.solid && { backgroundColor: colors.ink, borderColor: colors.ink }, b.key === 'comment' && commenting && { backgroundColor: '#F2F2F2' }]}>
+                  <Icon name={b.icon} size={19} color={b.color} strokeWidth={2} />
+                </View>
+                <Text style={rowStyles.actLabel}>{b.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {commenting && actions?.comment ? (
+            <View style={rowStyles.commentBox}>
+              <TextInput value={text} onChangeText={setText} placeholder={`Add a comment for ${first}`} style={[rowStyles.commentInput, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]} accessibilityLabel={`Comment for ${first}`} />
+              <Pressable
+                onPress={() => {
+                  if (!text.trim()) return;
+                  actions.comment!(text.trim());
+                  setText('');
+                  setCommenting(false);
+                }}
+                style={rowStyles.commentSend}
+                accessibilityRole="button"
+                accessibilityLabel="Post comment"
+              >
+                <Icon name="send" size={15} color={colors.onInk} strokeWidth={2} />
+              </Pressable>
+            </View>
+          ) : null}
+          <ViewAllLink label="View bill" onPress={() => nav.push({ name: 'expense', id: expense.id })} />
         </View>
       ) : null}
     </View>
@@ -304,6 +351,12 @@ export const rowStyles = StyleSheet.create({
   },
   cardTitle: { fontFamily: font.medium, fontSize: 17.5, color: colors.ink },
   expTitle: { fontFamily: font.medium, fontSize: 14, color: colors.ink },
+  dash: { borderTopWidth: 1, borderTopColor: '#E6E6E6', borderStyle: 'dashed' },
+  actBtn: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, borderColor: '#E6E6E6', backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  actLabel: { fontFamily: font.semibold, fontSize: 11.5, color: colors.inkSoft },
+  commentBox: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 14, paddingRight: 5, paddingVertical: 5, borderRadius: radius.pill, borderWidth: 1, borderColor: '#E6E6E6' },
+  commentInput: { flex: 1, fontFamily: font.regular, fontSize: 13, color: colors.ink, paddingVertical: 4 },
+  commentSend: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
   cardNote: { ...label, fontSize: 11.5, letterSpacing: 0.1 },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.md, paddingLeft: 4 },
   deptCard: {
