@@ -12,6 +12,7 @@ import Car from 'lucide-react-native/icons/car';
 import Check from 'lucide-react-native/icons/check';
 import CheckCheck from 'lucide-react-native/icons/check-check';
 import ChevronDown from 'lucide-react-native/icons/chevron-down';
+import ChevronUp from 'lucide-react-native/icons/chevron-up';
 import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import CircleAlert from 'lucide-react-native/icons/circle-alert';
 import Clapperboard from 'lucide-react-native/icons/clapperboard';
@@ -71,6 +72,7 @@ const LINE: Record<string, LucideIcon> = {
   check: Check,
   'check-double': CheckCheck,
   'chevron-down': ChevronDown,
+  'chevron-up': ChevronUp,
   'chevron-right': ChevronRight,
   alert: CircleAlert,
   clapperboard: Clapperboard,

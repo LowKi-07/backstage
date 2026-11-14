@@ -24,6 +24,7 @@ interface StoreApi {
   setStage(projectId: string, stage: ProjectStage): void;
   addTask(input: Pick<Task, 'projectId' | 'title' | 'note' | 'assigneeId' | 'due'>): void;
   toggleTask(taskId: string): void;
+  addTaskComment(taskId: string, text: string): void;
   requestBudget(departmentId: string, amount: number, reason: string): void;
   decideBudget(requestId: string, approve: boolean, note?: string): void;
   resetDemo(): void;
@@ -154,6 +155,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status: t.status === 'done' ? 'todo' : 'done', doneAt: t.status === 'done' ? undefined : new Date().toISOString() } : t)),
     }));
 
+  const addTaskComment: StoreApi['addTaskComment'] = (taskId, text) => {
+    const body = text.trim();
+    if (!body) return;
+    const comment = { at: new Date().toISOString(), byUserId: actorId(), text: body };
+    setState((s) => ({ ...s, tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, comments: [...(t.comments ?? []), comment] } : t)) }));
+  };
+
   const markPaid: StoreApi['markPaid'] = (ids, note) => {
     const set = new Set(ids);
     setState((s) => ({
@@ -223,6 +231,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setStage,
     addTask,
     toggleTask,
+    addTaskComment,
     requestBudget,
     decideBudget,
     resetDemo,

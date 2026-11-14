@@ -6,6 +6,7 @@ import { useStore } from '../store/Store';
 import { colors, font, label, radius, shadow, space, statusMeta } from '../theme';
 import { BudgetRequest, Department, Expense } from '../types';
 import { formatCompact, formatINR, formatShortDate, relativeDay } from '../utils/format';
+import { Composer } from './Composer';
 import { Icon } from './icons';
 import { Text, TextInput } from './Text';
 import { Button, IconCircle, Money, ProgressBar, StatementDivider, StatusText } from './ui';
@@ -90,8 +91,8 @@ export function ExpenseList({ expenses, showPerson, empty, grouped = true }: { e
 
 export type CardActions = {
   approve: () => void;
-  decline: () => void;
-  sendBack?: () => void;
+  decline: (reason?: string) => void;
+  sendBack?: (reason?: string) => void;
   comment?: (text: string) => void;
 };
 
@@ -116,6 +117,8 @@ export function ExpenseCard({
   const nav = useNav();
   const [commenting, setCommenting] = React.useState(false);
   const [text, setText] = React.useState('');
+  const [confirm, setConfirm] = React.useState<'decline' | 'back' | null>(null);
+  const [reason, setReason] = React.useState('');
   const who = expense.userId === currentUser?.id ? relativeDay(expense.date).toLowerCase() : userName(state, expense.userId);
   const status = note ? <Text style={[rowStyles.cardNote, { color: noteColor ?? colors.pending }]}>{note}</Text> : <StatusText status={expense.status} />;
   const expanded = !!actions && !!open;
@@ -123,9 +126,9 @@ export function ExpenseCard({
   const buttons = actions
     ? [
         { key: 'approve', label: 'Approve', icon: 'check', solid: true, color: colors.onInk, onPress: actions.approve },
-        { key: 'decline', label: 'Decline', icon: 'close', color: colors.negative, onPress: actions.decline },
-        ...(actions.sendBack ? [{ key: 'back', label: 'Send back', icon: 'send-back', color: colors.ink, onPress: actions.sendBack }] : []),
-        ...(actions.comment ? [{ key: 'comment', label: 'Comment', icon: 'comment', color: colors.ink, onPress: () => setCommenting((c) => !c) }] : []),
+        { key: 'decline', label: 'Decline', icon: 'close', color: colors.negative, onPress: () => (setCommenting(false), setConfirm('decline')) },
+        ...(actions.sendBack ? [{ key: 'back', label: 'Send back', icon: 'send-back', color: colors.ink, onPress: () => (setCommenting(false), setConfirm('back')) }] : []),
+        ...(actions.comment ? [{ key: 'comment', label: 'Comment', icon: 'comment', color: colors.ink, onPress: () => (setConfirm(null), setCommenting((c) => !c)) }] : []),
       ]
     : [];
   return (
@@ -164,21 +167,53 @@ export function ExpenseCard({
             ))}
           </View>
           {commenting && actions?.comment ? (
-            <View style={rowStyles.commentBox}>
-              <TextInput value={text} onChangeText={setText} placeholder={`Add a comment for ${first}`} style={[rowStyles.commentInput, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]} accessibilityLabel={`Comment for ${first}`} />
-              <Pressable
-                onPress={() => {
-                  if (!text.trim()) return;
-                  actions.comment!(text.trim());
-                  setText('');
-                  setCommenting(false);
-                }}
-                style={rowStyles.commentSend}
-                accessibilityRole="button"
-                accessibilityLabel="Post comment"
-              >
-                <Icon name="send" size={15} color={colors.onInk} strokeWidth={2} />
-              </Pressable>
+            <Composer
+              compact
+              value={text}
+              onChange={setText}
+              placeholder={`Add a comment for ${first}`}
+              label={`Comment for ${first}`}
+              onSend={() => {
+                actions.comment!(text.trim());
+                setText('');
+                setCommenting(false);
+              }}
+            />
+          ) : null}
+          {confirm && actions ? (
+            <View style={rowStyles.confirm} accessibilityRole="alert">
+              <Text style={rowStyles.confirmTitle}>
+                {confirm === 'decline' ? `Decline ${formatINR(expense.amount)} from ${first}?` : `Send this bill back to ${first}?`}
+              </Text>
+              <Text style={rowStyles.meta}>
+                {confirm === 'decline' ? 'The bill is rejected and won’t be paid. ' : 'They can fix it and resubmit. '}
+                {first} sees your reason.
+              </Text>
+              <TextInput
+                value={reason}
+                onChangeText={setReason}
+                placeholder={confirm === 'decline' ? 'Reason (optional)' : 'What needs fixing? (optional)'}
+                style={[rowStyles.reason, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]}
+                accessibilityLabel="Reason"
+              />
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Pressable onPress={() => (setConfirm(null), setReason(''))} style={({ pressed }) => [rowStyles.cBtn, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+                  <Text style={rowStyles.cBtnText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    const r = reason.trim() || undefined;
+                    if (confirm === 'decline') actions.decline(r);
+                    else actions.sendBack?.(r);
+                    setConfirm(null);
+                    setReason('');
+                  }}
+                  style={({ pressed }) => [rowStyles.cBtn, { flex: 1.4, backgroundColor: confirm === 'decline' ? colors.negative : colors.ink, borderColor: 'transparent' }, pressed && { opacity: 0.85 }]}
+                  accessibilityRole="button"
+                >
+                  <Text style={[rowStyles.cBtnText, { color: colors.onInk }]}>{confirm === 'decline' ? 'Yes, decline' : 'Yes, send back'}</Text>
+                </Pressable>
+              </View>
             </View>
           ) : null}
           <ViewAllLink label="View bill" onPress={() => nav.push({ name: 'expense', id: expense.id })} />
@@ -354,6 +389,11 @@ export const rowStyles = StyleSheet.create({
   dash: { borderTopWidth: 1, borderTopColor: '#E6E6E6', borderStyle: 'dashed' },
   actBtn: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, borderColor: '#E6E6E6', backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   actLabel: { fontFamily: font.semibold, fontSize: 11.5, color: colors.inkSoft },
+  confirm: { gap: 8, padding: 12, borderRadius: 14, backgroundColor: '#F7F7F7' },
+  confirmTitle: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
+  reason: { borderRadius: 12, borderWidth: 1, borderColor: '#E2E2E2', backgroundColor: colors.surface, paddingHorizontal: 12, paddingVertical: 9, fontFamily: font.regular, fontSize: 13, color: colors.ink },
+  cBtn: { flex: 1, height: 40, borderRadius: 20, borderWidth: 1, borderColor: '#DADADA', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  cBtnText: { fontFamily: font.semibold, fontSize: 13, color: colors.ink },
   commentBox: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 14, paddingRight: 5, paddingVertical: 5, borderRadius: radius.pill, borderWidth: 1, borderColor: '#E6E6E6' },
   commentInput: { flex: 1, fontFamily: font.regular, fontSize: 13, color: colors.ink, paddingVertical: 4 },
   commentSend: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },

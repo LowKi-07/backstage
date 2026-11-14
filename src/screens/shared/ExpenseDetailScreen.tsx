@@ -3,6 +3,7 @@ import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, LongArrow } from '../../components/icons';
 import { DashedRule } from '../../components/receipt';
+import { Composer } from '../../components/Composer';
 import { Text, TextInput } from '../../components/Text';
 import { Avatar, Button, IconCircle, Notice, Screen, SectionTitle, sentence, StatementDivider, StatusText } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
@@ -187,20 +188,7 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
               </View>
             ) : null}
 
-            <View style={styles.commentBox}>
-              <Icon name="file" size={18} color={colors.inkMuted} />
-              <TextInput
-                value={note}
-                onChangeText={setNote}
-                placeholder={deciding ? 'Add a comment about this bill' : 'Add a comment'}
-                multiline
-                style={[styles.commentInput, Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null]}
-                accessibilityLabel="Comment on this bill"
-              />
-              <Pressable onPress={post} disabled={!note.trim()} hitSlop={8} style={[styles.send, !note.trim() && { opacity: 0.35 }]} accessibilityLabel="Post comment" accessibilityRole="button">
-                <Icon name="send" size={16} color={colors.onInk} />
-              </Pressable>
-            </View>
+            <Composer value={note} onChange={setNote} onSend={post} placeholder={deciding ? 'Add a comment about this bill' : 'Add a comment'} label="Comment on this bill" />
 
             {deciding ? (
               <>

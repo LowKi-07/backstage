@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { PROJECTS, ProjectListing } from '../data/projects';
 import { projectSummary, userName } from '../store/selectors';
@@ -6,6 +6,7 @@ import { useStore } from '../store/Store';
 import { colors, font, radius, shadow, space } from '../theme';
 import { AppState, ProjectStage, Task } from '../types';
 import { formatShortDate, toISODate } from '../utils/format';
+import { Composer } from './Composer';
 import { Icon } from './icons';
 import { Text } from './Text';
 
@@ -108,13 +109,17 @@ export function dueLabel(iso: string) {
   return formatShortDate(iso);
 }
 
-// A task with a round checkbox; managers see who it's for, crew see who set it.
+// A task with a round checkbox; managers see who it's for, crew see who set it. Tap the comment link to
+// open the thread and reply.
 export function TaskRow({ task, showAssignee, onToggle }: { task: Task; showAssignee?: boolean; onToggle: () => void }) {
-  const { state } = useStore();
+  const { state, addTaskComment } = useStore();
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState('');
   const done = task.status === 'done';
   const due = dueLabel(task.due);
   const overdue = !done && due.startsWith('Overdue');
   const who = showAssignee ? userName(state, task.assigneeId).split(' ')[0] : `from ${userName(state, task.assignedBy).split(' ')[0]}`;
+  const comments = task.comments ?? [];
   return (
     <View style={styles.task}>
       <Pressable onPress={onToggle} hitSlop={10} style={[styles.check, done && styles.checkOn]} accessibilityRole="checkbox" accessibilityState={{ checked: done }} accessibilityLabel={task.title}>
@@ -123,9 +128,38 @@ export function TaskRow({ task, showAssignee, onToggle }: { task: Task; showAssi
       <View style={{ flex: 1, gap: 4 }}>
         <Text style={[styles.taskTitle, done && styles.taskDone]}>{task.title}</Text>
         {task.note && !done ? <Text style={styles.muted}>{task.note}</Text> : null}
-        <Text style={[styles.taskMeta, overdue && { color: colors.negative }]}>
-          {who} · {done ? 'Done' : due}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <Text style={[styles.taskMeta, overdue && { color: colors.negative }]}>
+            {who} · {done ? 'Done' : due}
+          </Text>
+          <Pressable onPress={() => setOpen((o) => !o)} hitSlop={8} style={styles.cLink} accessibilityRole="button" accessibilityState={{ expanded: open }} accessibilityLabel={comments.length ? `${comments.length} comments` : 'Add a comment'}>
+            <Icon name="comment" size={14} color={colors.inkSoft} />
+            <Text style={styles.cLinkText}>{comments.length ? comments.length : 'Comment'}</Text>
+          </Pressable>
+        </View>
+        {open ? (
+          <View style={{ gap: 8, marginTop: 6 }}>
+            {comments.map((c, i) => (
+              <View key={i} style={styles.tComment}>
+                <Text style={styles.taskMeta}>
+                  {userName(state, c.byUserId).split(' ')[0]} · {formatShortDate(c.at.slice(0, 10))}
+                </Text>
+                <Text style={styles.tCommentText}>{c.text}</Text>
+              </View>
+            ))}
+            <Composer
+              compact
+              value={draft}
+              onChange={setDraft}
+              placeholder={showAssignee ? 'Add a note for the crew' : 'Ask or update your manager'}
+              label={`Comment on ${task.title}`}
+              onSend={() => {
+                addTaskComment(task.id, draft);
+                setDraft('');
+              }}
+            />
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -182,6 +216,10 @@ const styles = StyleSheet.create({
   checkOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   taskTitle: { fontFamily: font.medium, fontSize: 14.5, lineHeight: 20, color: colors.ink },
   taskDone: { color: colors.inkMuted, textDecorationLine: 'line-through' },
+  cLink: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  cLinkText: { fontFamily: font.medium, fontSize: 12, color: colors.inkSoft },
+  tComment: { gap: 2, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#F6F6F6' },
+  tCommentText: { fontFamily: font.regular, fontSize: 13.5, lineHeight: 19, color: colors.ink },
   taskMeta: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   card: { padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
   tlRow: { flexDirection: 'row', gap: 12 },

@@ -67,8 +67,9 @@ export function ProducerOverviewScreen() {
                       producerDecide(e.id, 'approve');
                       setMessage(`Approved ${formatINR(e.amount)}. It’s ready to pay.`);
                     },
-                    decline: () => {
-                      producerDecide(e.id, 'reject', 'Declined by producer');
+                    decline: (r) => {
+                      if (r) addComment(e.id, r);
+                        producerDecide(e.id, 'reject', r ?? 'Declined by producer');
                       setMessage(`Declined ${formatINR(e.amount)}.`);
                     },
                     comment: (t) => {
@@ -186,8 +187,9 @@ export function ProducerInboxScreen() {
                         producerDecide(e.id, 'approve');
                         setMessage(`Approved ${formatINR(e.amount)}.`);
                       },
-                      decline: () => {
-                        producerDecide(e.id, 'reject', 'Declined by producer');
+                      decline: (r) => {
+                        if (r) addComment(e.id, r);
+                        producerDecide(e.id, 'reject', r ?? 'Declined by producer');
                         setMessage(`Declined ${formatINR(e.amount)}.`);
                       },
                       comment: (t) => {

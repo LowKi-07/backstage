@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Icon } from '../../components/icons';
 import { HomeShell } from '../../components/HomeShell';
 import { ExpenseList, ExpenseStatementRow, StatementRow, SummaryTile, ViewAllLink } from '../../components/rows';
 import { Text } from '../../components/Text';
@@ -54,6 +55,8 @@ export function CrewHomeScreen() {
               )}
             </View>
 
+            <PayrollCard projectId={listing.id} />
+
             <SectionTitle title="Recent transactions" />
             {sample ? (
               <View>
@@ -87,6 +90,83 @@ export function CrewHomeScreen() {
     </HomeShell>
   );
 }
+
+// Payroll for the crew member on this project: this month's net pay up top, the breakdown behind an
+// expand control. Figures are the demo production's.
+const PAYROLL: Record<string, { month: string; payday: string; rate: number; days: number; otHours: number; otRate: number; batta: number; advance: number; tdsPct: number; last: string }> = {
+  kantara: { month: 'November', payday: '30 Nov', rate: 3500, days: 22, otHours: 6, otRate: 440, batta: 300, advance: 10000, tdsPct: 10, last: 'October · ₹71,250 paid on 31 Oct' },
+  proj1: { month: 'November', payday: '30 Nov', rate: 2800, days: 18, otHours: 4, otRate: 350, batta: 250, advance: 0, tdsPct: 10, last: 'October · ₹52,600 paid on 31 Oct' },
+  'big-dawgs': { month: 'November', payday: 'After wrap', rate: 4000, days: 2, otHours: 0, otRate: 0, batta: 300, advance: 0, tdsPct: 10, last: 'No payouts yet' },
+};
+
+function PayrollCard({ projectId }: { projectId: string }) {
+  const [open, setOpen] = useState(false);
+  const p = PAYROLL[projectId] ?? PAYROLL.kantara;
+  const base = p.rate * p.days;
+  const ot = p.otHours * p.otRate;
+  const batta = p.batta * p.days;
+  const gross = base + ot + batta;
+  const tds = Math.round((base + ot) * (p.tdsPct / 100));
+  const net = gross - tds - p.advance;
+  const rows: [string, string, number][] = [
+    ['Day rate', `${formatINR(p.rate)} × ${p.days} days`, base],
+    ['Overtime', p.otHours ? `${p.otHours} h × ${formatINR(p.otRate)}` : 'None', ot],
+    ['Batta (food allowance)', `${formatINR(p.batta)} × ${p.days} days`, batta],
+    ['TDS', `${p.tdsPct}% of pay`, -tds],
+    ...(p.advance ? ([['Advance taken', 'Adjusted this month', -p.advance]] as [string, string, number][]) : []),
+  ];
+  return (
+    <View style={pay.card}>
+      <Pressable onPress={() => setOpen((o) => !o)} style={{ gap: 4 }} accessibilityRole="button" accessibilityState={{ expanded: open }} accessibilityLabel={`Payroll, ${p.month} net pay ${formatINR(net)}`}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={pay.kicker}>PAYROLL · {p.month.toUpperCase()}</Text>
+          <Text style={pay.muted}>Payday {p.payday}</Text>
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <View style={{ gap: 2 }}>
+            <Money value={net} size={24} display />
+            <Text style={pay.muted}>
+              Net pay · {p.days} days worked
+            </Text>
+          </View>
+          <View style={pay.expand}>
+            <Text style={pay.expandText}>{open ? 'Hide' : 'Breakdown'}</Text>
+            <Icon name={open ? 'chevron-up' : 'chevron-down'} size={16} />
+          </View>
+        </View>
+      </Pressable>
+      {open ? (
+        <View style={{ gap: 2, marginTop: 6 }}>
+          {rows.map(([k, sub, v]) => (
+            <View key={k} style={pay.row}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={pay.rowTitle}>{k}</Text>
+                <Text style={pay.muted}>{sub}</Text>
+              </View>
+              <Text style={pay.rowAmt}>{v < 0 ? '−' : ''}{formatINR(Math.abs(v))}</Text>
+            </View>
+          ))}
+          <View style={[pay.row, { borderTopWidth: 1, borderTopColor: '#E6E6E6', borderStyle: 'dashed' }]}>
+            <Text style={[pay.rowTitle, { flex: 1, fontFamily: font.bold }]}>Net pay</Text>
+            <Text style={[pay.rowAmt, { fontFamily: font.bold }]}>{formatINR(net)}</Text>
+          </View>
+          <Text style={[pay.muted, { marginTop: 4 }]}>Last payout: {p.last}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+const pay = StyleSheet.create({
+  card: { padding: space.lg, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED', gap: 8 },
+  kicker: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 1.6, color: colors.inkMuted },
+  muted: { fontFamily: font.regular, fontSize: 12, color: colors.inkMuted },
+  expand: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 99, borderWidth: 1, borderColor: '#E2E2E2' },
+  expandText: { fontFamily: font.semibold, fontSize: 12, color: colors.ink },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 9 },
+  rowTitle: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
+  rowAmt: { fontFamily: font.semibold, fontSize: 13.5, color: colors.ink },
+});
 
 // Transaction rows for sample projects that have no expense data behind them.
 const SAMPLE_CAT: Record<string, string> = { fuel: 'fuel', package: 'props & materials', utensils: 'food & catering', shirt: 'costume & fabric' };

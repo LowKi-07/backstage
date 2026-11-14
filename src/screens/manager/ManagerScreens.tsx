@@ -210,12 +210,13 @@ export function ManagerApprovalsScreen() {
                     onToggle={() => setOpenId((cur) => ((cur ?? toReview[0]?.id) === e.id ? '' : e.id))}
                     actions={{
                       approve: () => approve(e),
-                      decline: () => {
-                        managerDecide(e.id, 'reject', 'Declined by manager');
+                      decline: (r) => {
+                        if (r) addComment(e.id, r);
+                        managerDecide(e.id, 'reject', r ?? 'Declined by manager');
                         setMessage(`Declined ${formatINR(e.amount)} from ${first}.`);
                       },
-                      sendBack: () => {
-                        addComment(e.id, 'Sent back: please check the bill and resubmit.');
+                      sendBack: (r) => {
+                        addComment(e.id, r ? `Sent back: ${r}` : 'Sent back: please check the bill and resubmit.');
                         managerDecide(e.id, 'reject', 'Sent back for changes');
                         setMessage(`Sent back to ${first} to fix and resubmit.`);
                       },

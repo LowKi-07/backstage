@@ -93,6 +93,7 @@ export interface Task {
   status: 'todo' | 'done';
   createdAt: string;
   doneAt?: string;
+  comments?: ExpenseComment[];
 }
 
 export interface AppState {
