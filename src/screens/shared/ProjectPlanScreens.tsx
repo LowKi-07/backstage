@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { planStyles, ProjectOverview, ProjectSwitcher, STAGES, stageOf, TaskRow, Timeline } from '../../components/projectPlan';
+import { Icon } from '../../components/icons';
 import { Text, TextInput } from '../../components/Text';
 import { Avatar, Button, EmptyState, Screen } from '../../components/ui';
 import { PROJECTS } from '../../data/projects';
@@ -36,6 +37,7 @@ export function ManagerProjectScreen() {
   const [show, setShow] = useState<'open' | 'done'>('open');
   const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState(false);
+  const [menu, setMenu] = useState(false);
   if (!currentUser) return null;
 
   const deptIds = managedDepartmentIds(state, currentUser);
@@ -70,16 +72,37 @@ export function ManagerProjectScreen() {
       <ProjectSwitcher selectedId={listing.id} onSelect={select} />
       <ProjectOverview listing={listing} />
 
-      <Text style={planStyles.section}>Project status</Text>
-      <View style={styles.stages} accessibilityRole="radiogroup">
-        {STAGES.map((st) => {
-          const on = st === stage;
-          return (
-            <Pressable key={st} onPress={() => setStage(listing.id, st)} style={[styles.stage, on && styles.stageOn]} accessibilityRole="radio" accessibilityState={{ checked: on }}>
-              <Text style={[styles.stageText, on && { color: colors.onInk }]}>{st}</Text>
-            </Pressable>
-          );
-        })}
+      <View style={[styles.headRow, { zIndex: 5 }]}>
+        <Text style={planStyles.section}>Project status</Text>
+        <View>
+          <Pressable onPress={() => setMenu((m) => !m)} style={styles.dd} accessibilityRole="button" accessibilityState={{ expanded: menu }} accessibilityLabel={`Project status: ${stage}`}>
+            <View style={styles.ddDot} />
+            <Text style={styles.ddText}>{stage}</Text>
+            <Icon name={menu ? 'chevron-up' : 'chevron-down'} size={16} />
+          </Pressable>
+          {menu ? (
+            <View style={styles.menu} accessibilityRole="menu">
+              {STAGES.map((st) => {
+                const on = st === stage;
+                return (
+                  <Pressable
+                    key={st}
+                    onPress={() => {
+                      setStage(listing.id, st);
+                      setMenu(false);
+                    }}
+                    style={({ pressed }) => [styles.menuRow, on && { backgroundColor: '#F4F4F4' }, pressed && { opacity: 0.7 }]}
+                    accessibilityRole="menuitem"
+                    accessibilityState={{ selected: on }}
+                  >
+                    <Text style={[styles.menuText, on && { fontFamily: font.bold }]}>{st}</Text>
+                    {on ? <Icon name="check" size={16} strokeWidth={2.2} /> : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
+        </View>
       </View>
 
       <View style={styles.headRow}>
@@ -232,5 +255,11 @@ const styles = StyleSheet.create({
   personName: { fontFamily: font.semibold, fontSize: 13.5, color: colors.ink },
   personRole: { fontFamily: font.regular, fontSize: 11.5, color: colors.inkMuted, maxWidth: 140 },
   dueRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  dd: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 14, paddingRight: 12, paddingVertical: 8, borderRadius: radius.pill, borderWidth: 1, borderColor: '#E2E2E2', backgroundColor: colors.surface },
+  ddDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.ink },
+  ddText: { fontFamily: font.semibold, fontSize: 13, color: colors.ink },
+  menu: { position: 'absolute', right: 0, top: 44, width: 210, padding: 6, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED', boxShadow: '0 12px 28px rgba(0,0,0,0.14)', zIndex: 10 },
+  menuRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10 },
+  menuText: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
   divider: { borderTopWidth: 1, borderTopColor: '#F0F0F0' },
 });
