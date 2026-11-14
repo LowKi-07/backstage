@@ -172,6 +172,8 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
           <View style={styles.below}>
             {flash ? <Notice text={flash} /> : null}
 
+            <Composer value={note} onChange={setNote} onSend={post} placeholder={deciding ? 'Add a comment about this bill' : 'Add a comment'} label="Comment on this bill" />
+
             {comments.length ? (
               <View style={{ gap: space.sm }}>
                 {comments.map((c, i) => (
@@ -187,8 +189,6 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
                 ))}
               </View>
             ) : null}
-
-            <Composer value={note} onChange={setNote} onSend={post} placeholder={deciding ? 'Add a comment about this bill' : 'Add a comment'} label="Comment on this bill" />
 
             {deciding ? (
               <View style={{ gap: space.lg }}>
