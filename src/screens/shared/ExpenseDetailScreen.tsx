@@ -191,9 +191,9 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
             <Composer value={note} onChange={setNote} onSend={post} placeholder={deciding ? 'Add a comment about this bill' : 'Add a comment'} label="Comment on this bill" />
 
             {deciding ? (
-              <>
+              <View style={{ gap: space.lg }}>
                 {canManagerAct ? (
-                  <Pressable onPress={escalate} hitSlop={8} style={{ alignSelf: 'center' }} accessibilityRole="button">
+                  <Pressable onPress={escalate} style={styles.linkHit} accessibilityRole="button">
                     <Text style={styles.link}>Send to producer</Text>
                   </Pressable>
                 ) : null}
@@ -201,7 +201,7 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
                   <Button label="Reject" icon="close" variant="outline" onPress={reject} style={{ flex: 1, backgroundColor: colors.surface, borderColor: colors.surface }} />
                   <Button label={`Approve ${formatINR(expense.amount)}`} onPress={approve} style={{ flex: 1.3 }} />
                 </View>
-              </>
+              </View>
             ) : null}
             {canPay ? (
               <Button
@@ -213,7 +213,7 @@ export function ExpenseDetailScreen({ id }: { id: string }) {
               />
             ) : null}
             {dept && (isManagerOfDept || isProducer) ? (
-              <Pressable onPress={() => nav.push({ name: 'department', id: dept.id })} hitSlop={8} style={{ alignSelf: 'center' }} accessibilityRole="link">
+              <Pressable onPress={() => nav.push({ name: 'department', id: dept.id })} style={styles.linkHit} accessibilityRole="link">
                 <Text style={styles.link}>Open {dept.name} budget</Text>
               </Pressable>
             ) : null}
@@ -305,6 +305,7 @@ const styles = StyleSheet.create({
   commentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: colors.ink },
   commentBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingLeft: 14, paddingRight: 8, paddingVertical: 10, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#E6E3DD' },
   commentInput: { flex: 1, minHeight: 40, fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: colors.ink, paddingVertical: 2, textAlignVertical: 'top' },
+  linkHit: { alignSelf: 'center', minHeight: 44, paddingHorizontal: 16, justifyContent: 'center' },
   send: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
   link: { fontFamily: font.bold, fontSize: 14, color: colors.ink, textDecorationLine: 'underline' },
   cardHint: { fontFamily: font.regular, fontSize: 14, color: colors.inkMuted },
