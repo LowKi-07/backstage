@@ -91,7 +91,14 @@ export function projectListing(id: string | null | undefined): ProjectListing {
 }
 
 // Finished productions, shown under "Past" in the manager's All projects list.
-export const PAST_PROJECTS: { id: string; name: string; kindLabel: string; location: string; wrapped: string; budgetLabel: string }[] = [
-  { id: 'thira-kadal', name: 'Thira Kadal', kindLabel: 'Feature film', location: 'Kozhikode, beach unit', wrapped: 'Wrapped Aug 2026', budgetLabel: '₹3.2Cr' },
-  { id: 'night-bus-47', name: 'Night Bus 47', kindLabel: 'Web series · 6 episodes', location: 'Bengaluru', wrapped: 'Wrapped May 2026', budgetLabel: '₹1.1Cr' },
+export const PAST_PROJECTS: { id: string; name: string; kindLabel: string; location: string; wrapped: string; budgetLabel: string; budget: number; spent: number }[] = [
+  { id: 'thira-kadal', name: 'Thira Kadal', kindLabel: 'Feature film', location: 'Kozhikode, beach unit', wrapped: 'Wrapped Aug 2026', budgetLabel: '₹3.2Cr', budget: 32000000, spent: 30500000 },
+  { id: 'night-bus-47', name: 'Night Bus 47', kindLabel: 'Web series · 6 episodes', location: 'Bengaluru', wrapped: 'Wrapped May 2026', budgetLabel: '₹1.1Cr', budget: 11000000, spent: 11400000 },
 ];
+
+// Budget and spend for the All projects list (₹).
+export const PROJECT_SPEND: Record<string, { budget: number; spent: number }> = {
+  kantara: { budget: 160000000, spent: 38000000 },
+  proj1: { budget: 45000000, spent: 12000000 },
+  'big-dawgs': { budget: 3800000, spent: 120000 },
+};

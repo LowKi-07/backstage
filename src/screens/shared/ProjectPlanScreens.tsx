@@ -4,14 +4,14 @@ import { planStyles, ProjectOverview, ProjectSwitcher, scheduleLine, STAGES, sta
 import { Icon } from '../../components/icons';
 import { Text, TextInput } from '../../components/Text';
 import { Avatar, Button, EmptyState, Screen, Segmented } from '../../components/ui';
-import { PAST_PROJECTS, PROJECTS } from '../../data/projects';
+import { PAST_PROJECTS, PROJECT_SPEND, PROJECTS } from '../../data/projects';
 import { useNav } from '../../navigation/Nav';
 import { CrewTab } from '../manager/CrewDirectoryScreens';
 import { managedDepartmentIds } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, font, radius, space } from '../../theme';
 import { Task } from '../../types';
-import { toISODate } from '../../utils/format';
+import { formatCompact, toISODate } from '../../utils/format';
 
 const DAY = 86400000;
 const DUE = [
@@ -264,8 +264,8 @@ export function AllProjectsScreen() {
                     {p.kindLabel} · {p.location}
                   </Text>
                   <Text style={styles.muted}>{scheduleLine(state, p).text || p.schedule}</Text>
+                  <SpendBar budget={PROJECT_SPEND[p.id]?.budget ?? 0} spent={PROJECT_SPEND[p.id]?.spent ?? 0} />
                 </View>
-                <Text style={styles.projBudget}>{p.budgetLabel}</Text>
               </Pressable>
             ))
           : PAST_PROJECTS.map((p) => (
@@ -282,8 +282,8 @@ export function AllProjectsScreen() {
                     {p.kindLabel} · {p.location}
                   </Text>
                   <Text style={styles.muted}>{p.wrapped}</Text>
+                  <SpendBar budget={p.budget} spent={p.spent} />
                 </View>
-                <Text style={styles.projBudget}>{p.budgetLabel}</Text>
               </View>
             ))}
       </View>
@@ -292,6 +292,28 @@ export function AllProjectsScreen() {
   function select(id: string) {
     chooseProject(id);
   }
+}
+
+// Budget used vs left, as a thin bar like the Expenses page. Over budget turns red.
+function SpendBar({ budget, spent }: { budget: number; spent: number }) {
+  if (!budget) return null;
+  const over = spent > budget;
+  const pct = Math.min(100, Math.round((spent / budget) * 100));
+  return (
+    <View style={{ gap: 6, marginTop: 6 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+        <Text style={styles.muted}>
+          <Text style={{ fontFamily: font.bold, color: colors.ink }}>{formatCompact(spent)}</Text> of {formatCompact(budget)} used
+        </Text>
+        <Text style={[styles.muted, { fontFamily: font.semibold, color: over ? colors.negative : colors.ink }]}>
+          {over ? `${formatCompact(spent - budget)} over` : `${formatCompact(budget - spent)} left`}
+        </Text>
+      </View>
+      <View style={{ height: 4, borderRadius: 2, backgroundColor: '#EDEDED', overflow: 'hidden' }}>
+        <View style={{ height: 4, width: `${pct}%`, backgroundColor: over ? colors.negative : colors.ink }} />
+      </View>
+    </View>
+  );
 }
 
 // Crew "Project" tab: today's tasks, what's coming up, and the project timeline.
