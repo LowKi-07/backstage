@@ -341,16 +341,23 @@ export function ChipRow({ children }: { children: React.ReactNode }) {
 }
 
 // Grey track with a raised white thumb, e.g. UNPAID | PAID.
-export function Segmented<T extends string>({ options, value, onChange }: { options: { key: T; label: string }[]; value: T; onChange: (k: T) => void }) {
+export function Segmented<T extends string>({ options, value, onChange }: { options: { key: T; label: string; count?: number }[]; value: T; onChange: (k: T) => void }) {
   return (
     <View style={styles.segTrack}>
       {options.map((o) => {
         const active = o.key === value;
         return (
           <Pressable key={o.key} onPress={() => onChange(o.key)} style={[styles.segItem, active && styles.segActive]} accessibilityRole="tab" accessibilityState={{ selected: active }}>
-            <Text style={[styles.segText, active && { color: colors.ink }]} numberOfLines={1}>
-              {o.label}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.segText, active && { color: colors.ink }]} numberOfLines={1}>
+                {o.label}
+              </Text>
+              {o.count !== undefined ? (
+                <View style={[styles.segBadge, active && { backgroundColor: colors.ink }]}>
+                  <Text style={[styles.segBadgeText, active && { color: colors.onInk }]}>{o.count}</Text>
+                </View>
+              ) : null}
+            </View>
           </Pressable>
         );
       })}
@@ -503,6 +510,8 @@ export const styles = StyleSheet.create({
   segTrack: { flexDirection: 'row', backgroundColor: colors.sunken, borderRadius: radius.pill, padding: 4 },
   segItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 13, borderRadius: radius.pill },
   segActive: { backgroundColor: colors.surface, boxShadow: '0 2px 6px rgba(0,0,0,0.10)' },
+  segBadge: { minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: 10, backgroundColor: '#DCDCDC', alignItems: 'center', justifyContent: 'center' },
+  segBadgeText: { fontFamily: font.bold, fontSize: 11, color: colors.inkSoft },
   segText: { fontFamily: font.semibold, fontSize: 14, color: colors.inkMuted },
   track: { flexDirection: 'row', backgroundColor: colors.track, overflow: 'hidden' },
   stat: { flex: 1, gap: 3 },

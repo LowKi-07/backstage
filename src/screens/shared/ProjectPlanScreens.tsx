@@ -234,9 +234,9 @@ export function AllProjectsScreen() {
     <Screen title="All projects" subtitle={`${PROJECTS.length + PAST_PROJECTS.length} projects`} onBack={nav.pop}>
       <Segmented
         options={[
-          { key: 'current', label: `Current ${current.length}` },
-          { key: 'upcoming', label: `Upcoming ${upcoming.length}` },
-          { key: 'past', label: `Past ${PAST_PROJECTS.length}` },
+          { key: 'current', label: 'Current', count: current.length },
+          { key: 'upcoming', label: 'Upcoming', count: upcoming.length },
+          { key: 'past', label: 'Past', count: PAST_PROJECTS.length },
         ]}
         value={tab}
         onChange={setTab}
