@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { planStyles, ProjectOverview, ProjectSwitcher, STAGES, stageOf, TaskRow, Timeline } from '../../components/projectPlan';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { planStyles, ProjectOverview, ProjectSwitcher, scheduleLine, STAGES, stageOf, TaskRow, Timeline } from '../../components/projectPlan';
 import { Icon } from '../../components/icons';
 import { Text, TextInput } from '../../components/Text';
-import { Avatar, Button, EmptyState, Screen } from '../../components/ui';
-import { PROJECTS } from '../../data/projects';
+import { Avatar, Button, EmptyState, Screen, Segmented } from '../../components/ui';
+import { PAST_PROJECTS, PROJECTS } from '../../data/projects';
+import { useNav } from '../../navigation/Nav';
+import { CrewTab } from '../manager/CrewDirectoryScreens';
 import { managedDepartmentIds } from '../../store/selectors';
 import { useStore } from '../../store/Store';
 import { colors, font, radius, space } from '../../theme';
@@ -30,6 +32,7 @@ function useProject() {
 export function ManagerProjectScreen() {
   const { state, currentUser, setStage, addTask, toggleTask } = useStore();
   const { listing, select } = useProject();
+  const nav = useNav();
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [assignee, setAssignee] = useState<string | null>(null);
@@ -38,6 +41,7 @@ export function ManagerProjectScreen() {
   const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [view, setView] = useState<'tasks' | 'crew'>('tasks');
   if (!currentUser) return null;
 
   const deptIds = managedDepartmentIds(state, currentUser);
@@ -68,10 +72,34 @@ export function ManagerProjectScreen() {
   };
 
   return (
-    <Screen title="Projects" subtitle="Status, timeline and tasks for your crew">
+    <Screen>
+      <View style={styles.titleRow}>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={styles.pageTitle} accessibilityRole="header">
+            Projects
+          </Text>
+          <Text style={styles.muted}>Status, timeline and tasks for your crew</Text>
+        </View>
+        <Pressable onPress={() => nav.push({ name: 'allProjects' })} style={styles.viewAll} accessibilityRole="link">
+          <Text style={styles.viewAllText}>View all</Text>
+        </Pressable>
+      </View>
       <ProjectSwitcher selectedId={listing.id} onSelect={select} />
       <ProjectOverview listing={listing} />
 
+      <Segmented
+        options={[
+          { key: 'tasks', label: 'Tasks' },
+          { key: 'crew', label: 'Crew' },
+        ]}
+        value={view}
+        onChange={setView}
+      />
+
+      {view === 'crew' ? (
+        <CrewTab />
+      ) : (
+        <>
       <View style={[styles.headRow, { zIndex: 5 }]}>
         <Text style={planStyles.section}>Project status</Text>
         <View>
@@ -188,8 +216,82 @@ export function ManagerProjectScreen() {
 
       <Text style={planStyles.section}>Timeline</Text>
       <Timeline listing={listing} />
+        </>
+      )}
     </Screen>
   );
+}
+
+// Every project the manager is on, split into current, upcoming and past.
+export function AllProjectsScreen() {
+  const { state, chooseProject } = useStore();
+  const nav = useNav();
+  const [tab, setTab] = useState<'current' | 'upcoming' | 'past'>('current');
+  const current = PROJECTS.filter((p) => p.status !== 'Pre-production');
+  const upcoming = PROJECTS.filter((p) => p.status === 'Pre-production');
+  const list = tab === 'current' ? current : upcoming;
+  return (
+    <Screen title="All projects" subtitle={`${PROJECTS.length + PAST_PROJECTS.length} projects`} onBack={nav.pop}>
+      <Segmented
+        options={[
+          { key: 'current', label: `Current ${current.length}` },
+          { key: 'upcoming', label: `Upcoming ${upcoming.length}` },
+          { key: 'past', label: `Past ${PAST_PROJECTS.length}` },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+      <View style={{ gap: space.md }}>
+        {tab !== 'past'
+          ? list.map((p) => (
+              <Pressable
+                key={p.id}
+                onPress={() => {
+                  select(p.id);
+                  nav.pop();
+                }}
+                style={({ pressed }) => [styles.projRow, pressed && { opacity: 0.7 }]}
+                accessibilityRole="button"
+                accessibilityLabel={`Open ${p.name}`}
+              >
+                <Image source={p.poster} style={styles.projImg} resizeMode="cover" />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Text style={styles.projStage}>{stageOf(state, p).toUpperCase()}</Text>
+                  <Text style={styles.projName} numberOfLines={1}>
+                    {p.name}
+                  </Text>
+                  <Text style={styles.muted} numberOfLines={1}>
+                    {p.kindLabel} · {p.location}
+                  </Text>
+                  <Text style={styles.muted}>{scheduleLine(state, p).text || p.schedule}</Text>
+                </View>
+                <Text style={styles.projBudget}>{p.budgetLabel}</Text>
+              </Pressable>
+            ))
+          : PAST_PROJECTS.map((p) => (
+              <View key={p.id} style={styles.projRow}>
+                <View style={[styles.projImg, styles.projPh]}>
+                  <Text style={styles.projPhText}>{p.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</Text>
+                </View>
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Text style={styles.projStage}>WRAPPED</Text>
+                  <Text style={styles.projName} numberOfLines={1}>
+                    {p.name}
+                  </Text>
+                  <Text style={styles.muted} numberOfLines={1}>
+                    {p.kindLabel} · {p.location}
+                  </Text>
+                  <Text style={styles.muted}>{p.wrapped}</Text>
+                </View>
+                <Text style={styles.projBudget}>{p.budgetLabel}</Text>
+              </View>
+            ))}
+      </View>
+    </Screen>
+  );
+  function select(id: string) {
+    chooseProject(id);
+  }
 }
 
 // Crew "Project" tab: today's tasks, what's coming up, and the project timeline.
@@ -261,5 +363,16 @@ const styles = StyleSheet.create({
   menu: { position: 'absolute', right: 0, top: 44, width: 210, padding: 6, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED', boxShadow: '0 12px 28px rgba(0,0,0,0.14)', zIndex: 10 },
   menuRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10 },
   menuText: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  pageTitle: { fontFamily: font.display, fontSize: 24, color: colors.ink, letterSpacing: -0.6 },
+  viewAll: { minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' },
+  viewAllText: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink, textDecorationLine: 'underline' },
+  projRow: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 10, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
+  projImg: { width: 64, height: 80, borderRadius: 12 },
+  projPh: { backgroundColor: '#EFEFEF', alignItems: 'center', justifyContent: 'center' },
+  projPhText: { fontFamily: font.bold, fontSize: 18, color: colors.inkMuted },
+  projStage: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 1.4, color: colors.inkMuted },
+  projName: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
+  projBudget: { fontFamily: font.semibold, fontSize: 13.5, color: colors.ink, alignSelf: 'flex-start', marginTop: 4 },
   divider: { borderTopWidth: 1, borderTopColor: '#F0F0F0' },
 });

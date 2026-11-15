@@ -108,6 +108,18 @@ export interface AppState {
   // Production stage per project, set by managers.
   stages: Record<string, ProjectStage>;
   tasks: Task[];
+  // Pay set up by the manager per crew member: a fixed amount per month/day, or pro rata per hour.
+  payroll?: Record<string, PayrollSetup>;
+}
+
+export interface PayrollSetup {
+  type: 'fixed' | 'hourly';
+  amount: number; // ₹ per period (fixed) or per hour (hourly)
+  period?: 'month' | 'day'; // fixed only
+  hoursPerDay?: number; // hourly only: expected hours, for the estimate
+  overtime?: number; // ₹ per extra hour
+  startDate: string;
+  setBy: string;
 }
 
 export const CATEGORIES = [

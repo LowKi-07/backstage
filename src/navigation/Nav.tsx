@@ -15,6 +15,9 @@ export type Route =
   | { name: 'projects' }
   | { name: 'teamExpenses' }
   | { name: 'allTransactions' }
+  | { name: 'allProjects' }
+  | { name: 'crewMember'; id: string }
+  | { name: 'payrollSetup'; id: string }
   | { name: 'budgets' }
   | { name: 'payouts' }
   | { name: 'department'; id: string }

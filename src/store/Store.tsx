@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, AuditEntry, BudgetRequest, Expense, ExpenseStatus, ProjectStage, Task, User } from '../types';
+import { AppState, AuditEntry, BudgetRequest, Expense, ExpenseStatus, ProjectStage, Task, User, PayrollSetup } from '../types';
 import { formatINR, uid } from '../utils/format';
 import { createSeedState, STATE_VERSION } from './seed';
 import { departmentSummary } from './selectors';
@@ -25,6 +25,7 @@ interface StoreApi {
   addTask(input: Pick<Task, 'projectId' | 'title' | 'note' | 'assigneeId' | 'due'>): void;
   toggleTask(taskId: string): void;
   addTaskComment(taskId: string, text: string): void;
+  setPayroll(userId: string, setup: Omit<PayrollSetup, 'setBy'>): void;
   requestBudget(departmentId: string, amount: number, reason: string): void;
   decideBudget(requestId: string, approve: boolean, note?: string): void;
   resetDemo(): void;
@@ -162,6 +163,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, comments: [...(t.comments ?? []), comment] } : t)) }));
   };
 
+  const setPayroll: StoreApi['setPayroll'] = (userId, setup) =>
+    setState((s) => ({ ...s, payroll: { ...(s.payroll ?? {}), [userId]: { ...setup, setBy: actorId() } } }));
+
   const markPaid: StoreApi['markPaid'] = (ids, note) => {
     const set = new Set(ids);
     setState((s) => ({
@@ -232,6 +236,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     addTask,
     toggleTask,
     addTaskComment,
+    setPayroll,
     requestBudget,
     decideBudget,
     resetDemo,

@@ -3,6 +3,7 @@ import { AddChoiceSheet } from '../screens/crew/AddChoiceSheet';
 import { CrewExpensesScreen, CrewHomeScreen, CrewPayoutsScreen } from '../screens/crew/CrewScreens';
 import { ReviewExpenseScreen } from '../screens/crew/ReviewExpenseScreen';
 import { VoiceExpenseScreen } from '../screens/crew/VoiceExpenseScreen';
+import { CrewMemberScreen, PayrollSetupScreen } from '../screens/manager/CrewDirectoryScreens';
 import { AllTransactionsSheet } from '../screens/manager/AllTransactionsSheet';
 import { BudgetRequestScreen } from '../screens/manager/BudgetRequestScreen';
 import { ManagerApprovalsScreen, ManagerBudgetsScreen, ManagerDashboardScreen, ManagerExpensesOverviewScreen, ManagerExpensesScreen } from '../screens/manager/ManagerScreens';
@@ -11,7 +12,7 @@ import { AiChatScreen } from '../screens/shared/AiChatScreen';
 import { DepartmentScreen } from '../screens/shared/DepartmentScreen';
 import { ExpenseDetailScreen } from '../screens/shared/ExpenseDetailScreen';
 import { NewExpenseScreen, SubmittedScreen } from '../screens/shared/NewExpenseScreen';
-import { CrewProjectScreen, ManagerProjectScreen } from '../screens/shared/ProjectPlanScreens';
+import { CrewProjectScreen, ManagerProjectScreen, AllProjectsScreen } from '../screens/shared/ProjectPlanScreens';
 import { ProjectPickerScreen } from '../screens/shared/ProjectPickerScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
 import { managedDepartmentIds } from '../store/selectors';
@@ -32,6 +33,12 @@ function renderRoute(r: Route) {
       return <SubmittedScreen key={r.id} id={r.id} />;
     case 'projects':
       return <ProjectPickerScreen pushed />;
+    case 'crewMember':
+      return <CrewMemberScreen key={r.id} id={r.id} />;
+    case 'payrollSetup':
+      return <PayrollSetupScreen key={r.id} id={r.id} />;
+    case 'allProjects':
+      return <AllProjectsScreen />;
     case 'allTransactions':
       return <AllTransactionsSheet />;
     case 'teamExpenses':

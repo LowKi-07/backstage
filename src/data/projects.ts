@@ -89,3 +89,9 @@ export const COLLAGE: ImageSourcePropType[] = [
 export function projectListing(id: string | null | undefined): ProjectListing {
   return PROJECTS.find((p) => p.id === id) ?? PROJECTS[0];
 }
+
+// Finished productions, shown under "Past" in the manager's All projects list.
+export const PAST_PROJECTS: { id: string; name: string; kindLabel: string; location: string; wrapped: string; budgetLabel: string }[] = [
+  { id: 'thira-kadal', name: 'Thira Kadal', kindLabel: 'Feature film', location: 'Kozhikode, beach unit', wrapped: 'Wrapped Aug 2026', budgetLabel: '₹3.2Cr' },
+  { id: 'night-bus-47', name: 'Night Bus 47', kindLabel: 'Web series · 6 episodes', location: 'Bengaluru', wrapped: 'Wrapped May 2026', budgetLabel: '₹1.1Cr' },
+];
