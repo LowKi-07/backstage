@@ -261,8 +261,14 @@ export function AllProjectsScreen() {
                     {p.name}
                   </Text>
                   <Text style={styles.muted} numberOfLines={1}>
-                    {p.kindLabel} · {p.location}
+                    {p.kindLabel}
                   </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <Icon name="map-pin" size={13} color={colors.inkMuted} />
+                    <Text style={[styles.muted, { flexShrink: 1 }]} numberOfLines={1}>
+                      {p.location}
+                    </Text>
+                  </View>
                   <Text style={styles.muted}>{scheduleLine(state, p).text || p.schedule}</Text>
                   <SpendBar budget={PROJECT_SPEND[p.id]?.budget ?? 0} spent={PROJECT_SPEND[p.id]?.spent ?? 0} />
                 </View>
@@ -279,8 +285,14 @@ export function AllProjectsScreen() {
                     {p.name}
                   </Text>
                   <Text style={styles.muted} numberOfLines={1}>
-                    {p.kindLabel} · {p.location}
+                    {p.kindLabel}
                   </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <Icon name="map-pin" size={13} color={colors.inkMuted} />
+                    <Text style={[styles.muted, { flexShrink: 1 }]} numberOfLines={1}>
+                      {p.location}
+                    </Text>
+                  </View>
                   <Text style={styles.muted}>{p.wrapped}</Text>
                   <SpendBar budget={p.budget} spent={p.spent} />
                 </View>

@@ -88,9 +88,12 @@ export function ProjectOverview({ listing }: { listing: ProjectListing }) {
         <Text style={styles.ovName} numberOfLines={2}>
           {listing.name}
         </Text>
-        <Text style={styles.muted} numberOfLines={1}>
-          {listing.location}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Icon name="map-pin" size={13} color={colors.inkMuted} />
+          <Text style={[styles.muted, { flexShrink: 1 }]} numberOfLines={1}>
+            {listing.location}
+          </Text>
+        </View>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${Math.round(Math.min(1, sched.progress) * 100)}%` }]} />
         </View>

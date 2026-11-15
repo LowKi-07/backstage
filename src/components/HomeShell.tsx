@@ -8,6 +8,7 @@ import { useStore } from '../store/Store';
 import { colors, font, radius, space } from '../theme';
 import { stageOf } from './projectPlan';
 import { Text } from './Text';
+import { Icon } from './icons';
 import { AppHeader } from './ui';
 
 const native = Platform.OS !== 'web';
@@ -97,7 +98,8 @@ export function HomeShell({ children }: { children: (listing: ProjectListing) =>
                       <View style={styles.metaRow}>
                         <Text style={styles.meta}>{day}</Text>
                         <View style={styles.sep} />
-                        <Text style={[styles.meta, { flexShrink: 1 }]} numberOfLines={1}>
+                        <Icon name="map-pin" size={14} color="#D6D6D6" />
+                        <Text style={[styles.meta, { flexShrink: 1, marginLeft: -6 }]} numberOfLines={1}>
                           {pr.location}
                         </Text>
                       </View>

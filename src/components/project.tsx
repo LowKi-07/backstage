@@ -62,9 +62,13 @@ export function PosterCard({ listing, selected, onPress }: { listing: ProjectLis
           </Text>
           <Text style={styles.posterBudget}>{listing.budgetLabel}</Text>
         </View>
-        <Text style={styles.meta}>
-          {listing.kindLabel} · {listing.location}
-        </Text>
+        <Text style={styles.meta}>{listing.kindLabel}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Icon name="map-pin" size={13} color={colors.inkMuted} />
+          <Text style={[styles.meta, { flexShrink: 1 }]} numberOfLines={1}>
+            {listing.location}
+          </Text>
+        </View>
       </View>
     </Pressable>
   );
