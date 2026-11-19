@@ -80,10 +80,10 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + space.sm }]}>
-      <ScrollView contentContainerStyle={{ padding: space.lg, gap: space.md }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ padding: space.lg, gap: space.lg }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <Receipt torn="bottom" color={PAPER}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
-            <View style={{ flex: 1, gap: 4 }}>
+            <View style={{ flex: 1, gap: 6 }}>
               <Text style={styles.title} accessibilityRole="header">
                 {draft.transcript || draft.receiptUri ? 'Does this look right?' : 'New expense'}
               </Text>
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.display, fontSize: 21, color: colors.ink, letterSpacing: -0.6 },
   sub: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft },
   close: { width: 38, height: 38, borderRadius: 19, backgroundColor: CHIP, alignItems: 'center', justifyContent: 'center' },
-  quote: { fontFamily: font.regular, fontStyle: 'italic', fontSize: 13.5, lineHeight: 19, color: colors.inkSoft },
+  quote: { fontFamily: font.regular, fontStyle: 'italic', fontSize: 13.5, lineHeight: 21, color: colors.inkSoft },
   description: { fontFamily: font.bold, fontSize: 16, color: colors.ink, paddingVertical: 2 },
   amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   currency: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: CHIP },
