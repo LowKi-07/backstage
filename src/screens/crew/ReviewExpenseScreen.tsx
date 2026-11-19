@@ -3,7 +3,6 @@ import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { categoryIcon } from '../../components/rows';
-import { DashedRule, Receipt } from '../../components/receipt';
 import { Text, TextInput } from '../../components/Text';
 import { Button } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
@@ -13,8 +12,7 @@ import { CATEGORIES, ExpenseDraft } from '../../types';
 import { toISODate } from '../../utils/format';
 import { pickImage } from '../../utils/pickImage';
 
-const PAPER = '#F8F7F3';
-const CHIP = '#ECEAE4';
+const CHIP = '#F2F2F2';
 
 // Short names for the category chips; the stored category keeps its full name.
 const SHORT: Record<string, string> = {
@@ -81,7 +79,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
   return (
     <View style={[styles.root, { paddingTop: insets.top + space.sm }]}>
       <ScrollView contentContainerStyle={{ padding: space.lg, gap: space.lg }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <Receipt torn="bottom" color={PAPER}>
+        <View style={styles.plain}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
             <View style={{ flex: 1, gap: 6 }}>
               <Text style={styles.title} accessibilityRole="header">
@@ -95,7 +93,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
           </View>
           {draft.transcript ? <Text style={styles.quote}>“{draft.transcript}”</Text> : null}
 
-          <DashedRule />
+          <View style={styles.rule} />
           <TextInput value={description} onChangeText={setDescription} placeholder="What was it for?" style={[styles.description, noOutline]} accessibilityLabel="Description" />
           <View style={styles.amountRow}>
             <View style={styles.currency}>
@@ -111,7 +109,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
             />
           </View>
 
-          <DashedRule />
+          <View style={styles.rule} />
           <Row label="Paid by">
             <View style={[styles.pill, { paddingLeft: 14, paddingVertical: 8 }]}>
               <Text style={styles.chipText}>You</Text>
@@ -133,7 +131,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
             <TextInput value={vendor} onChangeText={setVendor} placeholder="Add vendor" style={[styles.vendor, noOutline]} accessibilityLabel="Vendor" />
           </Row>
 
-          <DashedRule />
+          <View style={styles.rule} />
           <Row label="Category">
             <Pressable onPress={() => setListOpen(true)} style={styles.pill} accessibilityRole="button" accessibilityLabel={`Category: ${category ?? 'none'}. Change`}>
               <View style={styles.catBadge}>
@@ -155,7 +153,7 @@ export function ReviewExpenseScreen({ draft }: { draft: ExpenseDraft }) {
               </View>
             </Row>
           ) : null}
-        </Receipt>
+        </View>
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </ScrollView>
 
@@ -218,7 +216,9 @@ function Row({ label: text, children }: { label: string; children: React.ReactNo
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#EFEFEC' },
+  root: { flex: 1, backgroundColor: colors.surface },
+  plain: { gap: space.lg, paddingVertical: 4 },
+  rule: { height: 1, backgroundColor: '#EFEFEF' },
   title: { fontFamily: font.display, fontSize: 21, color: colors.ink, letterSpacing: -0.6 },
   sub: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft },
   close: { width: 38, height: 38, borderRadius: 19, backgroundColor: CHIP, alignItems: 'center', justifyContent: 'center' },
@@ -242,5 +242,5 @@ const styles = StyleSheet.create({
   listIcon: { width: 44, height: 44, borderRadius: 15, backgroundColor: colors.surface, boxShadow: '0 4px 14px rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' },
   listText: { flex: 1, fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
   error: { fontFamily: font.medium, fontSize: 14, color: colors.negative, paddingHorizontal: 4 },
-  footer: { paddingHorizontal: space.lg, paddingTop: space.md, gap: 10, backgroundColor: '#EFEFEC' },
+  footer: { paddingHorizontal: space.lg, paddingTop: space.md, gap: 10, backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: '#F0F0F0' },
 });
