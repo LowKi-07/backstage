@@ -75,14 +75,14 @@ export function PosterCard({ listing, selected, onPress }: { listing: ProjectLis
 }
 
 const styles = StyleSheet.create({
-  card: { flexDirection: 'row', gap: 14, padding: 10, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
+  card: { flexDirection: 'row', gap: 14, padding: 10, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
   thumb: { width: 124, height: 100, borderRadius: radius.md },
   title: { fontFamily: font.display, fontSize: 15.5, lineHeight: 21, color: colors.ink, letterSpacing: -0.3 },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
   pillDot: { width: 6, height: 6, borderRadius: 3 },
   pillText: { fontFamily: font.semibold, fontSize: 12 },
   meta: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft },
-  posterCard: { borderRadius: radius.lg, backgroundColor: colors.surface, padding: 8, paddingBottom: 16, boxShadow: shadow.soft, borderWidth: 1.5, borderColor: 'transparent' },
+  posterCard: { borderRadius: 20, backgroundColor: colors.surface, padding: 8, paddingBottom: 16, borderWidth: 1, borderColor: '#EDEDED' },
   posterSelected: { borderColor: colors.ink },
   posterWrap: { height: 196, borderRadius: radius.md, overflow: 'hidden', backgroundColor: colors.surfaceAlt },
   posterImage: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' },
