@@ -355,9 +355,17 @@ export function CrewProjectScreen() {
   const leftToday = todays.filter((t) => t.status === 'todo').length;
 
   return (
-    <Screen title="Project" subtitle="Your tasks and the shoot timeline">
-      <ProjectSwitcher selectedId={listing.id} onSelect={select} />
-      <ProjectOverview listing={listing} />
+    <Screen>
+      <View style={{ gap: 12 }}>
+        <View style={{ gap: 2 }}>
+          <Text style={styles.pageTitle} accessibilityRole="header">
+            Project
+          </Text>
+          <Text style={styles.muted}>Your tasks and the shoot timeline</Text>
+        </View>
+        <ProjectSwitcher selectedId={listing.id} onSelect={select} />
+        <ProjectOverview listing={listing} />
+      </View>
 
       <View style={styles.headRow}>
         <Text style={planStyles.section}>Today</Text>

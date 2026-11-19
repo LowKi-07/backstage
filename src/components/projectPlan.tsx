@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   switchOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   switchImg: { width: 28, height: 28, borderRadius: 14 },
   switchText: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft, flexShrink: 1 },
-  overview: { flexDirection: 'row', gap: 14, padding: 10, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
+  overview: { flexDirection: 'row', gap: 14, padding: 10, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
   ovImg: { width: 104, height: 120, borderRadius: radius.md },
   ovStage: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 1.6, color: colors.inkMuted },
   ovName: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: colors.ink, letterSpacing: -0.3 },
