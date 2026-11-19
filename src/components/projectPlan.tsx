@@ -108,7 +108,6 @@ export function dueLabel(iso: string) {
   const tomorrow = toISODate(new Date(Date.now() + DAY));
   if (iso === today) return 'Today';
   if (iso === tomorrow) return 'Tomorrow';
-  if (iso < today) return `Overdue · ${formatShortDate(iso)}`;
   return formatShortDate(iso);
 }
 
@@ -120,7 +119,6 @@ export function TaskRow({ task, showAssignee, onToggle }: { task: Task; showAssi
   const [draft, setDraft] = useState('');
   const done = task.status === 'done';
   const due = dueLabel(task.due);
-  const overdue = !done && due.startsWith('Overdue');
   const who = showAssignee ? userName(state, task.assigneeId).split(' ')[0] : `from ${userName(state, task.assignedBy).split(' ')[0]}`;
   const comments = task.comments ?? [];
   return (
@@ -132,7 +130,7 @@ export function TaskRow({ task, showAssignee, onToggle }: { task: Task; showAssi
         <Text style={[styles.taskTitle, done && styles.taskDone]}>{task.title}</Text>
         {task.note && !done ? <Text style={styles.muted}>{task.note}</Text> : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <Text style={[styles.taskMeta, overdue && { color: colors.negative }]}>
+          <Text style={styles.taskMeta}>
             {who} · {done ? 'Done' : due}
           </Text>
           <Pressable onPress={() => setOpen((o) => !o)} hitSlop={8} style={styles.cLink} accessibilityRole="button" accessibilityState={{ expanded: open }} accessibilityLabel={comments.length ? `${comments.length} comments` : 'Add a comment'}>

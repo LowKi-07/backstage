@@ -171,7 +171,7 @@ export function createSeedState(): AppState {
 }
 
 // Sample tasks: Vikram (art) for Arjun, Meera (catering & transport) for Divya and Karthik, on two projects.
-function seedTasks(): Task[] {
+export function seedTasks(): Task[] {
   const day = (n: number) => {
     const d = new Date();
     d.setDate(d.getDate() + n);
@@ -193,16 +193,18 @@ function seedTasks(): Task[] {
   return [
     t('t1', 'kantara', 'Dress the village shrine set for the night scene', 'c1', 'm1', 0, 'todo', 'Brass lamps and marigold garlands; photos to Vikram by 5 PM.'),
     t('t2', 'kantara', 'Collect bamboo and rope from the Kundapura depot', 'c1', 'm1', 0),
-    t('t3', 'kantara', 'Age the temple wall props with tea stain', 'c1', 'm1', 2),
-    t('t4', 'kantara', 'Return rented torches to Sharma Props', 'c1', 'm1', 5),
+    t('t3', 'kantara', 'Age the temple wall props with tea stain', 'c1', 'm1', 3),
+    t('t4', 'kantara', 'Return rented torches to Sharma Props', 'c1', 'm1', 8),
+    t('t14', 'kantara', 'Build the festival chariot frame', 'c1', 'm1', 15),
+    t('t15', 'kantara', 'Strike the shrine set after the night schedule', 'c1', 'm1', 26),
     t('t5', 'kantara', 'Paint the festival banners', 'c1', 'm1', -1, 'done'),
-    t('t6', 'proj1', 'Source vintage radio for the living room set', 'c1', 'm1', 1),
+    t('t6', 'proj1', 'Source vintage radio for the living room set', 'c1', 'm1', 2),
     t('t7', 'proj1', 'Breakfast for 140 crew at Film City, 6:30 AM call', 'c4', 'm2', 0),
-    t('t8', 'proj1', 'Book two tempo travellers for the Alleppey unit move', 'c3', 'm2', 1),
+    t('t8', 'proj1', 'Book two tempo travellers for the Alleppey unit move', 'c3', 'm2', 4),
     t('t9', 'proj1', 'Refuel the generator van before the night shoot', 'c3', 'm2', 0, 'done'),
-    t('t10', 'proj1', 'Confirm lunch headcount with the AD team', 'c4', 'm2', 3),
+    t('t10', 'proj1', 'Confirm lunch headcount with the AD team', 'c4', 'm2', 12),
     t('t11', 'kantara', 'Arrange three jeeps for the forest unit, 5 AM pickup', 'c3', 'm2', 0),
-    t('t12', 'kantara', 'Packed lunch for 80 at the forest location', 'c4', 'm2', 1),
+    t('t12', 'kantara', 'Packed lunch for 80 at the forest location', 'c4', 'm2', 6),
     t('t13', 'kantara', 'Refill water cans at base camp', 'c4', 'm2', -1, 'done'),
   ];
 }

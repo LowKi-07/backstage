@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, AuditEntry, BudgetRequest, Expense, ExpenseStatus, ProjectStage, Task, User, PayrollSetup } from '../types';
 import { formatINR, uid } from '../utils/format';
-import { createSeedState, STATE_VERSION } from './seed';
+import { createSeedState, seedTasks, STATE_VERSION } from './seed';
 import { departmentSummary } from './selectors';
 
 const STORAGE_KEY = 'backstage-state';
@@ -33,6 +33,16 @@ interface StoreApi {
 
 const StoreContext = createContext<StoreApi | null>(null);
 
+// Demo tasks keep their place on the calendar: seed tasks get fresh due dates relative to today (status and
+// comments kept), and any seed task added since the device last saved is filled in.
+function refreshSeedTasks(saved: Task[]): Task[] {
+  const fresh = seedTasks();
+  const byId = new Map(fresh.map((t) => [t.id, t]));
+  const out = saved.map((t) => (byId.has(t.id) ? { ...t, due: byId.get(t.id)!.due } : t));
+  const have = new Set(saved.map((t) => t.id));
+  return [...out, ...fresh.filter((t) => !have.has(t.id))];
+}
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(createSeedState);
   const [ready, setReady] = useState(false);
@@ -46,7 +56,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!raw) return;
         const parsed = JSON.parse(raw) as AppState;
         // Every launch opens on the sign-in splash, so the saved session is not restored.
-        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, stages: parsed.stages ?? cur.stages, tasks: parsed.tasks ?? cur.tasks, currentUserId: cur.currentUserId }));
+        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, stages: parsed.stages ?? cur.stages, tasks: refreshSeedTasks(parsed.tasks ?? cur.tasks), currentUserId: cur.currentUserId }));
       })
       .catch(() => {})
       .finally(() => setReady(true));
