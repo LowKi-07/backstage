@@ -311,7 +311,7 @@ export function ManagerExpensesOverviewScreen() {
   );
 }
 
-const SHADES = ['#7C93B5', '#C9A27E', '#9DB89A', '#D6B8C8', '#D8D0C4'];
+const SHADES = ['#4F46E5', '#F59E0B', '#10B981', '#EC4899', '#06B6D4'];
 
 // Spending by category: a black-and-white donut with the total in the middle, the top category as a
 // headline, and a legend with transaction counts.
@@ -497,7 +497,7 @@ const expStyles = StyleSheet.create({
   donutCenter: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center', gap: 2 },
   legendRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, paddingVertical: 12 },
   legendDivider: { borderTopWidth: 1, borderTopColor: '#EFEFEF', borderStyle: 'dashed' },
-  swatch: { width: 12, height: 12, borderRadius: 3, marginTop: 3 },
+  swatch: { width: 12, height: 12, borderRadius: 6, marginTop: 3 },
   legendName: { fontFamily: font.medium, fontSize: 14.5, color: colors.ink },
   link: { alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 4 },
   linkText: { fontFamily: font.bold, fontSize: 13.5, color: colors.ink, textDecorationLine: 'underline' },
