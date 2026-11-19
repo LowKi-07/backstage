@@ -256,7 +256,7 @@ export function AllProjectsScreen() {
               >
                 <Image source={p.poster} style={styles.projImg} resizeMode="cover" />
                 <View style={{ flex: 1, gap: 4 }}>
-                  <Text style={styles.projStage}>{stageOf(state, p).toUpperCase()}</Text>
+                  <StageTag label={stageOf(state, p)} />
                   <Text style={styles.projName} numberOfLines={1}>
                     {p.name}
                   </Text>
@@ -280,7 +280,7 @@ export function AllProjectsScreen() {
                   <Text style={styles.projPhText}>{p.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</Text>
                 </View>
                 <View style={{ flex: 1, gap: 4 }}>
-                  <Text style={styles.projStage}>WRAPPED</Text>
+                  <StageTag label="Wrapped" />
                   <Text style={styles.projName} numberOfLines={1}>
                     {p.name}
                   </Text>
@@ -304,6 +304,17 @@ export function AllProjectsScreen() {
   function select(id: string) {
     chooseProject(id);
   }
+}
+
+// Stage as a small pill; "In shoot" is green, everything else grey.
+function StageTag({ label }: { label: string }) {
+  const live = label === 'In shoot';
+  return (
+    <View style={[styles.tag, { backgroundColor: live ? '#E5F4EC' : '#F1F1F1' }]}>
+      <View style={[styles.tagDot, { backgroundColor: live ? colors.positive : '#9B9B9B' }]} />
+      <Text style={[styles.tagText, { color: live ? '#17784A' : colors.inkSoft }]}>{label.toUpperCase()}</Text>
+    </View>
+  );
 }
 
 // Budget used vs left, as a thin bar like the Expenses page. Over budget turns red.
@@ -405,6 +416,9 @@ const styles = StyleSheet.create({
   projImg: { width: 64, height: 80, borderRadius: 12 },
   projPh: { backgroundColor: '#EFEFEF', alignItems: 'center', justifyContent: 'center' },
   projPhText: { fontFamily: font.bold, fontSize: 18, color: colors.inkMuted },
+  tag: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
+  tagDot: { width: 6, height: 6, borderRadius: 3 },
+  tagText: { fontFamily: font.bold, fontSize: 10, letterSpacing: 1 },
   projStage: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 1.4, color: colors.inkMuted },
   projName: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
   projBudget: { fontFamily: font.semibold, fontSize: 13.5, color: colors.ink, alignSelf: 'flex-start', marginTop: 4 },
