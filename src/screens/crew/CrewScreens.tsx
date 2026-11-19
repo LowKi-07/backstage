@@ -124,7 +124,7 @@ function PayrollCard({ projectId }: { projectId: string }) {
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <View style={{ gap: 2 }}>
-            <Money value={net} size={12} display />
+            <Money value={net} size={18} display />
             <Text style={pay.muted}>
               Net pay · {p.days} days worked
             </Text>
