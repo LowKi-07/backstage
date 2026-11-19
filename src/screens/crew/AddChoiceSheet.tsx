@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   handle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E2E2', marginBottom: 4 },
   title: { fontFamily: font.display, fontSize: 20, color: colors.ink, letterSpacing: -0.5 },
   sub: { fontFamily: font.regular, fontSize: 13.5, color: colors.inkSoft },
-  option: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.raised },
+  option: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: space.lg, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
   optionIcon: { width: 52, height: 52, borderRadius: 18, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   optionTitle: { fontFamily: font.bold, fontSize: 15.5, color: colors.ink },
   optionDetail: { fontFamily: font.regular, fontSize: 13.5, lineHeight: 18, color: colors.inkSoft },
