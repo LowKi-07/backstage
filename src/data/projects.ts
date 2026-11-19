@@ -28,7 +28,7 @@ export const PROJECTS: ProjectListing[] = [
     name: 'Kantara',
     kind: 'Film',
     kindLabel: 'Feature film',
-    location: 'Kundapura, forest unit',
+    location: 'Bangalore',
     status: 'Shooting',
     budgetLabel: '₹16Cr',
     callTime: '6:00 AM',
@@ -53,7 +53,7 @@ export const PROJECTS: ProjectListing[] = [
     name: 'Bethlehem Kudumba Unit',
     kind: 'Film',
     kindLabel: 'Feature film',
-    location: 'Film City, Stage 4',
+    location: 'Kochi',
     status: 'Shooting',
     budgetLabel: '₹4.5Cr',
     callTime: '7:00 AM',
@@ -65,7 +65,7 @@ export const PROJECTS: ProjectListing[] = [
     name: 'Big Dawgs',
     kind: 'Music video',
     kindLabel: 'Music video',
-    location: 'Mumbai, Andheri studio',
+    location: 'Mumbai',
     status: 'Pre-production',
     budgetLabel: '₹38L',
     callTime: '10:00 AM',
@@ -92,8 +92,8 @@ export function projectListing(id: string | null | undefined): ProjectListing {
 
 // Finished productions, shown under "Past" in the manager's All projects list.
 export const PAST_PROJECTS: { id: string; name: string; kindLabel: string; location: string; wrapped: string; budgetLabel: string; budget: number; spent: number }[] = [
-  { id: 'thira-kadal', name: 'Thira Kadal', kindLabel: 'Feature film', location: 'Kozhikode, beach unit', wrapped: 'Wrapped Aug 2026', budgetLabel: '₹3.2Cr', budget: 32000000, spent: 30500000 },
-  { id: 'night-bus-47', name: 'Night Bus 47', kindLabel: 'Web series · 6 episodes', location: 'Bengaluru', wrapped: 'Wrapped May 2026', budgetLabel: '₹1.1Cr', budget: 11000000, spent: 11400000 },
+  { id: 'thira-kadal', name: 'Thira Kadal', kindLabel: 'Feature film', location: 'Kozhikode', wrapped: 'Wrapped Aug 2026', budgetLabel: '₹3.2Cr', budget: 32000000, spent: 30500000 },
+  { id: 'night-bus-47', name: 'Night Bus 47', kindLabel: 'Web series · 6 episodes', location: 'Hyderabad', wrapped: 'Wrapped May 2026', budgetLabel: '₹1.1Cr', budget: 11000000, spent: 11400000 },
 ];
 
 // Budget and spend for the All projects list (₹).

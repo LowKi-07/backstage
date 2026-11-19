@@ -136,7 +136,7 @@ export function createSeedState(): AppState {
       endDate: toISODate(end),
       totalBudget: 45000000,
       escalationThreshold: 25000,
-      location: 'Film City, Stage 4',
+      location: 'Kochi',
       callTime: '7:00 AM',
     },
     users,
