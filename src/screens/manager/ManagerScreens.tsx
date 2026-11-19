@@ -480,7 +480,7 @@ const expStyles = StyleSheet.create({
   pctPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill, borderWidth: 1, borderColor: '#3A3A3A', backgroundColor: '#262626', fontFamily: font.semibold, fontSize: 12, color: '#CFCFCF', overflow: 'hidden' },
   card: { padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft, gap: 14 },
   cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTitle: { fontFamily: font.bold, fontSize: 16, color: colors.ink },
+  cardTitle: { fontFamily: font.semibold, fontSize: 13, letterSpacing: 1.8, textTransform: 'uppercase', color: '#7A7A7A' },
   cardNote: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
   catIcon: { width: 30, height: 30, borderRadius: 10, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   catName: { flex: 1, fontFamily: font.semibold, fontSize: 14, color: colors.ink },

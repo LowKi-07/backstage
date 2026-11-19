@@ -472,7 +472,7 @@ export const styles = StyleSheet.create({
   statusDot: { width: 5, height: 5, borderRadius: 3 },
   statusText: { fontFamily: font.semibold, fontSize: 10.5 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: space.lg },
-  sectionTitle: { fontFamily: font.bold, fontSize: 16, color: colors.ink, letterSpacing: -0.2 },
+  sectionTitle: { fontFamily: font.semibold, fontSize: 13, letterSpacing: 1.8, textTransform: 'uppercase', color: '#7A7A7A' },
   sectionActionRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   sectionAction: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.lg + 2, boxShadow: shadow.soft },

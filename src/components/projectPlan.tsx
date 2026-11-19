@@ -198,7 +198,7 @@ export function Timeline({ listing }: { listing: ProjectListing }) {
 }
 
 export const planStyles = StyleSheet.create({
-  section: { fontFamily: font.bold, fontSize: 16, color: colors.ink },
+  section: { fontFamily: font.semibold, fontSize: 13, letterSpacing: 1.8, textTransform: 'uppercase', color: '#7A7A7A' },
   card: { padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
 });
 
