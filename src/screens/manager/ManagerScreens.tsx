@@ -474,7 +474,7 @@ const expStyles = StyleSheet.create({
   darkLabel: { fontFamily: font.regular, fontSize: 14, color: '#A8A8A8' },
   darkBig: { fontFamily: font.bold, fontSize: 30, lineHeight: 36, color: colors.onInk, letterSpacing: -1.5 },
   darkTrack: { marginTop: 8, height: 8, borderRadius: 4, backgroundColor: '#3A3A3A', overflow: 'hidden' },
-  darkFill: { height: 8, borderRadius: 4, backgroundColor: '#E6E6E6' },
+  darkFill: { height: 8, borderRadius: 4, backgroundColor: '#3FBF7F' },
   darkSmall: { fontFamily: font.regular, fontSize: 13, color: '#A8A8A8' },
   darkValue: { fontFamily: font.bold, fontSize: 15, color: colors.onInk },
   pctPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill, borderWidth: 1, borderColor: '#3A3A3A', backgroundColor: '#262626', fontFamily: font.semibold, fontSize: 12, color: '#CFCFCF', overflow: 'hidden' },
