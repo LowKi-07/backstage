@@ -88,9 +88,9 @@ export function HomeShell({ children }: { children: (listing: ProjectListing) =>
                       <Rect x="0" y="0" width="100%" height="100%" fill={`url(#fade-${pr.id})`} />
                     </Svg>
                     <View style={styles.caption}>
-                      <View style={styles.stage}>
-                        <View style={[styles.stageDot, { backgroundColor: stageOf(state, pr) === 'In shoot' ? colors.onInk : '#A8A8A8' }]} />
-                        <Text style={styles.stageText}>{stageOf(state, pr)}</Text>
+                      <View style={[styles.stage, stageOf(state, pr) === 'In shoot' && { backgroundColor: '#E5F4EC', borderColor: '#E5F4EC' }]}>
+                        <View style={[styles.stageDot, { backgroundColor: stageOf(state, pr) === 'In shoot' ? colors.positive : '#A8A8A8' }]} />
+                        <Text style={[styles.stageText, stageOf(state, pr) === 'In shoot' && { color: '#17784A' }]}>{stageOf(state, pr)}</Text>
                       </View>
                       <Text style={styles.name} numberOfLines={2}>
                         {pr.name}
