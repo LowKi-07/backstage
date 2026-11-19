@@ -255,7 +255,7 @@ export function AllProjectsScreen() {
                 accessibilityLabel={`Open ${p.name}`}
               >
                 <Image source={p.poster} style={styles.projImg} resizeMode="cover" />
-                <View style={{ flex: 1, gap: 4 }}>
+                <View style={{ flex: 1, gap: 4, paddingTop: 2, paddingBottom: 10 }}>
                   <StageTag label={stageOf(state, p)} />
                   <Text style={styles.projName} numberOfLines={1}>
                     {p.name}
@@ -279,7 +279,7 @@ export function AllProjectsScreen() {
                 <View style={[styles.projImg, styles.projPh]}>
                   <Text style={styles.projPhText}>{p.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</Text>
                 </View>
-                <View style={{ flex: 1, gap: 4 }}>
+                <View style={{ flex: 1, gap: 4, paddingTop: 2, paddingBottom: 10 }}>
                   <StageTag label="Wrapped" />
                   <Text style={styles.projName} numberOfLines={1}>
                     {p.name}
@@ -412,8 +412,8 @@ const styles = StyleSheet.create({
   pageTitle: { fontFamily: font.display, fontSize: 24, color: colors.ink, letterSpacing: -0.6 },
   viewAll: { minHeight: 44, paddingHorizontal: 4, justifyContent: 'center' },
   viewAllText: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink, textDecorationLine: 'underline' },
-  projRow: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 10, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
-  projImg: { width: 64, height: 80, borderRadius: 12 },
+  projRow: { flexDirection: 'row', alignItems: 'stretch', gap: 14, padding: 10, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
+  projImg: { width: 76, minHeight: 80, alignSelf: 'stretch', borderRadius: 12 },
   projPh: { backgroundColor: '#EFEFEF', alignItems: 'center', justifyContent: 'center' },
   projPhText: { fontFamily: font.bold, fontSize: 18, color: colors.inkMuted },
   tag: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
