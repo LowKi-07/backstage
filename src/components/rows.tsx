@@ -362,7 +362,7 @@ export function BudgetRequestRow({ request }: { request: BudgetRequest }) {
 }
 
 export const rowStyles = StyleSheet.create({
-  summary: { flex: 1, gap: 4, padding: space.lg, borderRadius: radius.lg, backgroundColor: colors.surface, boxShadow: shadow.soft },
+  summary: { flex: 1, gap: 6, padding: space.lg, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#EDEDED' },
   summaryLabel: { fontFamily: font.semibold, fontSize: 13.5, color: colors.inkSoft },
   txn: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 8 },
   stmt: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 16 },
