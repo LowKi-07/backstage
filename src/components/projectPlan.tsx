@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   ovName: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: colors.ink, letterSpacing: -0.3 },
   track: { height: 4, borderRadius: 2, backgroundColor: '#EDEDED', overflow: 'hidden', marginTop: 6 },
   fill: { height: 4, borderRadius: 2, backgroundColor: colors.ink },
-  task: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, paddingVertical: 12 },
+  task: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, paddingVertical: 16 },
   check: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: '#CFCFCF', alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   taskTitle: { fontFamily: font.medium, fontSize: 14.5, lineHeight: 20, color: colors.ink },

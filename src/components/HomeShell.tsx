@@ -144,6 +144,6 @@ const styles = StyleSheet.create({
   dots: { position: 'absolute', left: 0, right: 0, bottom: 14, flexDirection: 'row', justifyContent: 'center', gap: 6 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.35)' },
   dotOn: { width: 18, backgroundColor: colors.onInk },
-  sheet: { zIndex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: space.xl, paddingTop: 10, paddingBottom: 32, gap: space.lg, boxShadow: '0 -8px 24px rgba(0,0,0,0.25)' },
+  sheet: { zIndex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: space.xl, paddingTop: 10, paddingBottom: 40, gap: 24, boxShadow: '0 -8px 24px rgba(0,0,0,0.25)' },
   handle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E2E2' },
 });

@@ -41,7 +41,7 @@ export const font = {
 };
 
 export const radius = { sm: 10, md: 16, lg: 22, pill: 999 };
-export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 32 };
+export const space = { xs: 6, sm: 10, md: 14, lg: 20, xl: 20, xxl: 40 };
 
 export const shadow = {
   soft: '0 4px 14px rgba(0,0,0,0.06)',

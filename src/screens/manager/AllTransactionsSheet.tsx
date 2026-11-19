@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   chipText: { fontFamily: font.medium, fontSize: 12, color: colors.inkSoft },
   monthRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: '#EAEAEA', borderStyle: 'dashed' },
   month: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 2, color: colors.inkMuted },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 16 },
   rowIcon: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: '#ECECEC', alignItems: 'center', justifyContent: 'center' },
   rowTitle: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
   rowMeta: { fontFamily: font.regular, fontSize: 11.5, color: colors.inkMuted },
