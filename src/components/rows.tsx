@@ -231,7 +231,7 @@ export function SummaryTile({ label: title, dot, amount, hint, onPress }: { labe
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dot }} />
         <Text style={rowStyles.summaryLabel}>{title}</Text>
       </View>
-      <Money value={amount} size={21} display />
+      <Money value={amount} size={11} display />
       <Text style={rowStyles.meta}>{hint}</Text>
     </Pressable>
   );
