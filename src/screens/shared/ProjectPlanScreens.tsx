@@ -73,19 +73,21 @@ export function ManagerProjectScreen() {
 
   return (
     <Screen>
-      <View style={styles.titleRow}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={styles.pageTitle} accessibilityRole="header">
-            Projects
-          </Text>
-          <Text style={styles.muted}>Status, timeline and tasks for your crew</Text>
+      <View style={{ gap: 12 }}>
+        <View style={styles.titleRow}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={styles.pageTitle} accessibilityRole="header">
+              Projects
+            </Text>
+            <Text style={styles.muted}>Status, timeline and tasks for your crew</Text>
+          </View>
+          <Pressable onPress={() => nav.push({ name: 'allProjects' })} style={styles.viewAll} accessibilityRole="link">
+            <Text style={styles.viewAllText}>View all</Text>
+          </Pressable>
         </View>
-        <Pressable onPress={() => nav.push({ name: 'allProjects' })} style={styles.viewAll} accessibilityRole="link">
-          <Text style={styles.viewAllText}>View all</Text>
-        </Pressable>
+        <ProjectSwitcher selectedId={listing.id} onSelect={select} />
+        <ProjectOverview listing={listing} />
       </View>
-      <ProjectSwitcher selectedId={listing.id} onSelect={select} />
-      <ProjectOverview listing={listing} />
 
       <Segmented
         options={[
