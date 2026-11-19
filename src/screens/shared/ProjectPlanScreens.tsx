@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { planStyles, ProjectOverview, ProjectSwitcher, scheduleLine, STAGES, stageOf, TaskRow, Timeline } from '../../components/projectPlan';
 import { Icon } from '../../components/icons';
 import { Text, TextInput } from '../../components/Text';
@@ -42,6 +42,7 @@ export function ManagerProjectScreen() {
   const [error, setError] = useState(false);
   const [menu, setMenu] = useState(false);
   const [view, setView] = useState<'tasks' | 'crew'>('tasks');
+  const [adding, setAdding] = useState(false);
   if (!currentUser) return null;
 
   const deptIds = managedDepartmentIds(state, currentUser);
@@ -69,6 +70,7 @@ export function ManagerProjectScreen() {
     setNote('');
     setAssignee(null);
     setShow('open');
+    setAdding(false);
   };
 
   return (
@@ -137,66 +139,12 @@ export function ManagerProjectScreen() {
 
       <View style={styles.headRow}>
         <Text style={planStyles.section}>Crew tasks</Text>
-        <Text style={styles.muted}>
-          {open.length} open · {done.length} done
-        </Text>
+        <Pressable onPress={() => (setAdding(true), setFlash(null), setError(false))} style={({ pressed }) => [styles.addBtn, pressed && { opacity: 0.85 }]} accessibilityRole="button" accessibilityLabel="Add task">
+          <Icon name="plus" size={15} color={colors.onInk} strokeWidth={2.2} />
+          <Text style={styles.addBtnText}>Add task</Text>
+        </Pressable>
       </View>
-      <View style={[planStyles.card, { gap: space.md }]}>
-        <Text style={styles.addTitle}>Add a task</Text>
-        <TextInput
-          value={title}
-          onChangeText={(v) => {
-            setTitle(v);
-            setFlash(null);
-            setError(false);
-          }}
-          placeholder="What needs doing? e.g. Dress the market set by 4 PM"
-          style={[styles.input, noOutline]}
-          accessibilityLabel="Task title"
-        />
-        <TextInput value={note} onChangeText={setNote} placeholder="Details (optional)" multiline style={[styles.input, { minHeight: 56, textAlignVertical: 'top' }, noOutline]} accessibilityLabel="Task details" />
-        <Text style={styles.label}>Assign to</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} style={{ flexGrow: 0, marginHorizontal: -space.lg }} contentInset={{ left: 0 }}>
-          <View style={{ width: space.lg - 8 }} />
-          {crew.map((u) => {
-            const on = u.id === assignee;
-            return (
-              <Pressable
-                key={u.id}
-                onPress={() => {
-                  setAssignee(u.id);
-                  setFlash(null);
-                  setError(false);
-                }}
-                style={[styles.person, on && styles.personOn]}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: on }}
-              >
-                <Avatar name={u.name} size={30} />
-                <View>
-                  <Text style={[styles.personName, on && { color: colors.onInk }]}>{u.name.split(' ')[0]}</Text>
-                  <Text style={[styles.personRole, on && { color: '#CFCFCF' }]} numberOfLines={1}>
-                    {u.title}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })}
-          <View style={{ width: space.lg - 8 }} />
-        </ScrollView>
-        <Text style={styles.label}>Due</Text>
-        <View style={styles.dueRow}>
-          {DUE.map((d) => (
-            <Pressable key={d.label} onPress={() => setDue(d.days)} style={[styles.stage, d.days === due && styles.stageOn]} accessibilityRole="radio" accessibilityState={{ checked: d.days === due }}>
-              <Text style={[styles.stageText, d.days === due && { color: colors.onInk }]}>{d.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <Text style={[styles.hint, error && { color: colors.negative }]}>
-          {flash ?? (assignee ? `Assigning to ${crew.find((c) => c.id === assignee)?.name.split(' ')[0]} · due ${DUE.find((d) => d.days === due)?.label.toLowerCase()}` : 'Type the task, pick a crew member, then assign.')}
-        </Text>
-        <Button label="Assign task" onPress={assign} />
-      </View>
+      {flash && !error && !adding ? <Text style={styles.hint}>{flash}</Text> : null}
 
       <View style={styles.dueRow}>
         {(['open', 'done'] as const).map((k) => (
@@ -220,6 +168,74 @@ export function ManagerProjectScreen() {
       <Timeline listing={listing} />
         </>
       )}
+      <Modal visible={adding} transparent animationType="slide" onRequestClose={() => setAdding(false)}>
+        <View style={styles.sheetWrap}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setAdding(false)} accessibilityLabel="Close" />
+          <View style={styles.sheet} accessibilityViewIsModal>
+            <View style={styles.handle} />
+            <View style={styles.headRow}>
+              <Text style={styles.sheetTitle}>Add a task</Text>
+              <Pressable onPress={() => setAdding(false)} style={styles.closeBtn} accessibilityRole="button" accessibilityLabel="Close">
+                <Icon name="close" size={17} strokeWidth={2} />
+              </Pressable>
+            </View>
+              <TextInput
+                value={title}
+                onChangeText={(v) => {
+                  setTitle(v);
+                  setFlash(null);
+                  setError(false);
+                }}
+                placeholder="What needs doing? e.g. Dress the market set by 4 PM"
+                style={[styles.input, noOutline]}
+                accessibilityLabel="Task title"
+              />
+              <TextInput value={note} onChangeText={setNote} placeholder="Details (optional)" multiline style={[styles.input, { minHeight: 56, textAlignVertical: 'top' }, noOutline]} accessibilityLabel="Task details" />
+              <Text style={styles.label}>Assign to</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} style={{ flexGrow: 0, marginHorizontal: -space.lg }} contentInset={{ left: 0 }}>
+                <View style={{ width: space.lg - 8 }} />
+                {crew.map((u) => {
+                  const on = u.id === assignee;
+                  return (
+                    <Pressable
+                      key={u.id}
+                      onPress={() => {
+                        setAssignee(u.id);
+                        setFlash(null);
+                        setError(false);
+                      }}
+                      style={[styles.person, on && styles.personOn]}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: on }}
+                    >
+                      <Avatar name={u.name} size={30} />
+                      <View>
+                        <Text style={[styles.personName, on && { color: colors.onInk }]}>{u.name.split(' ')[0]}</Text>
+                        <Text style={[styles.personRole, on && { color: '#CFCFCF' }]} numberOfLines={1}>
+                          {u.title}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+                <View style={{ width: space.lg - 8 }} />
+              </ScrollView>
+              <Text style={styles.label}>Due</Text>
+              <View style={styles.dueRow}>
+                {DUE.map((d) => (
+                  <Pressable key={d.label} onPress={() => setDue(d.days)} style={[styles.stage, d.days === due && styles.stageOn]} accessibilityRole="radio" accessibilityState={{ checked: d.days === due }}>
+                    <Text style={[styles.stageText, d.days === due && { color: colors.onInk }]}>{d.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text style={[styles.hint, error && { color: colors.negative }]}>
+                {flash ?? (assignee ? `Assigning to ${crew.find((c) => c.id === assignee)?.name.split(' ')[0]} · due ${DUE.find((d) => d.days === due)?.label.toLowerCase()}` : 'Type the task, pick a crew member, then assign.')}
+              </Text>
+              <Button label="Assign task" onPress={assign} />
+
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -404,6 +420,13 @@ const styles = StyleSheet.create({
   stageOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   stageText: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
   label: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
+  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 40, paddingHorizontal: 14, borderRadius: radius.pill, backgroundColor: colors.ink },
+  addBtnText: { fontFamily: font.semibold, fontSize: 13, color: colors.onInk },
+  sheetWrap: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
+  sheet: { backgroundColor: colors.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: space.xl, paddingTop: 10, paddingBottom: 32, gap: space.md },
+  handle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E2E2' },
+  sheetTitle: { fontFamily: font.display, fontSize: 20, color: colors.ink, letterSpacing: -0.4 },
+  closeBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F2F2F2', alignItems: 'center', justifyContent: 'center' },
   addTitle: { fontFamily: font.bold, fontSize: 15, color: colors.ink },
   hint: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   input: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 14, paddingVertical: 11, fontFamily: font.regular, fontSize: 14.5, color: colors.ink },

@@ -134,8 +134,8 @@ export function TaskRow({ task, showAssignee, onToggle }: { task: Task; showAssi
             {who} · {done ? 'Done' : due}
           </Text>
           <Pressable onPress={() => setOpen((o) => !o)} hitSlop={8} style={styles.cLink} accessibilityRole="button" accessibilityState={{ expanded: open }} accessibilityLabel={comments.length ? `${comments.length} comments` : 'Add a comment'}>
-            <Icon name="comment" size={14} color={colors.inkSoft} />
-            <Text style={styles.cLinkText}>{comments.length ? comments.length : 'Comment'}</Text>
+            <Icon name="comment" size={17} color={colors.inkSoft} />
+            {comments.length ? <Text style={styles.cLinkText}>{comments.length}</Text> : null}
           </Pressable>
         </View>
         {open ? (
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   checkOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   taskTitle: { fontFamily: font.medium, fontSize: 14.5, lineHeight: 20, color: colors.ink },
   taskDone: { color: colors.inkMuted, textDecorationLine: 'line-through' },
-  cLink: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  cLink: { flexDirection: 'row', alignItems: 'center', gap: 4, minWidth: 32, minHeight: 32, justifyContent: 'flex-end' },
   cLinkText: { fontFamily: font.medium, fontSize: 12, color: colors.inkSoft },
   tComment: { gap: 2, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#F6F6F6' },
   tCommentText: { fontFamily: font.regular, fontSize: 13.5, lineHeight: 19, color: colors.ink },
