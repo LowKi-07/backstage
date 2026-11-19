@@ -29,6 +29,7 @@ export function Composer({
         onChangeText={onChange}
         placeholder={placeholder}
         multiline
+        numberOfLines={1}
         maxLength={1000}
         onSubmitEditing={() => !off && onSend()}
         blurOnSubmit
@@ -46,16 +47,16 @@ export function Composer({
 const styles = StyleSheet.create({
   composer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     gap: space.sm,
     borderRadius: 28,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.surface,
-    padding: 6,
+    padding: 5,
     paddingLeft: space.lg,
     boxShadow: shadow.raised,
   },
-  input: { flex: 1, fontFamily: font.medium, color: colors.ink, fontSize: 15, maxHeight: 120, paddingVertical: 11 },
+  input: { flex: 1, fontFamily: font.medium, color: colors.ink, fontSize: 15, minHeight: 22, maxHeight: 100, paddingVertical: 8, textAlignVertical: 'center' },
   send: { backgroundColor: colors.button, alignItems: 'center', justifyContent: 'center' },
 });
