@@ -83,7 +83,7 @@ export function AllTransactionsSheet() {
       <View style={styles.sheet} accessibilityViewIsModal>
         <View style={styles.handle} />
         <View style={styles.head}>
-          <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flex: 1, gap: 6 }}>
             <Text style={styles.title} accessibilityRole="header">
               All transactions
             </Text>
@@ -138,7 +138,7 @@ export function AllTransactionsSheet() {
                     <View style={styles.rowIcon}>
                       <Icon name={categoryIcon[e.category] ?? 'receipt'} size={16} />
                     </View>
-                    <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                    <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
                       <Text style={styles.rowTitle} numberOfLines={1}>
                         {e.description}
                       </Text>
@@ -146,7 +146,7 @@ export function AllTransactionsSheet() {
                         {crew ? `${e.category.toLowerCase()} · ${meta.label}` : `${userName(state, e.userId)} · ${meta.label}`}
                       </Text>
                     </View>
-                    <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                    <View style={{ alignItems: 'flex-end', gap: 6 }}>
                       <Money value={e.amount} size={13.5} />
                       <Text style={styles.rowMeta}>{formatShortDate(e.date)}</Text>
                     </View>
@@ -173,20 +173,20 @@ const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' },
   sheet: { flex: 1, backgroundColor: colors.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden' },
   handle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#E2E2E2', marginTop: 10 },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: space.xl, paddingTop: space.md },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: space.xl, paddingTop: 20 },
   title: { fontFamily: font.display, fontSize: 20, color: colors.ink, letterSpacing: -0.4 },
   muted: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
   iconBtn: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
   closeBtn: { borderWidth: 0, backgroundColor: '#F2F2F2' },
-  search: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, marginHorizontal: space.xl, marginTop: space.md, paddingHorizontal: 14, borderRadius: 14, backgroundColor: '#F5F5F5' },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 50, marginHorizontal: space.xl, marginTop: 20, paddingHorizontal: 14, borderRadius: 14, backgroundColor: '#F5F5F5' },
   searchInput: { flex: 1, fontFamily: font.regular, fontSize: 14, color: colors.ink, paddingVertical: 0 },
-  chips: { gap: 8, paddingHorizontal: space.xl, paddingVertical: space.md },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line },
+  chips: { gap: 10, paddingHorizontal: space.xl, paddingTop: 20, paddingBottom: 12 },
+  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line },
   chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   chipText: { fontFamily: font.medium, fontSize: 12, color: colors.inkSoft },
-  monthRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: '#EAEAEA', borderStyle: 'dashed' },
+  monthRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#EAEAEA', borderStyle: 'dashed' },
   month: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 2, color: colors.inkMuted },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 18 },
   rowIcon: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: '#ECECEC', alignItems: 'center', justifyContent: 'center' },
   rowTitle: { fontFamily: font.medium, fontSize: 13.5, color: colors.ink },
   rowMeta: { fontFamily: font.regular, fontSize: 11.5, color: colors.inkMuted },
