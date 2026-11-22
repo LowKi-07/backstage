@@ -177,8 +177,8 @@ function DeptRow({ icon, name, budget, spent, pending, first, onPress }: { icon:
         </View>
         <Text style={{ fontFamily: font.display, fontSize: 14.5, color: tone }}>{Math.round(pct * 100)}%</Text>
       </View>
-      <View style={{ height: 4, borderRadius: 2, backgroundColor: colors.track, overflow: 'hidden', marginLeft: 44 }}>
-        <View style={{ height: 4, borderRadius: 2, width: `${Math.min(100, pct * 100)}%`, backgroundColor: tone }} />
+      <View style={{ height: 8, borderRadius: 4, backgroundColor: colors.track, overflow: 'hidden', marginLeft: 44 }}>
+        <View style={{ height: 8, borderRadius: 4, width: `${Math.min(100, pct * 100)}%`, backgroundColor: tone }} />
       </View>
     </Pressable>
   );
