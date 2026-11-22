@@ -14,11 +14,11 @@ import { AppHeader, Money } from './ui';
 const BG = '#0A0A0A';
 const TILES_H = 112;
 
-export type PosterStats = { pending: number; pendingHint: string; received: number; receivedHint: string; onPending?: () => void; onReceived?: () => void };
+export type PosterTile = { label: string; dot: string; value: string; hint: string; onPress?: () => void };
 
-// Crew home: a tall poster carousel with the project's name, schedule and progress, and the crew
-// member's pending/received totals on glass tiles over the poster's foot. White cards follow below.
-export function PosterHome({ stats, children }: { stats: (listing: ProjectListing) => PosterStats; children: (listing: ProjectListing) => React.ReactNode }) {
+// Home for crew and managers: a tall poster carousel with the project's name, schedule and progress, and two
+// headline figures on glass tiles over the poster's foot. White cards follow below.
+export function PosterHome({ tiles, children }: { tiles: (listing: ProjectListing) => [PosterTile, PosterTile]; children: (listing: ProjectListing) => React.ReactNode }) {
   const { state, chooseProject } = useStore();
   const insets = useSafeAreaInsets();
   const { height: winH } = useWindowDimensions();
@@ -29,7 +29,7 @@ export function PosterHome({ stats, children }: { stats: (listing: ProjectListin
   const heroH = Math.round(Math.min(Math.max(winH * 0.56, 440), 520)) + insets.top;
   const summary = projectSummary(state);
   const listing = PROJECTS[idx];
-  const s = stats(listing);
+  const [left, right] = tiles(listing);
 
   const select = (n: number) => {
     if (n === idx) return;
@@ -118,8 +118,8 @@ export function PosterHome({ stats, children }: { stats: (listing: ProjectListin
           </View>
 
           <View style={styles.tiles} pointerEvents="box-none">
-            <GlassTile label="Pending" dot={colors.pending} amount={s.pending} hint={s.pendingHint} onPress={s.onPending} />
-            <GlassTile label="Received" dot={colors.positive} amount={s.received} hint={s.receivedHint} onPress={s.onReceived} />
+            <GlassTile {...left} />
+            <GlassTile {...right} />
           </View>
         </View>
 
@@ -129,14 +129,16 @@ export function PosterHome({ stats, children }: { stats: (listing: ProjectListin
   );
 }
 
-function GlassTile({ label, dot, amount, hint, onPress }: { label: string; dot: string; amount: number; hint: string; onPress?: () => void }) {
+function GlassTile({ label, dot, value, hint, onPress }: PosterTile) {
   return (
-    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [styles.tile, pressed && { opacity: 0.75 }]} accessibilityRole="button" accessibilityLabel={`${label} ${amount}, ${hint}`}>
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [styles.tile, pressed && { opacity: 0.75 }]} accessibilityRole="button" accessibilityLabel={`${label} ${value}, ${hint}`}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dot }} />
         <Text style={styles.tileLabel}>{label}</Text>
       </View>
-      <Money value={amount} size={22} color={colors.onInk} display />
+      <Text style={styles.tileValue} numberOfLines={1}>
+        {value}
+      </Text>
       <Text style={styles.tileHint}>{hint}</Text>
     </Pressable>
   );
@@ -156,6 +158,27 @@ export function HomeCard({ title, action, onAction, children }: { title: string;
       </View>
       {children}
     </View>
+  );
+}
+
+// A transaction on a home card: bare category icon, title, sub line and amount (signed and green for money in).
+export function HomeTxnRow({ icon, title, sub, amount, signed, onPress }: { icon: string; title: string; sub: string; amount: number; signed?: boolean; onPress?: () => void }) {
+  const credit = signed && amount > 0;
+  return (
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [styles.txn, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+      <View style={{ width: 28, alignItems: 'center' }}>
+        <Icon name={icon} size={20} color={colors.ink} strokeWidth={1.6} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+        <Text style={styles.txnTitle} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={styles.txnSub} numberOfLines={1}>
+          {sub}
+        </Text>
+      </View>
+      <Money value={amount} size={14.5} color={credit ? colors.positive : colors.ink} signed={signed} display />
+    </Pressable>
   );
 }
 
@@ -182,7 +205,11 @@ const styles = StyleSheet.create({
   tiles: { position: 'absolute', left: space.xl, right: space.xl, bottom: 6, height: TILES_H, flexDirection: 'row', gap: 10 },
   tile: { flex: 1, padding: 16, borderRadius: 24, backgroundColor: 'rgba(18,18,18,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', gap: 6, justifyContent: 'center' },
   tileLabel: { fontFamily: font.semibold, fontSize: 13.5, color: '#D6D6D6' },
+  tileValue: { fontFamily: font.display, fontSize: 22, letterSpacing: -0.5, color: colors.onInk },
   tileHint: { fontFamily: font.regular, fontSize: 12.5, color: '#A8A8A8' },
+  txn: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14 },
+  txnTitle: { fontFamily: font.bold, fontSize: 14, color: colors.ink },
+  txnSub: { fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted },
   cards: { paddingHorizontal: 16, paddingTop: 22, gap: 16 },
   card: { backgroundColor: colors.surface, borderRadius: 24, paddingHorizontal: 16, paddingTop: 18, paddingBottom: 18 },
   cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },

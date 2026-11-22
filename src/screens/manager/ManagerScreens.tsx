@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { HomeShell } from '../../components/HomeShell';
+import { HomeCard, HomeTxnRow, PosterHome } from '../../components/PosterHome';
+import { ProjectListing } from '../../data/projects';
 import { Icon } from '../../components/icons';
-import { SampleTxns } from '../crew/CrewScreens';
 import { Text } from '../../components/Text';
 import { BudgetRequestRow, categoryIcon, DepartmentCard, ExpenseCard, ExpenseList, ExpenseStatementRow, ViewAllLink } from '../../components/rows';
 import { Avatar, Button, Chip, ChipRow, EmptyState, Hero, Money, Notice, Screen, SectionTitle, Segmented } from '../../components/ui';
 import { useNav } from '../../navigation/Nav';
 import { byNewest, categoryBreakdown, departmentSummary, isPending, isSpent, managedDepartmentIds, sum, userName } from '../../store/selectors';
 import { useStore } from '../../store/Store';
-import { colors, font, radius, shadow, space } from '../../theme';
+import { colors, font, radius, shadow, space, statusMeta } from '../../theme';
 import { Expense } from '../../types';
 import { formatCompact, formatINR, relativeDay } from '../../utils/format';
 
@@ -39,8 +39,8 @@ function approvalNote(e: Expense, threshold: number) {
   return e.amount > threshold ? { note: `Over ${formatCompact(threshold)}`, color: colors.escalated } : { note: relativeDay(e.date), color: colors.pending };
 }
 
-// Manager home: project artwork carousel on top; budget used, bills to review, money matters, recent team
-// spend and department budgets below.
+// Manager home: tall poster carousel with bills to review and budget used on glass tiles, then recent team
+// spend and department budgets in white cards.
 export function ManagerDashboardScreen() {
   const { state, currentUser, depts, toReview, teamExpenses } = useManagerData();
   const nav = useNav();
@@ -55,73 +55,92 @@ export function ManagerDashboardScreen() {
   );
   const threshold = state.project.escalationThreshold;
   const overLimit = toReview.filter((e) => e.amount > threshold).length;
+  const figures = (listing: ProjectListing) => {
+    const ms = listing.managerSample;
+    const budget = ms ? ms.budget : totals.budget;
+    const spent = ms ? ms.spent : totals.spent;
+    return { ms, budget, spent, review: ms ? ms.review : sum(toReview), count: ms ? ms.reviewCount : toReview.length, pct: budget ? Math.round((spent / budget) * 100) : 0 };
+  };
 
   return (
-    <HomeShell>
+    <PosterHome
+      tiles={(listing) => {
+        const f = figures(listing);
+        return [
+          {
+            label: f.count ? 'To review' : 'All caught up',
+            dot: f.count ? colors.pending : colors.positive,
+            value: formatINR(f.review),
+            hint: `${f.count} ${f.count === 1 ? 'bill' : 'bills'}${!f.ms && overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}`,
+            onPress: () => nav.setTab('approvals'),
+          },
+          { label: 'Budget used', dot: colors.positive, value: formatCompact(f.spent), hint: `${f.pct}% of ${formatCompact(f.budget)}` },
+        ];
+      }}
+    >
       {(listing) => {
-        const ms = listing.managerSample;
-        const budget = ms ? ms.budget : totals.budget;
-        const spent = ms ? ms.spent : totals.spent;
-        const review = ms ? ms.review : sum(toReview);
-        const count = ms ? ms.reviewCount : toReview.length;
-        const pct = budget ? Math.round((spent / budget) * 100) : 0;
+        const f = figures(listing);
+        const txns =
+          f.ms && listing.sample
+            ? listing.sample.txns.slice(0, 3).map((t) => ({ key: t.title, icon: t.icon, title: t.title, sub: t.when, amount: Math.abs(t.amount) }))
+            : teamExpenses.slice(0, 3).map((e) => ({
+                key: e.id,
+                icon: categoryIcon[e.category] ?? 'receipt',
+                title: e.description,
+                sub: `${userName(state, e.userId).split(' ')[0]} · ${statusMeta[e.status].label} · ${relativeDay(e.date)}`,
+                amount: e.amount,
+                onPress: () => nav.push({ name: 'expense', id: e.id }),
+              }));
         return (
           <>
-            <View style={dashStyles.budget}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <Text style={dashStyles.budgetLine}>
-                  <Text style={dashStyles.budgetSpent}>{formatCompact(spent)}</Text> spent of {formatCompact(budget)}
-                </Text>
-                <Text style={dashStyles.budgetPct}>{pct}%</Text>
-              </View>
-              <View style={dashStyles.track}>
-                <View style={[dashStyles.fill, { width: `${Math.min(100, pct)}%` }]} />
-              </View>
-              <Text style={dashStyles.budgetLeft}>{formatCompact(budget - spent)} remaining</Text>
-            </View>
+            <HomeCard title="Recent transactions">
+              {txns.map(({ key, ...t }) => (
+                <HomeTxnRow key={key} {...t} />
+              ))}
+              <ViewAllLink label="View transactions" onPress={() => nav.push({ name: 'allTransactions' })} />
+            </HomeCard>
 
-            <View style={dashStyles.review}>
-              <View style={{ flex: 1, gap: 2 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <View style={[dashStyles.dot, { backgroundColor: count ? colors.pending : colors.positive }]} />
-                  <Text style={[dashStyles.reviewLabel, { color: count ? colors.pending : colors.positive }]}>{count ? 'Pending your review' : 'All caught up'}</Text>
-                </View>
-                <Money value={review} size={24} display />
-                <Text style={dashStyles.detail}>
-                  {count} {count === 1 ? 'bill' : 'bills'}
-                  {!ms && overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}
-                </Text>
-              </View>
-              {count ? <Button label="Review" small onPress={() => nav.setTab('approvals')} style={{ minWidth: 104 }} /> : null}
-            </View>
-
-
-            <SectionTitle title="Recent transactions" />
-            {ms && listing.sample ? (
-              <SampleTxns txns={listing.sample.txns} />
-            ) : (
-              <View>
-                {teamExpenses.slice(0, 5).map((e) => (
-                  <ExpenseStatementRow key={e.id} expense={e} showPerson />
-                ))}
-                <ViewAllLink onPress={() => nav.push({ name: 'allTransactions' })} />
-              </View>
-            )}
-
-            <SectionTitle title="Department budgets" action="Request more" onAction={() => nav.push({ name: 'budgetRequest' })} />
-            {ms ? (
-              <Text style={dashStyles.detail}>You manage {ms.manage} on {listing.name}. Department detail appears once its first bills come in.</Text>
-            ) : (
-              <View style={{ gap: space.md }}>
-                {depts.map((d) => (
-                  <DepartmentCard key={d.id} dept={d} onPress={() => nav.push({ name: 'department', id: d.id })} />
-                ))}
-              </View>
-            )}
+            <HomeCard title="Department budgets">
+              {f.ms ? (
+                <Text style={[dashStyles.detail, { paddingVertical: 8 }]}>You manage {f.ms.manage} on {listing.name}. Department detail appears once its first bills come in.</Text>
+              ) : (
+                depts.map((d, i) => <DeptRow key={d.id} id={d.id} first={i === 0} onPress={() => nav.push({ name: 'department', id: d.id })} />)
+              )}
+              <ViewAllLink label="Request more budget" onPress={() => nav.push({ name: 'budgetRequest' })} />
+            </HomeCard>
           </>
         );
       }}
-    </HomeShell>
+    </PosterHome>
+  );
+}
+
+// A department inside the home card: icon, name, spent of budget, % used and a bar.
+function DeptRow({ id, first, onPress }: { id: string; first: boolean; onPress: () => void }) {
+  const { state } = useStore();
+  const d = state.departments.find((x) => x.id === id);
+  if (!d) return null;
+  const s = departmentSummary(state, id);
+  const tone = s.pct >= 1 ? colors.negative : s.pct >= 0.8 ? colors.pending : colors.positive;
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [{ paddingVertical: 14, gap: 10 }, !first && { borderTopWidth: 1, borderTopColor: '#F0F0F0' }, pressed && { opacity: 0.6 }]} accessibilityRole="button" accessibilityLabel={`${d.name}, ${Math.round(s.pct * 100)}% used`}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <View style={{ width: 28, alignItems: 'center' }}>
+          <Icon name={d.icon} size={20} color={colors.ink} strokeWidth={1.6} />
+        </View>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={{ fontFamily: font.bold, fontSize: 14, color: colors.ink }}>{d.name}</Text>
+          <Text style={{ fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted }}>
+            {formatCompact(s.spent)} of {formatCompact(s.budget)}
+            {s.pending > 0 ? ` · ${formatCompact(s.pending)} pending` : ''}
+          </Text>
+        </View>
+        <Text style={{ fontFamily: font.display, fontSize: 14.5, color: tone }}>{Math.round(s.pct * 100)}%</Text>
+      </View>
+      <View style={{ height: 4, borderRadius: 2, backgroundColor: colors.track, overflow: 'hidden', marginLeft: 44 }}>
+        <View style={{ height: 4, borderRadius: 2, width: `${Math.min(100, s.pct * 100)}%`, backgroundColor: tone }} />
+      </View>
+    </Pressable>
   );
 }
 

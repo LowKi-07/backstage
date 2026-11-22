@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
-import { Icon } from '../../components/icons';
-import { HomeCard, PosterHome } from '../../components/PosterHome';
-import { categoryIcon, ExpenseList, StatementRow, ViewAllLink } from '../../components/rows';
+import { View } from 'react-native';
+import { HomeCard, HomeTxnRow, PosterHome } from '../../components/PosterHome';
+import { categoryIcon, ExpenseList, ViewAllLink } from '../../components/rows';
 import { Text } from '../../components/Text';
-import { Chip, ChipRow, EmptyState, Hero, Money, Screen, Segmented } from '../../components/ui';
+import { Chip, ChipRow, EmptyState, Hero, Screen, Segmented } from '../../components/ui';
 import { TaskRow } from '../../components/projectPlan';
 import { useNav } from '../../navigation/Nav';
 import { SpendDonut, TopMerchants } from '../manager/ManagerScreens';
@@ -32,11 +31,13 @@ export function CrewHomeScreen() {
 
   return (
     <PosterHome
-      stats={(listing) =>
-        listing.sample
-          ? { pending: listing.sample.pending, pendingHint: plural(listing.sample.pendingCount), received: listing.sample.received, receivedHint: 'This project', onPending: () => nav.setTab('expenses'), onReceived: () => nav.push({ name: 'payouts' }) }
-          : { pending: sum(pending), pendingHint: plural(pending.length), received: sum(paid), receivedHint: 'This project', onPending: () => nav.setTab('expenses'), onReceived: () => nav.push({ name: 'payouts' }) }
-      }
+      tiles={(listing) => {
+        const p = listing.sample ? { pending: listing.sample.pending, count: listing.sample.pendingCount, received: listing.sample.received } : { pending: sum(pending), count: pending.length, received: sum(paid) };
+        return [
+          { label: 'Pending', dot: colors.pending, value: formatINR(p.pending), hint: plural(p.count), onPress: () => nav.setTab('expenses') },
+          { label: 'Received', dot: colors.positive, value: formatINR(p.received), hint: 'This project', onPress: () => nav.push({ name: 'payouts' }) },
+        ];
+      }}
     >
       {(listing) => {
         const sample = listing.sample;
@@ -60,8 +61,8 @@ export function CrewHomeScreen() {
             <HomeCard title="Recent transactions">
               {txns.length ? (
                 <>
-                  {txns.map(({ key, ...t }) => (
-                    <HomeTxnRow key={key} {...t} />
+                  {txns.map(({ key, when, sub, ...t }) => (
+                    <HomeTxnRow key={key} {...t} sub={`${sub} · ${when}`} signed />
                   ))}
                   <ViewAllLink label="View transactions" onPress={() => nav.push({ name: 'allTransactions' })} />
                 </>
@@ -86,39 +87,9 @@ export function CrewHomeScreen() {
   );
 }
 
-// A transaction on the home card: bare category icon, title, "category · when", signed amount.
-function HomeTxnRow({ icon, title, sub, when, amount, onPress }: { icon: string; title: string; sub: string; when: string; amount: number; onPress?: () => void }) {
-  const credit = amount > 0;
-  return (
-    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 14 }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-      <View style={{ width: 28, alignItems: 'center' }}>
-        <Icon name={icon} size={20} color={colors.ink} strokeWidth={1.6} />
-      </View>
-      <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-        <Text style={{ fontFamily: font.bold, fontSize: 14, color: colors.ink }} numberOfLines={1}>
-          {title}
-        </Text>
-        <Text style={{ fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted }} numberOfLines={1}>
-          {sub} · {when}
-        </Text>
-      </View>
-      <Money value={amount} size={14.5} color={credit ? colors.positive : colors.ink} signed display />
-    </Pressable>
-  );
-}
-
 // Transaction rows for sample projects that have no expense data behind them.
 const SAMPLE_CAT: Record<string, string> = { fuel: 'fuel', package: 'props & materials', utensils: 'food & catering', shirt: 'costume & fabric' };
 
-export function SampleTxns({ txns }: { txns: { icon: string; title: string; when: string; amount: number }[] }) {
-  return (
-    <View>
-      {txns.map((t) => (
-        <StatementRow key={t.title} icon={t.icon} title={t.title} sub={t.amount > 0 ? 'reimbursed' : SAMPLE_CAT[t.icon] ?? 'others'} amount={Math.abs(t.amount)} date={t.when} credit={t.amount > 0} />
-      ))}
-    </View>
-  );
-}
 
 
 const FILTERS: { key: 'all' | ExpenseStatus | 'pending'; label: string }[] = [
