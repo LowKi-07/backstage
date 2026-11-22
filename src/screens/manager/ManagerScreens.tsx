@@ -77,7 +77,7 @@ export function ManagerDashboardScreen() {
         const f = figures(listing);
         return (
           <>
-            <Glass style={{ height: 96, justifyContent: 'center', gap: 10 }}>
+            <Glass style={{ height: 96, justifyContent: 'center', gap: 9 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <Text style={glass.budgetLine}>
                   <Text style={glass.budgetSpent}>{formatCompact(f.spent)}</Text> spent of {formatCompact(f.budget)}
@@ -150,8 +150,8 @@ const glass = StyleSheet.create({
   budgetLine: { fontFamily: font.regular, fontSize: 15, color: '#CFCFCF' },
   budgetSpent: { fontFamily: font.display, fontSize: 20, color: colors.onInk, letterSpacing: -0.4 },
   budgetPct: { fontFamily: font.display, fontSize: 15, color: colors.onInk },
-  track: { height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
-  fill: { height: 5, borderRadius: 3, backgroundColor: colors.positive },
+  track: { height: 9, borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
+  fill: { height: 9, borderRadius: 5, backgroundColor: colors.positive },
   muted: { fontFamily: font.regular, fontSize: 12.5, color: '#A8A8A8' },
   reviewLabel: { fontFamily: font.semibold, fontSize: 13.5 },
   button: { height: 46, paddingHorizontal: 24, borderRadius: 999, backgroundColor: colors.onInk, alignItems: 'center', justifyContent: 'center' },
