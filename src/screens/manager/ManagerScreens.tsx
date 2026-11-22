@@ -62,6 +62,14 @@ export function ManagerDashboardScreen() {
     return { ms, budget, spent, review: ms ? ms.review : sum(toReview), count: ms ? ms.reviewCount : toReview.length, pct: budget ? Math.round((spent / budget) * 100) : 0 };
   };
 
+  // Every department on the project, the ones this manager runs first.
+  const deptRows = (ms: ProjectListing['managerSample']) =>
+    ms
+      ? ms.depts
+      : [...state.departments]
+          .sort((a, b) => Number(b.managerId === currentUser.id) - Number(a.managerId === currentUser.id))
+          .map((d) => ({ icon: d.icon, name: d.name, ...departmentSummary(state, d.id), onPress: () => nav.push({ name: 'department', id: d.id }) }));
+
   return (
     <PosterHome
       tiles={(listing) => {
@@ -101,11 +109,9 @@ export function ManagerDashboardScreen() {
             </HomeCard>
 
             <HomeCard title="Department budgets">
-              {f.ms ? (
-                <Text style={[dashStyles.detail, { paddingVertical: 8 }]}>You manage {f.ms.manage} on {listing.name}. Department detail appears once its first bills come in.</Text>
-              ) : (
-                depts.map((d, i) => <DeptRow key={d.id} id={d.id} first={i === 0} onPress={() => nav.push({ name: 'department', id: d.id })} />)
-              )}
+              {deptRows(f.ms).map((d, i) => (
+                <DeptRow key={d.name} {...d} first={i === 0} />
+              ))}
               <ViewAllLink label="Request more budget" onPress={() => nav.push({ name: 'budgetRequest' })} />
             </HomeCard>
           </>
@@ -116,29 +122,26 @@ export function ManagerDashboardScreen() {
 }
 
 // A department inside the home card: icon, name, spent of budget, % used and a bar.
-function DeptRow({ id, first, onPress }: { id: string; first: boolean; onPress: () => void }) {
-  const { state } = useStore();
-  const d = state.departments.find((x) => x.id === id);
-  if (!d) return null;
-  const s = departmentSummary(state, id);
-  const tone = s.pct >= 1 ? colors.negative : s.pct >= 0.8 ? colors.pending : colors.positive;
+function DeptRow({ icon, name, budget, spent, pending, first, onPress }: { icon: string; name: string; budget: number; spent: number; pending: number; first: boolean; onPress?: () => void }) {
+  const pct = budget ? spent / budget : 0;
+  const tone = pct >= 1 ? colors.negative : pct >= 0.8 ? colors.pending : colors.positive;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ paddingVertical: 14, gap: 10 }, !first && { borderTopWidth: 1, borderTopColor: '#F0F0F0' }, pressed && { opacity: 0.6 }]} accessibilityRole="button" accessibilityLabel={`${d.name}, ${Math.round(s.pct * 100)}% used`}>
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [{ paddingVertical: 14, gap: 10 }, !first && { borderTopWidth: 1, borderTopColor: '#F0F0F0' }, pressed && { opacity: 0.6 }]} accessibilityRole="button" accessibilityLabel={`${name}, ${Math.round(pct * 100)}% used`}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
         <View style={{ width: 28, alignItems: 'center' }}>
-          <Icon name={d.icon} size={20} color={colors.ink} strokeWidth={1.6} />
+          <Icon name={icon} size={20} color={colors.ink} strokeWidth={1.6} />
         </View>
         <View style={{ flex: 1, gap: 3 }}>
-          <Text style={{ fontFamily: font.bold, fontSize: 14, color: colors.ink }}>{d.name}</Text>
+          <Text style={{ fontFamily: font.bold, fontSize: 14, color: colors.ink }}>{name}</Text>
           <Text style={{ fontFamily: font.regular, fontSize: 12.5, color: colors.inkMuted }}>
-            {formatCompact(s.spent)} of {formatCompact(s.budget)}
-            {s.pending > 0 ? ` · ${formatCompact(s.pending)} pending` : ''}
+            {formatCompact(spent)} of {formatCompact(budget)}
+            {pending > 0 ? ` · ${formatCompact(pending)} pending` : ''}
           </Text>
         </View>
-        <Text style={{ fontFamily: font.display, fontSize: 14.5, color: tone }}>{Math.round(s.pct * 100)}%</Text>
+        <Text style={{ fontFamily: font.display, fontSize: 14.5, color: tone }}>{Math.round(pct * 100)}%</Text>
       </View>
       <View style={{ height: 4, borderRadius: 2, backgroundColor: colors.track, overflow: 'hidden', marginLeft: 44 }}>
-        <View style={{ height: 4, borderRadius: 2, width: `${Math.min(100, s.pct * 100)}%`, backgroundColor: tone }} />
+        <View style={{ height: 4, borderRadius: 2, width: `${Math.min(100, pct * 100)}%`, backgroundColor: tone }} />
       </View>
     </Pressable>
   );

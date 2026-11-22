@@ -16,7 +16,7 @@ export interface ProjectListing {
   schedule: string;
   // Sample numbers for listings without expense data behind them.
   // Manager-home sample numbers for listings without data.
-  managerSample?: { budget: number; spent: number; review: number; reviewCount: number; manage: string };
+  managerSample?: { budget: number; spent: number; review: number; reviewCount: number; manage: string; depts: { icon: string; name: string; budget: number; spent: number; pending: number }[] };
   sample?: { pending: number; pendingCount: number; received: number; txns: { icon: string; title: string; when: string; amount: number }[] };
 }
 
@@ -33,7 +33,21 @@ export const PROJECTS: ProjectListing[] = [
     budgetLabel: '₹16Cr',
     callTime: '6:00 AM',
     schedule: 'Day 41 of 150',
-    managerSample: { budget: 16000000, spent: 3800000, review: 18250, reviewCount: 4, manage: 'Transport' },
+    managerSample: {
+      budget: 16000000,
+      spent: 3800000,
+      review: 18250,
+      reviewCount: 4,
+      manage: 'Transport',
+      depts: [
+        { icon: 'car', name: 'Transport', budget: 16000000, spent: 3800000, pending: 18250 },
+        { icon: 'palette', name: 'Art', budget: 32000000, spent: 11000000, pending: 14050 },
+        { icon: 'video', name: 'Camera & Lighting', budget: 55000000, spent: 19000000, pending: 0 },
+        { icon: 'utensils', name: 'Catering', budget: 18000000, spent: 6100000, pending: 3400 },
+        { icon: 'shirt', name: 'Costume', budget: 14000000, spent: 4200000, pending: 0 },
+        { icon: 'map-pin', name: 'Locations', budget: 22000000, spent: 7400000, pending: 0 },
+      ],
+    },
     sample: {
       pending: 21300,
       pendingCount: 6,
@@ -70,7 +84,20 @@ export const PROJECTS: ProjectListing[] = [
     budgetLabel: '₹38L',
     callTime: '10:00 AM',
     schedule: 'Shoot starts in 12 days',
-    managerSample: { budget: 800000, spent: 120000, review: 3200, reviewCount: 1, manage: 'Costume' },
+    managerSample: {
+      budget: 800000,
+      spent: 120000,
+      review: 3200,
+      reviewCount: 1,
+      manage: 'Costume',
+      depts: [
+        { icon: 'shirt', name: 'Costume', budget: 800000, spent: 120000, pending: 3200 },
+        { icon: 'video', name: 'Camera & Lighting', budget: 1200000, spent: 250000, pending: 0 },
+        { icon: 'palette', name: 'Art', budget: 600000, spent: 90000, pending: 0 },
+        { icon: 'map-pin', name: 'Locations', budget: 400000, spent: 60000, pending: 0 },
+        { icon: 'brush', name: 'Makeup & Hair', budget: 200000, spent: 30000, pending: 0 },
+      ],
+    },
     sample: { pending: 3200, pendingCount: 1, received: 0, txns: [{ icon: 'shirt', title: 'Costume fabric samples', when: 'Today', amount: -3200 }] },
     poster: require('../../assets/posters/big-dawgs.webp'),
   },
