@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { HomeCard, HomeTxnRow, PosterHome } from '../../components/PosterHome';
+import { Glass, HomeCard, HomeTxnRow, PosterHome } from '../../components/PosterHome';
 import { ProjectListing } from '../../data/projects';
 import { Icon } from '../../components/icons';
 import { Text } from '../../components/Text';
@@ -72,18 +72,43 @@ export function ManagerDashboardScreen() {
 
   return (
     <PosterHome
-      tiles={(listing) => {
+      overlayH={214}
+      overlay={(listing) => {
         const f = figures(listing);
-        return [
-          {
-            label: f.count ? 'To review' : 'All caught up',
-            dot: f.count ? colors.pending : colors.positive,
-            value: formatINR(f.review),
-            hint: `${f.count} ${f.count === 1 ? 'bill' : 'bills'}${!f.ms && overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}`,
-            onPress: () => nav.setTab('approvals'),
-          },
-          { label: 'Budget used', dot: colors.positive, value: formatCompact(f.spent), hint: `${f.pct}% of ${formatCompact(f.budget)}` },
-        ];
+        return (
+          <>
+            <Glass style={{ height: 96, justifyContent: 'center', gap: 10 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Text style={glass.budgetLine}>
+                  <Text style={glass.budgetSpent}>{formatCompact(f.spent)}</Text> spent of {formatCompact(f.budget)}
+                </Text>
+                <Text style={glass.budgetPct}>{f.pct}%</Text>
+              </View>
+              <View style={glass.track}>
+                <View style={[glass.fill, { width: `${Math.min(100, Math.max(2, f.pct))}%` }]} />
+              </View>
+              <Text style={glass.muted}>{formatCompact(f.budget - f.spent)} remaining</Text>
+            </Glass>
+            <Glass style={{ height: 108, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ flex: 1, gap: 3 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                  <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: f.count ? colors.pending : colors.positive }} />
+                  <Text style={[glass.reviewLabel, { color: f.count ? '#F2B35E' : '#5FD39A' }]}>{f.count ? 'Pending your review' : 'All caught up'}</Text>
+                </View>
+                <Money value={f.review} size={26} color={colors.onInk} display />
+                <Text style={glass.muted}>
+                  {f.count} {f.count === 1 ? 'bill' : 'bills'}
+                  {!f.ms && overLimit ? ` · ${overLimit} over ${formatCompact(threshold)}` : ''}
+                </Text>
+              </View>
+              {f.count ? (
+                <Pressable onPress={() => nav.setTab('approvals')} style={({ pressed }) => [glass.button, pressed && { opacity: 0.85 }]} accessibilityRole="button">
+                  <Text style={glass.buttonText}>Review</Text>
+                </Pressable>
+              ) : null}
+            </Glass>
+          </>
+        );
       }}
     >
       {(listing) => {
@@ -120,6 +145,18 @@ export function ManagerDashboardScreen() {
     </PosterHome>
   );
 }
+
+const glass = StyleSheet.create({
+  budgetLine: { fontFamily: font.regular, fontSize: 15, color: '#CFCFCF' },
+  budgetSpent: { fontFamily: font.display, fontSize: 20, color: colors.onInk, letterSpacing: -0.4 },
+  budgetPct: { fontFamily: font.display, fontSize: 15, color: colors.onInk },
+  track: { height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
+  fill: { height: 5, borderRadius: 3, backgroundColor: colors.positive },
+  muted: { fontFamily: font.regular, fontSize: 12.5, color: '#A8A8A8' },
+  reviewLabel: { fontFamily: font.semibold, fontSize: 13.5 },
+  button: { height: 46, paddingHorizontal: 24, borderRadius: 999, backgroundColor: colors.onInk, alignItems: 'center', justifyContent: 'center' },
+  buttonText: { fontFamily: font.bold, fontSize: 14.5, color: colors.ink },
+});
 
 // A department inside the home card: icon, name, spent of budget, % used and a bar.
 function DeptRow({ icon, name, budget, spent, pending, first, onPress }: { icon: string; name: string; budget: number; spent: number; pending: number; first: boolean; onPress?: () => void }) {

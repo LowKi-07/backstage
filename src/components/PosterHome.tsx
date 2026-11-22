@@ -18,7 +18,18 @@ export type PosterTile = { label: string; dot: string; value: string; hint: stri
 
 // Home for crew and managers: a tall poster carousel with the project's name, schedule and progress, and two
 // headline figures on glass tiles over the poster's foot. White cards follow below.
-export function PosterHome({ tiles, children }: { tiles: (listing: ProjectListing) => [PosterTile, PosterTile]; children: (listing: ProjectListing) => React.ReactNode }) {
+// Either two glass tiles side by side (`tiles`), or any glass widgets (`overlay`, `overlayH` tall) over the poster's foot.
+export function PosterHome({
+  tiles,
+  overlay,
+  overlayH = TILES_H,
+  children,
+}: {
+  tiles?: (listing: ProjectListing) => [PosterTile, PosterTile];
+  overlay?: (listing: ProjectListing) => React.ReactNode;
+  overlayH?: number;
+  children: (listing: ProjectListing) => React.ReactNode;
+}) {
   const { state, chooseProject } = useStore();
   const insets = useSafeAreaInsets();
   const { height: winH } = useWindowDimensions();
@@ -26,10 +37,10 @@ export function PosterHome({ tiles, children }: { tiles: (listing: ProjectListin
   const [idx, setIdx] = useState(startIdx);
   const [width, setWidth] = useState(0);
   const carousel = useRef<ScrollViewInstance>(null);
-  const heroH = Math.round(Math.min(Math.max(winH * 0.56, 440), 520)) + insets.top;
+  const heroH = Math.round(Math.min(Math.max(winH * 0.56, 440), 520)) + (overlayH - TILES_H) + insets.top;
   const summary = projectSummary(state);
   const listing = PROJECTS[idx];
-  const [left, right] = tiles(listing);
+  const pair = tiles?.(listing);
 
   const select = (n: number) => {
     if (n === idx) return;
@@ -75,7 +86,7 @@ export function PosterHome({ tiles, children }: { tiles: (listing: ProjectListin
                       </Defs>
                       <Rect x="0" y="0" width="100%" height="100%" fill={`url(#pf-${pr.id})`} />
                     </Svg>
-                    <View style={[styles.caption, { bottom: TILES_H + 30 }]}>
+                    <View style={[styles.caption, { bottom: overlayH + 30 }]}>
                       <View style={styles.stage}>
                         <View style={[styles.stageDot, { backgroundColor: live ? '#3FD07F' : '#A8A8A8' }]} />
                         <Text style={styles.stageText}>{stage}</Text>
@@ -117,9 +128,13 @@ export function PosterHome({ tiles, children }: { tiles: (listing: ProjectListin
             <AppHeader dark search={false} />
           </View>
 
-          <View style={styles.tiles} pointerEvents="box-none">
-            <GlassTile {...left} />
-            <GlassTile {...right} />
+          <View style={[styles.tiles, { height: overlayH }, overlay ? { flexDirection: 'column' } : null]} pointerEvents="box-none">
+            {overlay ? overlay(listing) : pair ? (
+              <>
+                <GlassTile {...pair[0]} />
+                <GlassTile {...pair[1]} />
+              </>
+            ) : null}
           </View>
         </View>
 
@@ -142,6 +157,11 @@ function GlassTile({ label, dot, value, hint, onPress }: PosterTile) {
       <Text style={styles.tileHint}>{hint}</Text>
     </Pressable>
   );
+}
+
+// Frosted dark panel for widgets laid over the poster.
+export function Glass({ style, children }: { style?: object; children: React.ReactNode }) {
+  return <View style={[styles.glass, style]}>{children}</View>;
 }
 
 // White card with an uppercase kicker and an optional "View all" on the right.
@@ -203,6 +223,7 @@ const styles = StyleSheet.create({
   track: { height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.75)', overflow: 'hidden' },
   fill: { height: 4, borderRadius: 2, backgroundColor: colors.positive },
   tiles: { position: 'absolute', left: space.xl, right: space.xl, bottom: 6, height: TILES_H, flexDirection: 'row', gap: 10 },
+  glass: { padding: 16, borderRadius: 24, backgroundColor: 'rgba(18,18,18,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
   tile: { flex: 1, padding: 16, borderRadius: 24, backgroundColor: 'rgba(18,18,18,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', gap: 6, justifyContent: 'center' },
   tileLabel: { fontFamily: font.semibold, fontSize: 13.5, color: '#D6D6D6' },
   tileValue: { fontFamily: font.display, fontSize: 22, letterSpacing: -0.5, color: colors.onInk },
