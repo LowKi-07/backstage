@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleProp, StyleSheet, TextInputProps, TextStyle, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNav } from '../navigation/Nav';
@@ -8,6 +8,7 @@ import { colors, font, label, radius, shadow, space, statusMeta } from '../theme
 import { ExpenseStatus } from '../types';
 import { formatINR, initials } from '../utils/format';
 import { Icon, LongArrow } from './icons';
+import { SideMenu } from './SideMenu';
 import { Text, TextInput } from './Text';
 
 export { Icon } from './icons';
@@ -76,6 +77,7 @@ export function Screen({ title, subtitle, onBack, right, children, scroll = true
 export function AppHeader({ dark, search = true }: { dark?: boolean; search?: boolean } = {}) {
   const { state, currentUser } = useStore();
   const nav = useNav();
+  const [menu, setMenu] = useState(false);
   if (!currentUser) return null;
   const ids = managedDepartmentIds(state, currentUser);
   const alerts =
@@ -88,7 +90,7 @@ export function AppHeader({ dark, search = true }: { dark?: boolean; search?: bo
     currentUser.role === 'crew' ? nav.push({ name: 'payouts' }) : nav.popToTab(currentUser.role === 'producer' ? 'inbox' : 'approvals');
   return (
     <View style={styles.appHeader}>
-      <Pressable onPress={() => nav.push({ name: 'projects' })} hitSlop={10} accessibilityLabel="Menu: switch project">
+      <Pressable onPress={() => setMenu(true)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Open menu">
         <Icon name="menu" size={26} strokeWidth={1.5} color={dark ? colors.onInk : colors.ink} />
       </Pressable>
       <View style={{ flex: 1 }} />
@@ -105,7 +107,7 @@ export function AppHeader({ dark, search = true }: { dark?: boolean; search?: bo
           </View>
         ) : null}
       </Pressable>
-      <Avatar name={currentUser.name} size={42} ring onPress={() => nav.push({ name: 'profile' })} />
+      <SideMenu open={menu} onClose={() => setMenu(false)} alerts={alerts} onAlerts={openAlerts} />
     </View>
   );
 }

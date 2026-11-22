@@ -17,6 +17,8 @@ import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import CircleAlert from 'lucide-react-native/icons/circle-alert';
 import Clapperboard from 'lucide-react-native/icons/clapperboard';
 import Clock from 'lucide-react-native/icons/clock';
+import CircleHelp from 'lucide-react-native/icons/circle-question-mark';
+import Settings from 'lucide-react-native/icons/settings';
 import Download from 'lucide-react-native/icons/download';
 import Ellipsis from 'lucide-react-native/icons/ellipsis';
 import FileText from 'lucide-react-native/icons/file-text';
@@ -115,6 +117,8 @@ const LINE: Record<string, LucideIcon> = {
   video: Video,
   wallet: Wallet,
   close: X,
+  help: CircleHelp,
+  settings: Settings,
 };
 
 // Thin monoline icons, as used across tiles, rows and buttons.
