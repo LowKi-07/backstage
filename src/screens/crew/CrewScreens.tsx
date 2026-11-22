@@ -57,7 +57,7 @@ export function CrewHomeScreen() {
             }));
         return (
           <>
-            <HomeCard title="Recent transactions" action="View all" onAction={() => nav.push({ name: 'allTransactions' })}>
+            <HomeCard title="Recent transactions">
               {txns.length ? (
                 <>
                   {txns.map(({ key, ...t }) => (
@@ -70,7 +70,7 @@ export function CrewHomeScreen() {
               )}
             </HomeCard>
 
-            <HomeCard title="Tasks" action="View all" onAction={() => nav.setTab('project')}>
+            <HomeCard title="Tasks">
               {todays.map((t, i) => (
                 <View key={t.id} style={i > 0 ? { borderTopWidth: 1, borderTopColor: '#F0F0F0' } : null}>
                   <TaskRow task={t} onToggle={() => toggleTask(t.id)} />
