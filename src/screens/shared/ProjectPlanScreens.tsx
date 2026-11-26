@@ -147,13 +147,18 @@ export function ManagerProjectScreen() {
       {flash && !error && !adding ? <Text style={styles.hint}>{flash}</Text> : null}
 
       <View style={styles.dueRow}>
-        {(['open', 'done'] as const).map((k) => (
-          <Pressable key={k} onPress={() => setShow(k)} style={[styles.stage, show === k && styles.stageOn]} accessibilityRole="button" accessibilityState={{ selected: show === k }}>
-            <Text style={[styles.stageText, show === k && { color: colors.onInk }]}>
+        {(['open', 'done'] as const).map((k) => {
+          // Open reads orange, Done reads green; the selected tab is filled.
+          const t = TASK_TONE[k];
+          const on = show === k;
+          return (
+          <Pressable key={k} onPress={() => setShow(k)} style={[styles.stage, { backgroundColor: on ? t.tone : t.soft, borderColor: on ? t.tone : t.line }]} accessibilityRole="button" accessibilityState={{ selected: on }}>
+            <Text style={[styles.stageText, { color: on ? colors.onInk : t.tone }]}>
               {k === 'open' ? `Open ${open.length}` : `Done ${done.length}`}
             </Text>
           </Pressable>
-        ))}
+          );
+        })}
       </View>
       <View style={planStyles.card}>
         {(show === 'open' ? open : done).map((t, i) => (
@@ -411,6 +416,11 @@ export function CrewProjectScreen() {
     </Screen>
   );
 }
+
+const TASK_TONE = {
+  open: { tone: '#D97A0F', soft: '#FDF1E3', line: '#F5D3A8' },
+  done: { tone: '#1F9D5C', soft: '#E5F4EC', line: '#B7E0C9' },
+};
 
 const styles = StyleSheet.create({
   muted: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
