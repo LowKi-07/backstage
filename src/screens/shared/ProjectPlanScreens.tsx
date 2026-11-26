@@ -148,15 +148,15 @@ export function ManagerProjectScreen() {
 
       <View style={styles.dueRow}>
         {(['open', 'done'] as const).map((k) => {
-          // Open reads orange, Done reads green; the selected tab is filled.
-          const t = TASK_TONE[k];
+          // Only the count badge carries colour: orange for Open, green for Done.
           const on = show === k;
           return (
-          <Pressable key={k} onPress={() => setShow(k)} style={[styles.stage, { backgroundColor: on ? t.tone : t.soft, borderColor: on ? t.tone : t.line }]} accessibilityRole="button" accessibilityState={{ selected: on }}>
-            <Text style={[styles.stageText, { color: on ? colors.onInk : t.tone }]}>
-              {k === 'open' ? `Open ${open.length}` : `Done ${done.length}`}
-            </Text>
-          </Pressable>
+            <Pressable key={k} onPress={() => setShow(k)} style={[styles.stage, styles.tabRow, on && styles.stageOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
+              <Text style={[styles.stageText, on && { color: colors.onInk }]}>{k === 'open' ? 'Open' : 'Done'}</Text>
+              <View style={[styles.tabBadge, { backgroundColor: TASK_TONE[k] }]}>
+                <Text style={styles.tabBadgeText}>{k === 'open' ? open.length : done.length}</Text>
+              </View>
+            </Pressable>
           );
         })}
       </View>
@@ -417,16 +417,16 @@ export function CrewProjectScreen() {
   );
 }
 
-const TASK_TONE = {
-  open: { tone: '#D97A0F', soft: '#FDF1E3', line: '#F5D3A8' },
-  done: { tone: '#1F9D5C', soft: '#E5F4EC', line: '#B7E0C9' },
-};
+const TASK_TONE = { open: '#D97A0F', done: '#1F9D5C' };
 
 const styles = StyleSheet.create({
   muted: { fontFamily: font.regular, fontSize: 13, color: colors.inkMuted },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   stages: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   stage: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
+  tabRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  tabBadge: { minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' },
+  tabBadgeText: { fontFamily: font.bold, fontSize: 10.5, color: '#FFFFFF' },
   stageOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   stageText: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
   label: { fontFamily: font.semibold, fontSize: 13, color: colors.inkSoft },
