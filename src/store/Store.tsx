@@ -43,6 +43,12 @@ function refreshSeedTasks(saved: Task[]): Task[] {
   return [...out, ...fresh.filter((t) => !have.has(t.id))];
 }
 
+// Adds seed records (users, expenses) that a saved device state predates, so new demo data shows up.
+function addMissing<T extends { id: string }>(saved: T[], fresh: T[]): T[] {
+  const have = new Set(saved.map((x) => x.id));
+  return [...saved, ...fresh.filter((x) => !have.has(x.id))];
+}
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(createSeedState);
   const [ready, setReady] = useState(false);
@@ -56,7 +62,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!raw) return;
         const parsed = JSON.parse(raw) as AppState;
         // Every launch opens on the sign-in splash, so the saved session is not restored.
-        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, stages: parsed.stages ?? cur.stages, tasks: refreshSeedTasks(parsed.tasks ?? cur.tasks), currentUserId: cur.currentUserId }));
+        if (parsed.version === STATE_VERSION) setState((cur) => ({ ...parsed, users: addMissing(parsed.users ?? [], cur.users), expenses: addMissing(parsed.expenses ?? [], cur.expenses), stages: parsed.stages ?? cur.stages, tasks: refreshSeedTasks(parsed.tasks ?? cur.tasks), currentUserId: cur.currentUserId }));
       })
       .catch(() => {})
       .finally(() => setReady(true));

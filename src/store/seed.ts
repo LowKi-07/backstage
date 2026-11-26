@@ -22,6 +22,8 @@ const users: User[] = [
   { id: 'c4', name: 'Divya Menon', role: 'crew', title: 'Catering Coordinator', phone: '+91 90000 33004', departmentIds: ['catering'] },
   { id: 'c5', name: 'Sameer Joshi', role: 'crew', title: 'Focus Puller', phone: '+91 90000 33005', departmentIds: ['camera'] },
   { id: 'c6', name: 'Nisha Pillai', role: 'crew', title: 'Makeup Artist', phone: '+91 90000 33006', departmentIds: ['makeup'] },
+  { id: 'c7', name: 'Anu Joseph', role: 'crew', title: 'Cook', phone: '+91 90000 33007', departmentIds: ['catering'] },
+  { id: 'c8', name: 'Sanjay P', role: 'crew', title: 'Transport Captain', phone: '+91 90000 33008', departmentIds: ['transport'] },
 ];
 
 const departments: Department[] = [
@@ -75,6 +77,16 @@ const rows: SeedRow[] = [
   ['e25', 'c2', 'costume', 3600, 'Costume & Fabric', 'Dry cleaning – 24 costumes', 'Fabricare Laundry', 1, 'submitted'],
   ['e26', 'c6', 'makeup', 950, 'Transport', 'Auto fare to pick up wig from salon', undefined, 1, 'submitted'],
   ['e27', 'c3', 'transport', 6600, 'Fuel', 'Diesel – unit vehicle KL-07-BX-4411', 'IndianOil Ernakulam', 0, 'submitted'],
+  ['e28', 'c4', 'catering', 3800, 'Food & Catering', 'Tea and snacks – night shoot at Mattancherry', 'Ramu Tea Stall', 0, 'submitted'],
+  ['e29', 'c3', 'transport', 2400, 'Fuel', 'Petrol – location scout bike', 'HP Petrol Pump Aluva', 1, 'submitted'],
+  ['e30', 'c8', 'transport', 12400, 'Accommodation', 'Driver stay – Alleppey lodge, 4 rooms', 'Alleppey Lodge', 1, 'submitted'],
+  ['e31', 'c7', 'catering', 8600, 'Food & Catering', 'Packed lunch boxes – 60 crew', 'Hotel Saravana', 2, 'submitted'],
+  ['e32', 'c8', 'transport', 18500, 'Transport', 'Crew bus – Fort Kochi to Kumbalangi', 'Kerala Travels', 2, 'submitted'],
+  ['e33', 'c7', 'catering', 1450, 'Miscellaneous', 'Disposable plates and cups', 'Metro Cash & Carry', 0, 'submitted'],
+  ['e34', 'c3', 'transport', 950, 'Transport', 'Parking – Marine Drive shoot', undefined, 0, 'submitted'],
+  ['e35', 'c1', 'art', 5400, 'Props & Materials', 'Marigold garlands for the shrine set', 'Udupi Flower Market', 0, 'submitted'],
+  ['e36', 'c2', 'costume', 2200, 'Costume & Fabric', 'Buttons and lace for the wedding blouses', 'Kanchi Silks', 1, 'submitted'],
+  ['e37', 'c6', 'makeup', 1800, 'Makeup Supplies', 'Fake blood and latex for the fight scene', 'Mumbai FX Studio', 1, 'submitted'],
 ];
 
 function buildHistory(e: SeedRow, dept: Department, submittedAt: Date): AuditEntry[] {
@@ -206,5 +218,18 @@ export function seedTasks(): Task[] {
     t('t11', 'kantara', 'Arrange three jeeps for the forest unit, 5 AM pickup', 'c3', 'm2', 0),
     t('t12', 'kantara', 'Packed lunch for 80 at the forest location', 'c4', 'm2', 6),
     t('t13', 'kantara', 'Refill water cans at base camp', 'c4', 'm2', -1, 'done'),
+    t('t16', 'kantara', 'Pick up marigold garlands from Udupi market', 'c1', 'm1', 0),
+    t('t17', 'kantara', 'Touch up the shrine pillars with gold paint', 'c1', 'm1', 0),
+    t('t18', 'kantara', 'Send set photos to Vikram for sign-off', 'c1', 'm1', 0),
+    t('t19', 'kantara', 'Prep the props list for the chariot sequence', 'c1', 'm1', 1),
+    t('t20', 'kantara', 'Measure the temple courtyard for the rangoli layout', 'c1', 'm1', 2),
+    t('t21', 'kantara', 'Clean the brass lamps after the day shoot', 'c1', 'm1', -1, 'done'),
+    t('t22', 'proj1', 'Hang the wedding pandal drapes', 'c1', 'm1', 0),
+    t('t23', 'proj1', 'Collect printed signage from Speed Prints', 'c1', 'm1', 1),
+    t('t24', 'kantara', 'Book a water tanker for the forest unit', 'c8', 'm2', 1),
+    t('t25', 'kantara', 'Tea and snacks for the night unit, 9 PM', 'c7', 'm2', 0),
+    t('t26', 'kantara', 'Collect fuel bills from all drivers', 'c3', 'm2', 2),
+    t('t27', 'proj1', 'Arrange a cook for the Alleppey houseboat unit', 'c7', 'm2', 3),
+    t('t28', 'proj1', 'Service the caravan AC before the wedding schedule', 'c8', 'm2', 5),
   ];
 }
